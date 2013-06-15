@@ -1,0 +1,69 @@
+{
+    "name": "New Tech Daily Status Report Modifications",
+    "description": "Enhances the daily status page with real-time totals and alerts.",
+    "version": "0.2",
+    "permissions":
+    [
+        "storage",
+        "notifications",
+        "alarms",
+        "tabs",
+        "http://www.pioneerrx.com/SupportCenter/DailyStatusListForPerson.aspx",
+        "https://www.pioneerrx.com/SupportCenter/DailyStatusListForPerson.aspx",
+        "http://www.newtechsys.com/SupportCenter/DailyStatusListForPerson.aspx",
+        "https://www.newtechsys.com/SupportCenter/DailyStatusListForPerson.aspx"
+    ],
+    "web_accessible_resources":
+    [
+        "assets/img/niblet-48.png"
+    ],
+    "page_action" :
+    {
+        "default_icon" : "assets/img/niblet-48.png",
+        "default_title" : "New Tech Daily Status Modifications",
+        "default_popup" : "popup.html"
+    },
+    "options_page": "popup.html",
+    "background":
+    {
+        "scripts" :
+        [
+            "assets/js/jquery-1.10.1.min.js",
+            "assets/js/bgevents.js"
+        ],
+        "persistent" : false
+    },
+    "content_scripts" :
+    [
+        {
+            "matches" :
+            [
+                "http://localhost:*/*.htm",
+                "http://www.pioneerrx.com/SupportCenter/DailyStatusListForPerson.aspx",
+                "https://www.pioneerrx.com/SupportCenter/DailyStatusListForPerson.aspx",
+                "http://www.newtechsys.com/SupportCenter/DailyStatusListForPerson.aspx",
+                "https://www.newtechsys.com/SupportCenter/DailyStatusListForPerson.aspx"
+            ],
+            "js" :
+            [
+                "assets/js/jquery-1.10.1.min.js",
+                "assets/js/jquery.cookie.js",
+                "assets/js/jquery-ui.min.js",
+                "assets/js/formattime.js",
+                "assets/js/stringtrim.js",
+                "assets/js/content.js"
+            ],
+            "css" : [ "assets/css/content.css" ],
+            "run_at" : "document_end",
+            "all_frames" : false
+        }
+    ],
+    "icons" :
+    {
+        "19" : "assets/img/niblet-19.png",
+        "38" : "assets/img/niblet-38.png",
+        "48" : "assets/img/niblet-48.png",
+        "128" : "assets/img/niblet-128.png"
+    },
+    "manifest_version": 2
+}
