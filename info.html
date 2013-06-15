@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+    <head>
+        <style>
+        </style>
+        <link rel="stylesheet" type="text/css" href="assets/css/reset.min.css" />
+        <link rel="stylesheet" type="text/css" href="assets/css/popup.css" />
+    </head>
+    <body>
+        <div class="logo"></div>
+        <h3 id="title">Daily Status Modifications</h3>
+        <form id="frm">
+            <fieldset>
+                <legend>Information</legend>
+                <div class="response response-success hidden"><strong>Success:</strong> <span class="contents"></span></div>
+                <div class="response response-error hidden"><strong>Error:</strong> <span class="contents"></span></div>
+                <div class="form-row">
+                    The extension has been updated.
+                </div>
+                <div class="form-row">
+                    <label for="hoursPerWeek" class="for-text">New Version</label>
+                    <span>0.2</span>
+                </div>
+                <div class="form-row">
+                    If you have problems or suggestions please visit the <a href="#">issues page</a>.
+                </div>
+                <div class="form-row">
+                    <button id="close">Close</button>
+                </div>
+            </fieldset>
+        </form>
+
+        <script type="text/javascript" src="assets/js/jquery-1.10.1.min.js"></script>
+        <script type="text/javascript" src="assets/js/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="assets/js/info.js"></script>
+    </body>
+</html>

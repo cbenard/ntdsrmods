@@ -1,0 +1,130 @@
+html {
+	background-color: #F4F2F7;
+}
+body {
+	font-family: Helvetica, Sans-Serif;
+	font-size: 1em;
+	padding: 20px;
+	width: 500px;
+}
+
+.logo {
+	width: 179px;
+	height: 76px;
+	background-image: url('../img/niblet-sideways.png');
+	margin-bottom: 1em;
+}
+
+h1,h2,h3,h4,h5,h6 {
+	margin-bottom: 0.5em;
+}
+
+h6 {
+	font-size: 1em;
+}
+h5 {
+	font-size: 1.2em;
+}
+h4 {
+	font-size: 1.4em;
+}
+h3 {
+	font-size: 1.6em;
+}
+h2 {
+	font-size: 1.8em;
+}
+h1 {
+	font-size: 2em;
+}
+
+.form-row {
+	margin-bottom: 0.5em;
+	width: 100%;
+}
+
+label.for-text {
+	width: 140px;
+	font-weight: bold;
+	display: inline-block;
+}
+
+label.after-text {
+	margin-left: 0.5em;
+}
+
+.hours, .minutes {
+	width: 40px;
+}
+
+.time-friendly {
+	width: 100px;
+}
+
+fieldset {
+	border: 2px groove threedface;
+	padding: .5em;
+}
+
+legend {
+	font-weight: bold;
+	padding: .25em;
+}
+
+#submit {
+	font-size: 1em;
+	width: 70px;
+	height: 30px;
+}
+
+#reset {
+	font-size: 0.9em;
+	float: right;
+	color: red;
+}
+#reset:hover {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.hidden {
+	display: none !important;
+}
+
+.val-error {
+	color: red;
+	font-size: 0.7em;
+}
+
+.form-row-left-text .val-error {
+	display: block;
+	margin-left: 140px;
+}
+
+#val-msg-minuteWarning {
+	display: block;
+}
+
+.val-valid {
+	/*display: none;*/
+}
+
+.response {
+	display: block;
+	border: 1px solid;
+	padding: 3px;
+	color: black;
+	margin-bottom: 1em;
+	width: auto;
+}
+
+.response-error {
+	border-color: red;
+	background-color: #FF9494;
+}
+
+.response-success {
+	border-color: blue;
+	background-color: #C8C2FF;
+}
+

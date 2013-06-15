@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+    <head>
+        <style>
+        </style>
+        <link rel="stylesheet" type="text/css" href="assets/css/reset.min.css" />
+        <link rel="stylesheet" type="text/css" href="assets/css/jquery.timepicker.css" />
+        <link rel="stylesheet" type="text/css" href="assets/css/popup.css" />
+    </head>
+    <body>
+        <div class="logo"></div>
+        <h3 id="title">Daily Status Modifications</h3>
+        <form id="frm">
+            <fieldset>
+                <legend>Preferences</legend>
+                <div class="response response-success hidden"><strong>Success:</strong> <span class="contents"></span></div>
+                <div class="response response-error hidden"><strong>Error:</strong> <span class="contents"></span></div>
+                <div class="form-row">
+                    <label for="hoursPerWeek" class="for-text">Hours per Week</label>
+                    <input type="text" class="hours" id="hoursPerWeek" minlength="1" maxlength="5" required />
+                    <span id="val-msg-hoursPerWeek"></span>
+                </div>
+                <div class="form-row">
+                    <label for="beginningOfDay" class="for-text">Beginning of Day</label>
+                    <input type="text" class="time-friendly ui-timepicker-input" id="beginningOfDay" minlength="7" maxlength="8" required />
+                    <span id="val-msg-beginningOfDay"></span>
+                </div>
+                <div class="form-row">
+                    <label for="endOfDay" class="for-text">End of Day</label>
+                    <input type="text" class="time-friendly ui-timepicker-input" id="endOfDay" minlength="7" maxlength="8" required />
+                    <span id="val-msg-endOfDay"></span>
+                </div>
+                <div class="form-row form-row-checkbox">
+                    <input type="checkbox" id="notifyMe" />
+                    <label for="notifyMe" class="after-checkbox">Notify me when I'm close</label>
+                </div>
+                <div class="form-row form-row-right-text hidden">
+                    <input type="text" class="minutes" id="minuteWarning" maxlength="2" />
+                    <label for="minuteWarning" class="after-text">minute warning</label>
+                    <span id="val-msg-minuteWarning"></span>
+                </div>
+                <div class="form-row">
+                    <button id="submit">Save</button>
+                    <span id="reset">Reset All Settings</span>
+                </div>
+            </fieldset>
+        </form>
+
+        <script type="text/javascript" src="assets/js/jquery-1.10.1.min.js"></script>
+        <script type="text/javascript" src="assets/js/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="assets/js/jquery.timepicker.min.js"></script>
+        <script type="text/javascript" src="assets/js/popup.js"></script>
+    </body>
+</html>
