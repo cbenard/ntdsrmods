@@ -4,7 +4,11 @@ This chrome extension is for use internally on a time clock web page. If you don
 
 ##Download and Installation
 
-You need to open your [chrome extensions settings](chrome://extensions) page. Then drag the `ntdsrmods.crx` file into the extension settings page and allow it to be installed.
+You need to open your chrome extensions settings page. You can get to this by typing `chrome://extensions`
+into the address bar, or currently (Chrome's UI changes a lot) by going to the menu icon at the top right,
+selecting Settings, and then selecting extensions. Good luck!
+
+Then drag the `ntdsrmods.crx` file into the extension settings page and allow it to be installed.
 
 ##Issues and Suggestions
 
