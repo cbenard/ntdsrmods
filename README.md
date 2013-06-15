@@ -10,6 +10,9 @@ selecting Settings, and then selecting extensions. Good luck!
 
 Then drag the `ntdsrmods.crx` file into the extension settings page and allow it to be installed.
 
+###Download Page
+Please visit the [download page](http://cbenard.github.io//ntdsrmods/) for the download and more information.
+
 ##Issues and Suggestions
 
 If you have an issue or a suggestion, please visit the [issues page](https://github.com/cbenard/ntdsrmods/issues).
