@@ -47,3 +47,7 @@ section.demonstration label {
 div.search-results {
 	clear: both;
 }
+
+li {
+	margin-bottom: 1em;
+}
