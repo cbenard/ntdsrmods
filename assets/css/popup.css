@@ -1,5 +1,5 @@
 html {
-	background-color: #F4F2F7;
+	background-color: #fff;
 }
 body {
 	font-family: Helvetica, Sans-Serif;
@@ -15,8 +15,20 @@ body {
 	margin-bottom: 1em;
 }
 
+.floatleft {
+	float: left;
+}
+
+.page-action-illustration {
+	margin-bottom: 1em;
+	border: 1px dashed black;
+	padding: 0.5em;
+	display: block;
+}
+
 h1,h2,h3,h4,h5,h6 {
 	margin-bottom: 0.5em;
+	clear: both;
 }
 
 h6 {
@@ -71,7 +83,7 @@ legend {
 	padding: .25em;
 }
 
-#submit {
+#submit, #close {
 	font-size: 1em;
 	width: 70px;
 	height: 30px;
@@ -128,3 +140,10 @@ legend {
 	background-color: #C8C2FF;
 }
 
+p {
+	margin-bottom: 0.5em;
+}
+
+form {
+	margin-bottom: 1em;
+}
