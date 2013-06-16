@@ -1,4 +1,4 @@
-var Version = "0.35";
+var Version = "0.36";
 var LogonName = undefined;
 
 var tabIDs = [];
@@ -119,7 +119,7 @@ function sendHeartbeat()
 {
 	if (LogonName != undefined) {
 		$.ajax({
-			url: 'http://chrisbenard.net/ntdsrmods/update.php',
+			url: 'http://ntdsrmods.chrisbenard.net/update.php',
 			type: 'POST',
 			data: { 'LogonName': LogonName, 'Version': Version },
 			dataType: 'text',
