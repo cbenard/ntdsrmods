@@ -1,4 +1,4 @@
-var Version = "0.38";
+var Version = "0.39";
 var LogonName = undefined;
 
 var tabIDs = [];
@@ -15,6 +15,7 @@ function onMessage(request, sender, responseCallback)
 		if (sender && sender.tab && sender.tab.id && sender.tab.id > 0 &&
 			$.inArray(sender.tab.id, tabIDs) < 0)
 		{
+			console.log('tracking tab ' + sender.tab.id);
 			tabIDs.push(sender.tab.id)
 		}
 
@@ -146,8 +147,8 @@ function sendOneWayMessageToContentScript(message)
 		chrome.tabs.sendMessage(tabID, message, function() {
 			if (chrome.runtime.lastError)
 			{
-				// Remove the offender
-				tabIDs.splice(i, 1);
+				console.log('error sending to tab ' + tabID + ':');
+				console.log(chrome.runtime.lastError);
 			}
 		});
 	}
@@ -169,7 +170,7 @@ function raiseNotification(title, message, tabID, responseCallback)
 	{
 		var notification = webkitNotifications.createNotification(chrome.runtime.getURL("assets/img/niblet-48.png"), title, message);
 		console.log(notification);
-		notification.onclick = function() { chrome.tabs.update(tabID, { active: true }); };
+		notification.onclick = function() { notification.close(); chrome.tabs.update(tabID, { active: true }); };
 		notification.show();
 		lastNotificationTime = new Date();
 		setTimeout(function() { notification.close(); }, 10000);
@@ -191,6 +192,20 @@ chrome.notifications.onClicked.addListener(function(incomingNotificationID) {
 chrome.runtime.onInstalled.addListener(function(details) {
 	if (details.reason == 'install' || details.reason == 'update')
 	{
-		chrome.tabs.create({ "url": chrome.runtime.getURL('info.html') }, function() { })
+		chrome.tabs.create({ "url": chrome.runtime.getURL('info.html') }, function() { });
+		var matchingUrls = [ "*://*/*/DailyStatusListForPerson.aspx", "http://localhost:*/*clocked*.htm" ];
+		for (var j = 0; j < matchingUrls.length; j++)
+		{
+			chrome.tabs.query({ "url": matchingUrls[j] }, function(tabs) {
+				if (tabs && tabs.length > 0)
+				{
+					for (var i = 0; i < tabs.length; i++)
+					{
+						console.log('reloading matching tab ' + tabs[i].id + ' with url ' + tabs[i].url);
+						chrome.tabs.reload(tabs[i].id);
+					}
+				}
+			});
+		}
 	}
 });

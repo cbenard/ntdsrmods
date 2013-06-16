@@ -1,7 +1,7 @@
 {
     "name": "Daily Status Report Modifications",
     "description": "Enhances the daily status page with real-time totals and alerts.",
-    "version": "0.38",
+    "version": "0.39",
     "update_url": "http://ntdsrmods.chrisbenard.net/checkupdate.php",
     "permissions":
     [
@@ -9,10 +9,7 @@
         "notifications",
         "alarms",
         "tabs",
-        "http://www.pioneerrx.com/SupportCenter/DailyStatusListForPerson.aspx",
-        "https://www.pioneerrx.com/SupportCenter/DailyStatusListForPerson.aspx",
-        "http://www.newtechsys.com/SupportCenter/DailyStatusListForPerson.aspx",
-        "https://www.newtechsys.com/SupportCenter/DailyStatusListForPerson.aspx"
+        "<all_urls>"
     ],
     "web_accessible_resources":
     [
@@ -40,10 +37,7 @@
             "matches" :
             [
                 "http://localhost:*/*.htm",
-                "http://www.pioneerrx.com/SupportCenter/DailyStatusListForPerson.aspx",
-                "https://www.pioneerrx.com/SupportCenter/DailyStatusListForPerson.aspx",
-                "http://www.newtechsys.com/SupportCenter/DailyStatusListForPerson.aspx",
-                "https://www.newtechsys.com/SupportCenter/DailyStatusListForPerson.aspx"
+                "*://*/*/DailyStatusListForPerson.aspx"
             ],
             "js" :
             [

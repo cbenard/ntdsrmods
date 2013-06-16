@@ -78,11 +78,9 @@ $(function ()
         createdOnElement = pnlTime.find('[id$="lblTime"]');
         panelElement = pnlTime.find('div[id$="divResults"]');
         timeTable = pnlTime.find('table[id$="dgResults"]');
-        console.log(pnlTime);
-        console.log(timeTable);
         scriptStartDate = new Date();
         totalEstimated = 0;
-        console.log('totalEstimatedElement.exists(): ' + totalEstimatedElement.exists());
+
         if (totalEstimatedElement.exists())
         {
             totalEstimated = parseFloat(totalEstimatedElement.text());
@@ -240,13 +238,6 @@ $(function ()
 
     function timerFired()
     {
-        /*
-            hoursNeededElement = $('<div id="ntdsrmods-hoursneeded" class="ntdsrmods-hidden"><strong>Hours needed to get <span id="ntdsrmods-hoursneeded-hourgoal"></span> hours:</strong> <span id="ntdsrmods-hoursneeded-decimalhours"></span> (<span id="ntdsrmods-hoursneeded-friendlyhours"></span>)</div>');
-            endOfDayElement = $('<div id="ntdsrmods-estimatedatend" class="ntdsrmods-hidden"><strong>Estimated time at <span id="ntdsrmods-estimatedatend-endtime"></span>:</strong> <span id="ntdsrmods-estimatedatend-decimalhours"></span> (<span id="ntdsrmods-estimatedatend-friendlyhours"></span>)</div>');
-            overtimeElement = $('<div id="ntdsrmods-overtime" class="ntdsrmods-hidden"><strong>Overtime:</strong> <span id="ntdsrmods-overtime-decimalhours"></span> (<span id="ntdsrmods-overtime-friendlyhours"></span>)</div>');
-            timeYouCanLeaveElement = $('<div id="ntdsrmods-timeyoucanleave" class="ntdsrmods-hidden"><strong>Time you can leave:</strong> <span id="ntdsrmods-timeyoucanleave-time"></span></div>');
-*/
-
         var now = new Date();
 
         if (!clockedIn)
