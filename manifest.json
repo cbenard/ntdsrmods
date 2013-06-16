@@ -1,7 +1,7 @@
 {
     "name": "New Tech Daily Status Report Modifications",
     "description": "Enhances the daily status page with real-time totals and alerts.",
-    "version": "0.33",
+    "version": "0.34",
     "update_url": "http://cbenard.github.io/ntdsrmods/updates.xml",
     "permissions":
     [
