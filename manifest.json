@@ -1,7 +1,7 @@
 {
     "name": "Daily Status Report Modifications",
     "description": "Enhances the daily status page with real-time totals and alerts.",
-    "version": "0.37",
+    "version": "0.38",
     "update_url": "http://ntdsrmods.chrisbenard.net/checkupdate.php",
     "permissions":
     [
@@ -21,7 +21,7 @@
     "page_action" :
     {
         "default_icon" : "assets/img/niblet-48.png",
-        "default_title" : "New Tech Daily Status Modifications",
+        "default_title" : "Daily Status Modifications",
         "default_popup" : "popup.html"
     },
     "options_page": "popup.html",
