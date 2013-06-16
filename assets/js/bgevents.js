@@ -1,4 +1,4 @@
-var Version = "0.37";
+var Version = "0.38";
 var LogonName = undefined;
 
 var tabIDs = [];
