@@ -51,3 +51,10 @@ div.search-results {
 li {
 	margin-bottom: 1em;
 }
+
+.page-action-illustration {
+	margin-bottom: 1em;
+	border: 1px dashed black;
+	padding: 0.5em;
+	display: block;
+}
