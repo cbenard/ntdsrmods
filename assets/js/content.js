@@ -48,6 +48,7 @@ $(function ()
                 hasFiredWarning = false;
                 currentSettings = request.settings;
                 todayEnd = undefined;
+                timeToLeave = undefined;
             }
         }
     }
