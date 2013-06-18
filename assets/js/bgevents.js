@@ -1,7 +1,6 @@
-var Version = "0.40";
+var Version = "0.41";
 var LogonName = undefined;
 
-var tabIDs = [];
 // 1 minute in between notifications at least
 var acceptableNotificationTime = 60 * 1000;
 var lastNotificationTime;
@@ -12,13 +11,6 @@ function onMessage(request, sender, responseCallback)
 {
 	if (request && request.eventName)
 	{
-		if (sender && sender.tab && sender.tab.id && sender.tab.id > 0 &&
-			$.inArray(sender.tab.id, tabIDs) < 0)
-		{
-			console.log('tracking tab ' + sender.tab.id);
-			tabIDs.push(sender.tab.id)
-		}
-
 		if (request.eventName == "pageLoaded")
 		{
 			console.log('received pageLoaded');
@@ -138,17 +130,24 @@ function sendHeartbeat()
 
 function sendOneWayMessageToContentScript(message)
 {
-	for (var i = 0; i < tabIDs.length; i++)
+	var matchingUrls = [ "*://*/*/DailyStatusListForPerson.aspx", "http://localhost:*/*clocked*.htm" ];
+	for (var j = 0; j < matchingUrls.length; j++)
 	{
-		var tabID = tabIDs[i];
-
-		console.log('sending message to tab id: ' + tabID);
-
-		chrome.tabs.sendMessage(tabID, message, function() {
-			if (chrome.runtime.lastError)
+		chrome.tabs.query({ "url": matchingUrls[j] }, function(tabs) {
+			if (tabs && tabs.length > 0)
 			{
-				console.log('error sending to tab ' + tabID + ':');
-				console.log(chrome.runtime.lastError);
+				for (var i = 0; i < tabs.length; i++)
+				{
+					console.log('sending message to tab id: ' + tabs[i].id);
+
+					chrome.tabs.sendMessage(tabs[i].id, message, function() {
+						if (chrome.runtime.lastError)
+						{
+							console.log('error sending to tab ' + tabID + ':');
+							console.log(chrome.runtime.lastError);
+						}
+					});
+				}
 			}
 		});
 	}
