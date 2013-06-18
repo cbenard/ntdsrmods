@@ -1,4 +1,4 @@
-var Version = "0.41";
+var Version = "0.42";
 var LogonName = undefined;
 
 // 1 minute in between notifications at least
