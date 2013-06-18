@@ -46,6 +46,7 @@
                 "assets/js/jquery-ui.min.js",
                 "assets/js/formattime.js",
                 "assets/js/stringtrim.js",
+                "assets/js/DsrManager.js",
                 "assets/js/content.js"
             ],
             "css" : [ "assets/css/content.css" ],
