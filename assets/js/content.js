@@ -47,6 +47,7 @@ $(function ()
             {
                 hasFiredWarning = false;
                 currentSettings = request.settings;
+                todayEnd = undefined;
             }
         }
     }
