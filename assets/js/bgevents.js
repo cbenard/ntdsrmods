@@ -189,7 +189,7 @@ chrome.notifications.onClicked.addListener(function(incomingNotificationID) {
 });
 
 chrome.runtime.onInstalled.addListener(function(details) {
-	if (details.reason == 'install' || details.reason == 'update')
+	if (details.reason == 'install') // This is annoying with frequent updates... || details.reason == 'update')
 	{
 		chrome.tabs.create({ "url": chrome.runtime.getURL('info.html') }, function() { });
 		var matchingUrls = [ "*://*/*/DailyStatusListForPerson.aspx", "http://localhost:*/*clocked*.htm" ];
