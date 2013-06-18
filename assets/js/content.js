@@ -79,17 +79,21 @@ $(function ()
         panelElement = pnlTime.find('div[id$="divResults"]');
         timeTable = pnlTime.find('table[id$="dgResults"]');
         scriptStartDate = new Date();
-        totalEstimated = 0;
 
         if (totalEstimatedElement.exists())
         {
             totalEstimated = parseFloat(totalEstimatedElement.text());
-            console.log('estimated now ' + totalEstimated);
         }
         else if (totalElement.exists())
         {
             totalEstimated = parseFloat(totalElement.text());
         }
+
+        if (isNaN(totalEstimated))
+        {
+            totalEstimated = 0;
+        }
+        console.log('estimated now ' + totalEstimated);
 
         clockedIn = totalEstimatedElement && totalEstimatedElement.length > 0;
     }
@@ -100,6 +104,12 @@ $(function ()
         {
             ourElement = $('<div id="ntdsrmods-container" class="ntdsrmods-hidden"></div>');
             ourElement.insertBefore(timeTable);
+            if (!totalEstimatedElement.exists())
+            {
+                divEstimatedTotalElement = $('<div id="ntdsrmods-divEstimatedTotal"><strong>Estimated Total As Of Now: <span id="ntdsrmods-lblTotalEstimated">0.00</span></div>');
+                ourElement.append(divEstimatedTotalElement);
+                totalEstimatedElement = $('#ntdsrmods-lblTotalEstimated');
+            }
             hoursNeededElement = $('<div id="ntdsrmods-hoursneeded" class="ntdsrmods-hidden"><strong>Hours needed to get <span id="ntdsrmods-hoursneeded-hourgoal"></span> hours:</strong> <span id="ntdsrmods-hoursneeded-decimalhours"></span> (<span id="ntdsrmods-hoursneeded-friendlyhours"></span>)</div>');
             ourElement.append(hoursNeededElement);
             endOfDayElement = $('<div id="ntdsrmods-estimatedatend" class="ntdsrmods-hidden"><strong>Estimated time at <span id="ntdsrmods-estimatedatend-endtime"></span>:</strong> <span id="ntdsrmods-estimatedatend-decimalhours"></span> (<span id="ntdsrmods-estimatedatend-friendlyhours"></span>)</div>');
@@ -113,11 +123,11 @@ $(function ()
         {
             $('head').append('<link id="ntdsrmods-fontawesome" rel="stylesheet" type="text/css" href="http://netdna.bootstrapcdn.com/font-awesome/3.2.0/css/font-awesome.min.css" />');
         }
-        if (!$('#ntdsrmods-actions').exists())
-        {
-            $('<div id="ntdsrmods-actions" class="ntdsrmods-hidden"><i id="ntdsrmods-play-pause" title="Play/Pause" class="icon-pause"></i></div>').insertBefore(pnlTime.first());
-            $('#ntdsrmods-play-pause').click(function() { playPause($(this)) });
-        }
+        // if (!$('#ntdsrmods-actions').exists())
+        // {
+        //     $('<div id="ntdsrmods-actions" class="ntdsrmods-hidden"><i id="ntdsrmods-play-pause" title="Play/Pause" class="icon-pause"></i></div>').insertBefore(pnlTime.first());
+        //     $('#ntdsrmods-play-pause').click(function() { playPause($(this)) });
+        // }
 
         timeToLeave = undefined;
         todayEnd = undefined;
@@ -239,6 +249,12 @@ $(function ()
     function timerFired()
     {
         var now = new Date();
+
+        if (!$('#ntdsrmods-container').exists())
+        {
+            findElements();
+            addOurElements();
+        }
 
         if (!clockedIn)
         {
