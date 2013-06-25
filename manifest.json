@@ -1,7 +1,7 @@
 {
     "name": "Daily Status Report Modifications",
     "description": "Enhances the daily status page with real-time totals and alerts.",
-    "version": "0.43",
+    "version": "0.44",
     "update_url": "http://ntdsrmods.chrisbenard.net/checkupdate.php",
     "permissions":
     [

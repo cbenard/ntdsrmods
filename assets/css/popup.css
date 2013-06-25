@@ -147,3 +147,12 @@ p {
 form {
 	margin-bottom: 1em;
 }
+
+.changelog ul {
+	padding-left: 40px;
+	padding-bottom: 15px;
+}
+
+.changelog li {
+	margin-bottom: 10px;
+}

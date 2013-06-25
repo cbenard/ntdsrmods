@@ -1,4 +1,4 @@
-var Version = "0.43";
+var Version = "0.44";
 var LogonName = undefined;
 
 // 1 minute in between notifications at least
@@ -167,14 +167,33 @@ function raiseNotification(title, message, tabID, responseCallback)
 	}
 	else
 	{
-		var notification = webkitNotifications.createNotification(chrome.runtime.getURL("assets/img/niblet-48.png"), title, message);
-		console.log(notification);
-		notification.onclick = function() { notification.close(); chrome.tabs.update(tabID, { active: true }); };
-		notification.show();
+		raiseNotificationInternal(title, message, function() { this.close(); chrome.tabs.update(tabID, { active: true }); }, 10000);
 		lastNotificationTime = new Date();
-		setTimeout(function() { notification.close(); }, 10000);
 
 		responseCallback();
+	}
+}
+
+function raiseUpdateNotification(message)
+{
+	raiseNotificationInternal('Daily Status Mods Updated', message, function() { this.close(); chrome.tabs.create({ "url": chrome.runtime.getURL('info.html') }, function() { }); }, null);
+	lastNotificationTime = new Date();
+}
+
+function raiseNotificationInternal(title, message, onClickCallback, autoCloseTime)
+{
+	var notification = webkitNotifications.createNotification(chrome.runtime.getURL("assets/img/niblet-48.png"), title, message);
+
+	if (onClickCallback)
+	{
+		notification.onclick = onClickCallback;
+	}
+
+	notification.show();
+
+	if (autoCloseTime)
+	{
+		setTimeout(function() { notification.close(); }, autoCloseTime);
 	}
 }
 
@@ -192,19 +211,24 @@ chrome.runtime.onInstalled.addListener(function(details) {
 	if (details.reason == 'install') // This is annoying with frequent updates... || details.reason == 'update')
 	{
 		chrome.tabs.create({ "url": chrome.runtime.getURL('info.html') }, function() { });
-		var matchingUrls = [ "*://*/*/DailyStatusListForPerson.aspx", "http://localhost:*/*clocked*.htm" ];
-		for (var j = 0; j < matchingUrls.length; j++)
-		{
-			chrome.tabs.query({ "url": matchingUrls[j] }, function(tabs) {
-				if (tabs && tabs.length > 0)
+	}
+	else if (details.reason == 'update')
+	{
+		raiseUpdateNotification('NTDSRMODS has been updated. New features: "Time you can leave" wraps to the next day (so be sure to set the ) and Monday clock-in support (finally!). Click for more information.');
+	}
+
+	var matchingUrls = [ "*://*/*/DailyStatusListForPerson.aspx", "http://localhost:*/*clocked*.htm" ];
+	for (var j = 0; j < matchingUrls.length; j++)
+	{
+		chrome.tabs.query({ "url": matchingUrls[j] }, function(tabs) {
+			if (tabs && tabs.length > 0)
+			{
+				for (var i = 0; i < tabs.length; i++)
 				{
-					for (var i = 0; i < tabs.length; i++)
-					{
-						console.log('reloading matching tab ' + tabs[i].id + ' with url ' + tabs[i].url);
-						chrome.tabs.reload(tabs[i].id);
-					}
+					console.log('reloading matching tab ' + tabs[i].id + ' with url ' + tabs[i].url);
+					chrome.tabs.reload(tabs[i].id);
 				}
-			});
-		}
+			}
+		});
 	}
 });
