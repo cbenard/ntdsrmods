@@ -18,7 +18,9 @@ function DsrManager(inputContext)
     var paused = false;
     var timer;
     var timeToLeave;
+    var todayStart;
     var todayEnd;
+    var dayDuration;
     var hasFiredWarning = false;
     var warningFiredCallbacks = [];
     var context = inputContext;
@@ -36,7 +38,9 @@ function DsrManager(inputContext)
         else
         {
             hasFiredWarning = false;
+            todayStart = undefined;
             todayEnd = undefined;
+            dayDuration = undefined;
             timeToLeave = undefined;
         }
     }
@@ -50,6 +54,7 @@ function DsrManager(inputContext)
         addOurElements();
         setupTimer();
     }
+
     function findElements()
     {
         pnlTime = $('div[id$="pnlTime"]', context);
@@ -73,6 +78,7 @@ function DsrManager(inputContext)
         {
             totalEstimated = 0;
         }
+
         console.log('estimated now ' + totalEstimated);
 
         clockedIn = timeTable.find('tr').last().find('td').eq(1).text().trim() == "";
@@ -94,7 +100,7 @@ function DsrManager(inputContext)
             ourElement.append(hoursNeededElement);
             endOfDayElement = $('<div id="ntdsrmods-estimatedatend" class="ntdsrmods-hidden"><strong>Estimated time at <span id="ntdsrmods-estimatedatend-endtime"></span>:</strong> <span id="ntdsrmods-estimatedatend-decimalhours"></span> (<span id="ntdsrmods-estimatedatend-friendlyhours"></span>)</div>');
             ourElement.append(endOfDayElement);
-            timeYouCanLeaveElement = $('<div id="ntdsrmods-timeyoucanleave" class="ntdsrmods-hidden"><strong>Time you can leave:</strong> <span id="ntdsrmods-timeyoucanleave-time"></span></div>');
+            timeYouCanLeaveElement = $('<div id="ntdsrmods-timeyoucanleave" class="ntdsrmods-hidden"><strong>Time you can leave<span id="ntdsrmods-timeyoucanleave-tomorrow"></span>:</strong> <span id="ntdsrmods-timeyoucanleave-time"></span></div>');
             ourElement.append(timeYouCanLeaveElement);
             overtimeElement = $('<div id="ntdsrmods-overtime" class="ntdsrmods-hidden"><strong>Overtime:</strong> <span id="ntdsrmods-overtime-decimalhours"></span> (<span id="ntdsrmods-overtime-friendlyhours"></span>)</div>');
             ourElement.append(overtimeElement);
@@ -194,7 +200,19 @@ function DsrManager(inputContext)
             timeToLeave.setSeconds(0);
         }
         
-        return timeToLeave;
+        return new Date(timeToLeave);
+    }
+
+    function getTodayStartDate()
+    {
+        if (todayStart == undefined)
+        {
+            todayStart = new Date();
+            todayStart.setHours(currentSettings.beginningOfDayTimeHour);
+            todayStart.setMinutes(currentSettings.beginningOfDayTimeMinute);
+        }
+
+        return new Date(todayStart);
     }
 
     function getTodayEndDate()
@@ -206,7 +224,17 @@ function DsrManager(inputContext)
             todayEnd.setMinutes(currentSettings.endOfDayTimeMinute);
         }
 
-        return todayEnd;
+        return new Date(todayEnd);
+    }
+
+    function getWorkDayDuration()
+    {
+        if (dayDuration == undefined)
+        {
+            dayDuration = getTodayEndDate() - getTodayStartDate();
+        }
+
+        return parseInt(dayDuration);
     }
 
     function fireWarning()
@@ -279,13 +307,32 @@ function DsrManager(inputContext)
                 $('#ntdsrmods-hoursneeded-decimalhours', context).text(hoursNeeded);
                 $('#ntdsrmods-hoursneeded-friendlyhours', context).text(formatHours(hoursNeeded));
 
+                var tomorrowStart = getTodayStartDate();
+                tomorrowStart += 24*60*60*1000;
+                var tomorrowEnd = new Date(tomorrowStart);
+                tomorrowEnd += getWorkDayDuration();
+                var todayPlusOneWorkDay = getTodayEndDate();
+                todayPlusOneWorkDay.setMilliseconds(todayPlusOneWorkDay.getMilliseconds() + getWorkDayDuration());
+
                 if (getTimeToLeave() < getTodayEndDate())
                 {
                     $('#ntdsrmods-timeyoucanleave', context).removeClass('ntdsrmods-hidden');
                     $('#ntdsrmods-timeyoucanleave-time', context).text(formatDate(getTimeToLeave(), "h:mm a"));
+                    $('#ntdsrmods-timeyoucanleave-tomorrow', context).text('');
+                }
+                // Only do the wraparound if it's not Saturday (we can't wrap to Sunday)
+                else if (new Date().getDay() < 6 && getTimeToLeave() < todayPlusOneWorkDay)
+                {
+                    var tomorrowLeave = getTodayStartDate();
+                    tomorrowLeave.setMilliseconds(getTimeToLeave() - getTodayEndDate());
+
+                    $('#ntdsrmods-timeyoucanleave', context).removeClass('ntdsrmods-hidden');
+                    $('#ntdsrmods-timeyoucanleave-time', context).text(formatDate(tomorrowLeave, "h:mm a"));
+                    $('#ntdsrmods-timeyoucanleave-tomorrow', context).text(' tomorrow');
                 }
                 else
                 {
+                    $('#ntdsrmods-timeyoucanleave-tomorrow', context).text('');
                     $('#ntdsrmods-timeyoucanleave', context).addClass('ntdsrmods-hidden');
                 }
             }
