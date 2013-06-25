@@ -75,7 +75,7 @@ function DsrManager(inputContext)
         }
         console.log('estimated now ' + totalEstimated);
 
-        clockedIn = totalEstimatedElement && totalEstimatedElement.length > 0;
+        clockedIn = timeTable.find('tr').last().find('td').eq(1).text().trim() == "";
     }
 
     function addOurElements()
@@ -84,9 +84,9 @@ function DsrManager(inputContext)
         {
             ourElement = $('<div id="ntdsrmods-container" class="ntdsrmods-hidden"></div>');
             ourElement.insertBefore(timeTable);
-            if (!totalEstimatedElement.exists())
+            if (clockedIn && !totalEstimatedElement.exists())
             {
-                divEstimatedTotalElement = $('<div id="ntdsrmods-divEstimatedTotal" class="ntdsrmods-hidden"><strong>Estimated Total As Of Now:</strong> <span id="ntdsrmods-lblTotalEstimated">0.00</span></div>');
+                divEstimatedTotalElement = $('<div id="ntdsrmods-divEstimatedTotal"><strong>Estimated Total As Of Now:</strong> <span id="ntdsrmods-lblTotalEstimated">0.00</span></div>');
                 ourElement.append(divEstimatedTotalElement);
                 totalEstimatedElement = $('#ntdsrmods-lblTotalEstimated', context);
             }
