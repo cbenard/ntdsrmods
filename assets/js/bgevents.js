@@ -1,4 +1,4 @@
-var Version = "0.45";
+var Version = "0.46";
 var LogonName = undefined;
 
 // 1 minute in between notifications at least
@@ -40,7 +40,7 @@ function onMessage(request, sender, responseCallback)
 		else if (request.eventName == "raiseNotification")
 		{
 			console.log('received raiseNotification');
-			raiseNotification(request.title, request.message, sender.tab.id, responseCallback);
+			raiseNotification(request.title, request.message, sender.tab.id, request.settings, responseCallback);
 			return true;
 		}
 	}
@@ -62,7 +62,8 @@ var defaultOptions =
 	"endOfDayTimeHour": 17,
 	"endOfDayTimeMinute": 0,
 	"beginningOfDayTimeHour": 8,
-	"beginningOfDayTimeMinute": 0
+	"beginningOfDayTimeMinute": 0,
+	"notificationSound": "dee_doo"
 };
 
 function getSettings(responseCallback)
@@ -158,7 +159,7 @@ function raiseContentError(errorText)
 	sendOneWayMessageToContentScript({ "eventName": "uiException", "errorText": errorText });
 }
 
-function raiseNotification(title, message, tabID, responseCallback)
+function raiseNotification(title, message, tabID, settings, responseCallback)
 {
 	if (lastNotificationTime && new Date() < new Date(lastNotificationTime + acceptableNotificationTime))
 	{
@@ -170,7 +171,18 @@ function raiseNotification(title, message, tabID, responseCallback)
 		var notification = webkitNotifications.createNotification(chrome.runtime.getURL("assets/img/niblet-48.png"), title, message);
 		notification.onclick = function() { notification.cancel(); chrome.tabs.update(tabID, { active: true }); };
 		notification.show();
-		setTimeout(function() { notification.close(); }, 10000);
+		// Not sure if we should auto close since you want to see it
+		//setTimeout(function() { notification.close(); }, 10000);
+
+		if (settings && settings.notificationSound)
+		{
+			console.log(chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg"));
+			setTimeout(function() {
+				var notificationAudio = new Audio();
+				notificationAudio.src = chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg");
+				notificationAudio.play();
+			}, 1);
+		}
 
 		lastNotificationTime = new Date();
 

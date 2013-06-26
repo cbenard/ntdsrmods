@@ -1,5 +1,8 @@
 $(function()
 {
+	var audio = document.getElementById('audio');
+	var isDoneInitializing = false;
+
 	$('.time-friendly').timepicker({
 		'minTime': '6:00am',
 		'maxTime': '11:45pm',
@@ -27,8 +30,20 @@ $(function()
 			chrome.runtime.sendMessage({ "eventName": "resetSettings" }, populateSettings);
 		}
 	});
+
+	$('#notificationSound').change(function() 
+	{
+		var sndFile = $(this).val();
+		if (isDoneInitializing && sndFile)
+		{
+			setTimeout(function() {
+				audio.src = 'assets/audio/' + sndFile + '.ogg';
+				audio.play();
+			},1);
+		}
+	});
 	
-	$('#notifyMe').click(function() { toggleMinuteWarning($(this).prop('checked')); });
+	$('#notifyMe').click(function() { toggleNotificationSubSettings($(this).prop('checked')); });
 
 	$('input[type="text"]').first().focus();
 
@@ -62,9 +77,15 @@ $(function()
 			{
 				$('#notifyMe').prop('checked', settings.notifyMe);
 			}
+			if (settings.notificationSound !== undefined)
+			{
+				$('#notificationSound').val(settings.notificationSound);
+			}
 		}
 
-		toggleMinuteWarning($('#notifyMe').prop('checked'));
+		toggleNotificationSubSettings($('#notifyMe').prop('checked'));
+
+		isDoneInitializing = true;
 	}
 
 	function getTimeString(hour, minute)
@@ -85,15 +106,15 @@ $(function()
 		return '' + hour + ':' + minute + ampm
 	}
 
-	function toggleMinuteWarning(visible)
+	function toggleNotificationSubSettings(visible)
 	{
 		if (visible)
 		{
-			$('#minuteWarning').parent().removeClass('hidden');
+			$('#notificationSubSettings').removeClass('hidden');
 		}
 		else
 		{
-			$('#minuteWarning').parent().addClass('hidden');
+			$('#notificationSubSettings').addClass('hidden');
 		}
 	}
 
@@ -210,7 +231,8 @@ $(function()
 				"endOfDayTimeHour": endTimeDto.hour,
 				"endOfDayTimeMinute": endTimeDto.minute,
 				"notifyMe": $('#notifyMe').prop('checked') ? true : false,
-				"minuteWarning": $('#minuteWarning').val() ? parseInt($('#minuteWarning').val()) : 0
+				"minuteWarning": $('#minuteWarning').val() ? parseInt($('#minuteWarning').val()) : 0,
+				"notificationSound": $('#notificationSound').val()
 			};
 
 			chrome.runtime.sendMessage({ "eventName": "saveSettings", "dto": dto }, function(response) {
@@ -258,7 +280,7 @@ $(function()
 		{
 			dto.hour += 12;
 		}
-console.log(dto);
+
 		return dto;
 	}
 
