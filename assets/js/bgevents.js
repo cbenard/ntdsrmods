@@ -1,4 +1,4 @@
-var Version = "0.44";
+var Version = "0.45";
 var LogonName = undefined;
 
 // 1 minute in between notifications at least
@@ -167,7 +167,11 @@ function raiseNotification(title, message, tabID, responseCallback)
 	}
 	else
 	{
-		raiseNotificationInternal(title, message, function() { this.close(); chrome.tabs.update(tabID, { active: true }); }, 10000);
+		var notification = webkitNotifications.createNotification(chrome.runtime.getURL("assets/img/niblet-48.png"), title, message);
+		notification.onclick = function() { notification.cancel(); chrome.tabs.update(tabID, { active: true }); };
+		notification.show();
+		setTimeout(function() { notification.close(); }, 10000);
+
 		lastNotificationTime = new Date();
 
 		responseCallback();
@@ -176,25 +180,11 @@ function raiseNotification(title, message, tabID, responseCallback)
 
 function raiseUpdateNotification(message)
 {
-	raiseNotificationInternal('Daily Status Mods Updated', message, function() { this.close(); chrome.tabs.create({ "url": chrome.runtime.getURL('info.html') }, function() { }); }, null);
-	lastNotificationTime = new Date();
-}
-
-function raiseNotificationInternal(title, message, onClickCallback, autoCloseTime)
-{
-	var notification = webkitNotifications.createNotification(chrome.runtime.getURL("assets/img/niblet-48.png"), title, message);
-
-	if (onClickCallback)
-	{
-		notification.onclick = onClickCallback;
-	}
-
+	var title = 'Daily Status Mods Updated';
+	//var notification = webkitNotifications.createNotification(chrome.runtime.getURL("assets/img/niblet-48.png"), title, message);
+	var notification = webkitNotifications.createHTMLNotification(chrome.runtime.getURL('updatenotification.html'));
+	notification.onclick = function() { notification.cancel(); chrome.tabs.create({ "url": chrome.runtime.getURL('info.html') }); };
 	notification.show();
-
-	if (autoCloseTime)
-	{
-		setTimeout(function() { notification.close(); }, autoCloseTime);
-	}
 }
 
 chrome.notifications.onClicked.addListener(function(incomingNotificationID) {
@@ -214,7 +204,7 @@ chrome.runtime.onInstalled.addListener(function(details) {
 	}
 	else if (details.reason == 'update')
 	{
-		raiseUpdateNotification('NTDSRMODS has been updated. New features: "Time you can leave" wraps to the next day (so be sure to set the ) and Monday clock-in support (finally!). Click for more information.');
+		raiseUpdateNotification();
 	}
 
 	var matchingUrls = [ "*://*/*/DailyStatusListForPerson.aspx", "http://localhost:*/*clocked*.htm" ];

@@ -156,3 +156,29 @@ form {
 .changelog li {
 	margin-bottom: 10px;
 }
+
+.smalltext {
+	font-size: 8.5pt;
+}
+
+body.notification {
+	width: auto;
+	padding: 5px;
+	height: 144px;
+	max-height: 144px;
+	overflow-x: hidden;
+	overflow-y: hidden;
+	overflow: hidden;
+	position: relative;
+}
+
+.notification h5 {
+	padding: 0;
+	margin: 0;
+	font-size: 10pt;
+	display: inline-block;
+}
+
+.pull-left {
+	float: left;
+}
