@@ -3,6 +3,7 @@ jQuery.fn.exists = function(){ return this.length>0; };
 $(function ()
 {
     var dsr = new DsrManager(document);
+    var currentSettings;
 
     if (dsr.isValidDailyStatusPage())
     {
@@ -10,7 +11,7 @@ $(function ()
 
         chrome.runtime.sendMessage({ "eventName": "pageLoaded", "logonName": $.cookie('LogonName') });
 
-        chrome.runtime.sendMessage({ "eventName": "getSettings" }, function(settings) { dsr.refresh(settings); });
+        chrome.runtime.sendMessage({ "eventName": "getSettings" }, function(settings) { currentSettings = settings; dsr.refresh(settings); });
     }
 
     function warningFiredEventHandler(message)
@@ -18,7 +19,8 @@ $(function ()
         chrome.runtime.sendMessage({
             "eventName": "raiseNotification",
             "title": "Time to Clock Out",
-            "message": message
+            "message": message,
+            "settings": currentSettings
         });
     }
 
@@ -36,6 +38,7 @@ $(function ()
             }
             else if (request.eventName == "settingsUpdated")
             {
+                currentSettings = request.settings;
                 dsr.refresh(request.settings);
             }
         }

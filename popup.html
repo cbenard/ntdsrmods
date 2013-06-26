@@ -34,10 +34,22 @@
                     <input type="checkbox" id="notifyMe" />
                     <label for="notifyMe" class="after-checkbox">Notify me when I'm close</label>
                 </div>
-                <div class="form-row form-row-right-text hidden">
-                    <input type="text" class="minutes" id="minuteWarning" maxlength="2" />
-                    <label for="minuteWarning" class="after-text">minute warning</label>
-                    <span id="val-msg-minuteWarning"></span>
+                <div class="hidden" id="notificationSubSettings">
+                    <div class="form-row form-row-right-text">
+                        <input type="text" class="minutes" id="minuteWarning" maxlength="2" />
+                        <label for="minuteWarning" class="after-text">minute warning</label>
+                        <span id="val-msg-minuteWarning"></span>
+                    </div>
+                    <div class="form-row">
+                        <label for="notificationSound" class="for-text">Notification Sound</label>
+                        <select id="notificationSound">
+                            <option value="">None</option>
+                            <option value="dee_doo">Dee Doo</option>
+                            <option value="dong">Dong</option>
+                            <option value="woop_woop_woop">Woop Woop Woop</option>
+                            <option value="beep_beep_beep_beep">Beep Beep Beep Beep</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-row">
                     <button id="submit">Save</button>
@@ -55,5 +67,6 @@
         <script type="text/javascript" src="assets/js/jquery-ui.min.js"></script>
         <script type="text/javascript" src="assets/js/jquery.timepicker.min.js"></script>
         <script type="text/javascript" src="assets/js/popup.js"></script>
+        <audio id="audio"></audio>
     </body>
 </html>
