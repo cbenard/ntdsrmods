@@ -71,3 +71,12 @@ button.install {
 button.install:hover {
 	background-color: #234F7B;
 }
+
+.displaynone {
+	display: none;
+}
+
+#install-failed {
+	color: #9E0000;
+	font-style: italic;
+}

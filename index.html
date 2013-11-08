@@ -26,8 +26,14 @@
                         <h3>Download and Installation</h3>
 
                         <h4>Install from the Chrome Web Store</h4>
-                        <p>
+                        <p id="install-container">
                             <button class="install">Install Now</button>
+                        </p>
+                        <p id="install-failed" class="displaynone">
+                            The install failed. Please use the <a href="https://chrome.google.com/webstore/detail/jolnemjimkgmpignoefhnehkfpoplmgf">Chrome Web Store</a> link to install the extesnsion.
+                        </p>
+                        <p id="install-succeeded" class="displaynone">
+                            The extension is now installed. You may use the directions below to configure the extension.
                         </p>
                         <p>
                             If you already have the extension installed, you may find more information on
@@ -89,8 +95,8 @@
                 $('button.install').click(function() {
                     chrome.webstore.install(
                         'https://chrome.google.com/webstore/detail/jolnemjimkgmpignoefhnehkfpoplmgf',
-                        function(data) { console.log('success'); console.log(data); },
-                        function(data) { console.log('failure'); console.log(data); });
+                        function(data) { console.log('success'); console.log(data); $('#install-container').addClass('displaynone'); $('#install-succeeded').removeClass('displaynone'); },
+                        function(data) { console.log('failure'); console.log(data); $('#install-container').addClass('displaynone'); $('#install-failed').removeClass('displaynone'); });
                 })
             })
         </script>
