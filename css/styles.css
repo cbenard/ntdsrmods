@@ -58,3 +58,16 @@ li {
 	padding: 0.5em;
 	display: block;
 }
+
+button.install {
+	padding: 10px;
+	width: 200px;
+	font-weight: bold;
+	background-color: #003366;
+	color: #FFFFE7;
+	border-radius: 15px;
+}
+
+button.install:hover {
+	background-color: #234F7B;
+}

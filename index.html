@@ -6,6 +6,7 @@
         <!-- Bootstrap -->
         <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
         <link href="css/styles.css" rel="stylesheet" media="screen">
+        <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/jolnemjimkgmpignoefhnehkfpoplmgf">
     </head>
     <body>
         <div class="container">
@@ -24,26 +25,14 @@
                     <section>
                         <h3>Download and Installation</h3>
 
-                        <h4>Follow these steps precisely</h4>
-                        <ol>
-
-                            <li>
-                                You need to open your chrome extensions settings page. You can get to this by typing <code>chrome://extensions</code> into the address bar, or currently (Chrome's UI changes a lot)
-                                by going to the menu icon at the top right <img src="img/chrome-menu.png" alt="Chrome menu" title="Chrome menu" />, selecting Settings, and then selecting extensions. Good luck!
-                            </li>
-
-                            <li>
-                                Then download the <a href="ntdsrmods-0.46.crx">ntdsrmods-xxx.crx</a> (where xxx is a version) file <strong>to your computer</strong>.
-                            </li>
-
-                            <li>
-                                <p>Finally, drag the extension file into the extensions page and you should see the image below. If you don't, it's not going to work and you're going to get a warning about not being able to install from websites. </p>
-
-                                <p><img src="img/chrome-drop-to-install.png" alt="Chrome drop to install" title="Chrome drop to install" /></p>
-
-                                <p><strong>This also will not work if you spawn the settings page into its own window to make it easier.</strong> Google hates you; I'm sorry.</p>
-                            </li>
-                        </ol>
+                        <h4>Install from the Chrome Web Store</h4>
+                        <p>
+                            <button class="install" onclick="chrome.webstore.install('https://chrome.google.com/webstore/detail/jolnemjimkgmpignoefhnehkfpoplmgf');">Install Now</button>
+                        </p>
+                        <p>
+                            If you already have the extension installed, you may find more information on
+                            the <a href="https://chrome.google.com/webstore/detail/jolnemjimkgmpignoefhnehkfpoplmgf">Chrome Web Store</a>.
+                        </p>
                     </section>
                     <section>
                         <h3>Usage</h3>
