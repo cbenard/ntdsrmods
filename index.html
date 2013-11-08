@@ -27,11 +27,16 @@
 
                         <h4>Install from the Chrome Web Store</h4>
                         <p id="install-container">
-                            <button class="install">Install Now</button>
+                            <button class="perform-install">Install Now</button>
                         </p>
-                        <p id="install-failed" class="displaynone">
-                            The install failed. Please use the <a href="https://chrome.google.com/webstore/detail/jolnemjimkgmpignoefhnehkfpoplmgf">Chrome Web Store</a> link to install the extesnsion.
-                        </p>
+                        <div id="install-failed" class="displaynone">
+                            <p>
+                                The install failed. You may <a href="#" class="perform-install">try again</a> or use the <a href="https://chrome.google.com/webstore/detail/jolnemjimkgmpignoefhnehkfpoplmgf">Chrome Web Store</a> link to install the extension.
+                            <p>
+                            <p>
+                                Reason given by Chrome: <span id="failure-reason"></span>
+                            </p>
+                        </div>
                         <p id="install-succeeded" class="displaynone">
                             The extension is now installed. You may use the directions below to configure the extension.
                         </p>
@@ -92,11 +97,13 @@
         <script src="js/bootstrap.min.js"></script>
         <script type="text/javascript">
             $(function() {
-                $('button.install').click(function() {
+                $('.perform-install').click(function(e) {
+                    e.preventDefault();
+
                     chrome.webstore.install(
                         'https://chrome.google.com/webstore/detail/jolnemjimkgmpignoefhnehkfpoplmgf',
                         function(data) { console.log('success'); console.log(data); $('#install-container').addClass('displaynone'); $('#install-succeeded').removeClass('displaynone'); },
-                        function(data) { console.log('failure'); console.log(data); $('#install-container').addClass('displaynone'); $('#install-failed').removeClass('displaynone'); });
+                        function(data) { console.log('failure'); console.log(data); $('#install-container').addClass('displaynone'); $('#install-failed').removeClass('displaynone'); $('#failure-reason').text(data); });
                 })
             })
         </script>
