@@ -102,8 +102,8 @@
 
                     chrome.webstore.install(
                         'https://chrome.google.com/webstore/detail/jolnemjimkgmpignoefhnehkfpoplmgf',
-                        function(data) { console.log('success'); console.log(data); $('#install-container').addClass('displaynone'); $('#install-succeeded').removeClass('displaynone'); },
-                        function(data) { console.log('failure'); console.log(data); $('#install-container').addClass('displaynone'); $('#install-failed').removeClass('displaynone'); $('#failure-reason').text(data); });
+                        function(data) { console.log('success'); console.log(data); $('#install-container').addClass('displaynone'); $('#install-succeeded').removeClass('displaynone'); $('#install-failed').addClass('displaynone'); },
+                        function(data) { console.log('failure'); console.log(data); $('#install-container').addClass('displaynone'); $('#install-failed').removeClass('displaynone'); $('#failure-reason').text(data); $('#install-succeeded').addClass('displaynone');});
                 })
             })
         </script>
