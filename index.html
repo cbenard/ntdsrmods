@@ -27,7 +27,7 @@
 
                         <h4>Install from the Chrome Web Store</h4>
                         <p>
-                            <button class="install" onclick="chrome.webstore.install('https://chrome.google.com/webstore/detail/jolnemjimkgmpignoefhnehkfpoplmgf');">Install Now</button>
+                            <button class="install">Install Now</button>
                         </p>
                         <p>
                             If you already have the extension installed, you may find more information on
@@ -84,5 +84,15 @@
         </div>
         <script src="http://code.jquery.com/jquery.js"></script>
         <script src="js/bootstrap.min.js"></script>
+        <script type="text/javascript">
+            $(function() {
+                $('button.install').click(function() {
+                    chrome.webstore.install(
+                        'https://chrome.google.com/webstore/detail/jolnemjimkgmpignoefhnehkfpoplmgf',
+                        function(data) { console.log('success'); console.log(data); },
+                        function(data) { console.log('failure'); console.log(data); });
+                })
+            })
+        </script>
     </body>
 </html>
