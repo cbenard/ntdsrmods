@@ -5,7 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- Bootstrap -->
         <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
-        <link href="css/search.css" rel="stylesheet" media="screen">
+        <link href="css/styles.css" rel="stylesheet" media="screen">
+        <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/jolnemjimkgmpignoefhnehkfpoplmgf">
     </head>
     <body>
         <div class="container">
@@ -24,13 +25,35 @@
                     <section>
                         <h3>Download and Installation</h3>
 
-                        <p>
-                            You need to open your chrome extensions settings page. You can get to this by typing <code>chrome://extensions</code> into the address bar, or currently (Chrome's UI changes a lot)
-                            by going to the menu icon at the top right <img src="img/chrome-menu.png" alt="Chrome menu" title="Chrome menu" />, selecting Settings, and then selecting extensions. Good luck!
+                        <h4>Install from the Chrome Web Store</h4>
+                        <p id="install-container">
+                            <button class="perform-install">Install Now</button>
                         </p>
-
+                        <div id="install-failed" class="displaynone">
+                            <p>
+                                The install failed. You may <a href="#" class="perform-install">try again</a> or use the <a href="https://chrome.google.com/webstore/detail/jolnemjimkgmpignoefhnehkfpoplmgf">Chrome Web Store</a> link to install the extension.
+                            <p>
+                            <p>
+                                Reason given by Chrome: <span id="failure-reason"></span>
+                            </p>
+                        </div>
+                        <p id="install-succeeded" class="displaynone">
+                            The extension is now installed. You may use the directions below to configure the extension.
+                        </p>
                         <p>
-                            Then drag the <a href="ntdsrmods.crx">ntdsrmods.crx</a> file into the extension settings page and allow it to be installed.
+                            If you already have the extension installed, you may find more information on
+                            the <a href="https://chrome.google.com/webstore/detail/jolnemjimkgmpignoefhnehkfpoplmgf">Chrome Web Store</a>.
+                        </p>
+                    </section>
+                    <section>
+                        <h3>Usage</h3>
+                        <h4>What You Should See</h4>
+                        <img class="page-action-illustration" src="img/page-action.png" alt="Page Action Illustration" />
+                        <h4>Options</h4>
+                        <p>
+                            Click on Niblet's head to adjust settings. The changes should be reflected immediately in
+                            Daily Status tabs. The "Beginning of Day" setting is unused right now, but set it correctly,
+                            because it will be used in the future. Enjoy!
                         </p>
                     </section>
                     <section>
@@ -41,10 +64,6 @@
                         </p>
 
                         <p>Pull requests are even more helpful for suggestions, but feel free to talk to me about it first.</p>
-
-                        <p>
-                            Then drag the <a href="ntdsrmods.crx">ntdsrmods.crx</a> file into the extension settings page and allow it to be installed.
-                        </p>
                     </section>
                     <section>
                         <h3>License</h3>
@@ -76,5 +95,17 @@
         </div>
         <script src="http://code.jquery.com/jquery.js"></script>
         <script src="js/bootstrap.min.js"></script>
+        <script type="text/javascript">
+            $(function() {
+                $('.perform-install').click(function(e) {
+                    e.preventDefault();
+
+                    chrome.webstore.install(
+                        'https://chrome.google.com/webstore/detail/jolnemjimkgmpignoefhnehkfpoplmgf',
+                        function(data) { console.log('success'); console.log(data); $('#install-container').addClass('displaynone'); $('#install-succeeded').removeClass('displaynone'); $('#install-failed').addClass('displaynone'); },
+                        function(data) { console.log('failure'); console.log(data); $('#install-container').addClass('displaynone'); $('#install-failed').removeClass('displaynone'); $('#failure-reason').text(data); $('#install-succeeded').addClass('displaynone');});
+                })
+            })
+        </script>
     </body>
 </html>
