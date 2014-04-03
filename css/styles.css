@@ -47,3 +47,36 @@ section.demonstration label {
 div.search-results {
 	clear: both;
 }
+
+li {
+	margin-bottom: 1em;
+}
+
+.page-action-illustration {
+	margin-bottom: 1em;
+	border: 1px dashed black;
+	padding: 0.5em;
+	display: block;
+}
+
+button.perform-install {
+	padding: 10px;
+	width: 200px;
+	font-weight: bold;
+	background-color: #003366;
+	color: #FFFFE7;
+	border-radius: 15px;
+}
+
+button.install:hover {
+	background-color: #234F7B;
+}
+
+.displaynone {
+	display: none;
+}
+
+#install-failed {
+	color: #9E0000;
+	font-style: italic;
+}
