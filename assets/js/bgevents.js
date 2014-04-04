@@ -43,6 +43,27 @@ function onMessage(request, sender, responseCallback)
 			raiseNotification(request.notificationID, request.title, request.message, sender.tab.id, request.settings, responseCallback);
 			return true;
 		}
+		else if (request.eventName == "openTab")
+		{
+			chrome.tabs.create({ url: request.url }, function() {});
+			return true;
+		}
+		else if (request.eventName == "ackNewVersion")
+		{
+			var ackedVersion = chrome.runtime.getManifest().version;
+			chrome.storage.sync.set({ 'lastVersion': ackedVersion }, function() {
+				var err = chrome.runtime.lastError;
+				if (err)
+				{
+					console.log(err);
+					return;
+				}
+
+				sendOneWayMessageToContentScript(request);
+				console.log('Acknowledged version: ' + ackedVersion);
+			});
+			return true;
+		}
 	}
 };
 
@@ -107,6 +128,19 @@ function saveSettings(settings, responseCallback)
 function pageLoaded(sender, logonName)
 {
 	chrome.pageAction.show(sender.tab.id);
+
+	chrome.storage.sync.get('lastVersion', function(data)
+	{
+		console.log('pulled version from sync');
+		console.log(data);
+
+		var manifest = chrome.runtime.getManifest();
+		var versionInfo = versionHistory[manifest.version];
+		if ((!data.lastVersion || data.lastVersion !== manifest.version) && versionInfo) {
+			chrome.tabs.sendMessage(sender.tab.id, { eventName: "newVersionNotification",
+				info: { heading: versionInfo.heading, message: versionInfo.message }});
+		}
+	});
 
 	if (logonName)
 	{
@@ -263,7 +297,6 @@ chrome.runtime.onInstalled.addListener(function(details) {
 		raiseUpdateNotification();
 	}
 
-	var matchingUrls = [ "*://*/*/DailyStatusListForPerson.aspx", "http://localhost:*/*clocked*.htm" ];
 	for (var j = 0; j < matchingUrls.length; j++)
 	{
 		chrome.tabs.query({ "url": matchingUrls[j] }, function(tabs) {
