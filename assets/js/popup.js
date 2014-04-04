@@ -34,6 +34,7 @@ $(function()
 	});
 
 	$('#hoursPerWeek').forcenumeric(true);
+	$('#minuteWarning').forcenumeric(true);
 
 	$('#notificationSound').change(function() 
 	{
