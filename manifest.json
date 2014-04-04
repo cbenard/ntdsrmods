@@ -9,7 +9,8 @@
         "notifications",
         "alarms",
         "tabs",
-        "<all_urls>"
+        "<all_urls>",
+		"management"
     ],
     "web_accessible_resources":
     [
@@ -37,6 +38,7 @@
             "matches" :
             [
                 "http://localhost:*/*.htm",
+                "http://localhost/*.htm",
                 "*://*/*/DailyStatusListForPerson.aspx"
             ],
             "js" :
