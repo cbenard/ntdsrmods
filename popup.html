@@ -4,51 +4,75 @@
         <style>
         </style>
         <link rel="stylesheet" type="text/css" href="assets/css/reset.min.css" />
+        <link rel="stylesheet" type="text/css" href="assets/css/jquery-ui.min.css" />
         <link rel="stylesheet" type="text/css" href="assets/css/jquery.timepicker.css" />
         <link rel="stylesheet" type="text/css" href="assets/css/popup.css" />
     </head>
     <body>
-        <div class="logo"></div>
-        <h3 id="title">Daily Status Modifications</h3>
+        <!-- <div class="logo"></div> -->
+        <h1 id="title">Daily Status Modifications</h3>
+        <div class="response response-success hidden"><strong>Success:</strong> <span class="contents"></span></div>
+        <div class="response response-error hidden"><strong>Error:</strong> <span class="contents"></span></div>
+
         <form id="frm">
             <fieldset>
                 <legend>Preferences</legend>
-                <div class="response response-success hidden"><strong>Success:</strong> <span class="contents"></span></div>
-                <div class="response response-error hidden"><strong>Error:</strong> <span class="contents"></span></div>
-                <div class="form-row">
-                    <label for="hoursPerWeek" class="for-text">Hours per Week</label>
-                    <input type="text" class="hours" id="hoursPerWeek" minlength="1" maxlength="5" required />
-                    <span id="val-msg-hoursPerWeek"></span>
-                </div>
-                <div class="form-row">
-                    <label for="beginningOfDay" class="for-text">Beginning of Day</label>
-                    <input type="text" class="time-friendly ui-timepicker-input" id="beginningOfDay" minlength="7" maxlength="8" required />
-                    <span id="val-msg-beginningOfDay"></span>
-                </div>
-                <div class="form-row">
-                    <label for="endOfDay" class="for-text">End of Day</label>
-                    <input type="text" class="time-friendly ui-timepicker-input" id="endOfDay" minlength="7" maxlength="8" required />
-                    <span id="val-msg-endOfDay"></span>
-                </div>
-                <div class="form-row form-row-checkbox">
-                    <input type="checkbox" id="notifyMe" />
-                    <label for="notifyMe" class="after-checkbox">Notify me when I'm close</label>
-                </div>
-                <div class="hidden" id="notificationSubSettings">
-                    <div class="form-row form-row-right-text">
-                        <input type="text" class="minutes" id="minuteWarning" maxlength="2" />
-                        <label for="minuteWarning" class="after-text">minute warning</label>
-                        <span id="val-msg-minuteWarning"></span>
+                <div id="tabs">
+                    <ul>
+                        <li><a href="#tab-dsr">Daily Status</a></li>
+                        <li><a href="#tab-misc">Misc</a></li>
+                    </ul>
+                    <div id="tab-dsr">
+                        <div class="form-row">
+                            <label for="hoursPerWeek" class="for-text">Hours per Week</label>
+                            <input type="text" class="hours" id="hoursPerWeek" minlength="1" maxlength="5" required />
+                            <span id="val-msg-hoursPerWeek"></span>
+                        </div>
+                        <div class="form-row">
+                            <label for="beginningOfDay" class="for-text">Beginning of Day</label>
+                            <input type="text" class="time-friendly ui-timepicker-input" id="beginningOfDay" minlength="7" maxlength="8" required />
+                            <span id="val-msg-beginningOfDay"></span>
+                        </div>
+                        <div class="form-row">
+                            <label for="endOfDay" class="for-text">End of Day</label>
+                            <input type="text" class="time-friendly ui-timepicker-input" id="endOfDay" minlength="7" maxlength="8" required />
+                            <span id="val-msg-endOfDay"></span>
+                        </div>
+                        <div class="form-row form-row-checkbox">
+                            <input type="checkbox" id="notifyMe" />
+                            <label for="notifyMe" class="after-checkbox">Notify me when I'm close</label>
+                        </div>
+                        <div class="hidden" id="notificationSubSettings">
+                            <div class="form-row form-row-right-text">
+                                <input type="text" class="minutes" id="minuteWarning" maxlength="2" />
+                                <label for="minuteWarning" class="after-text">minute warning</label>
+                                <span id="val-msg-minuteWarning"></span>
+                            </div>
+                            <div class="form-row">
+                                <label for="notificationSound" class="for-text">Notification Sound</label>
+                                <select id="notificationSound">
+                                    <option value="">None</option>
+                                    <option value="dee_doo">Dee Doo</option>
+                                    <option value="dong">Dong</option>
+                                    <option value="woop_woop_woop">Woop Woop Woop</option>
+                                    <option value="beep_beep_beep_beep">Beep Beep Beep Beep</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-row">
-                        <label for="notificationSound" class="for-text">Notification Sound</label>
-                        <select id="notificationSound">
-                            <option value="">None</option>
-                            <option value="dee_doo">Dee Doo</option>
-                            <option value="dong">Dong</option>
-                            <option value="woop_woop_woop">Woop Woop Woop</option>
-                            <option value="beep_beep_beep_beep">Beep Beep Beep Beep</option>
-                        </select>
+                    <div id="tab-misc">
+                        <div class="form-row form-row-checkbox">
+                            <input type="checkbox" id="displayGoToIssue" />
+                            <label for="displayGoToIssue" class="after-checkbox">Display "Go To Issue Number" Box</label>
+                        </div>
+                        <div class="form-row form-row-checkbox">
+                            <input type="checkbox" id="suppressEditIssuePopup" />
+                            <label for="suppressEditIssuePopup" class="after-checkbox">Suppress Edit Issues Popup Window</label>
+                        </div>
+                        <div class="form-row form-row-checkbox">
+                            <input type="checkbox" id="suppressAllPopups" />
+                            <label for="suppressAllPopups" class="after-checkbox">Suppress All Popup Windows</label>
+                        </div>
                     </div>
                 </div>
                 <div class="form-row">
@@ -59,13 +83,17 @@
         </form>
 
         <div class="form-row">
-            If you have problems or suggestions please visit the <a target="_blank" href="https://github.com/cbenard/ntdsrmods/">project</a> or <a target="_blank" href="https://github.com/cbenard/ntdsrmods/issues/">issues</a> page. More information about the current version
-            <a target="_blank" href="info.html">here</a>.
+            If you have problems or suggestions please visit the <a target="_blank" href="https://github.com/cbenard/ntdsrmods/">project</a> or <a target="_blank" href="https://github.com/cbenard/ntdsrmods/issues/">issues</a> page.
+        </div>
+        <div class="form-row">
+            More information about the current version
+            <a target="_blank" href="info.html" class="link-info">here</a>.
         </div>
 
         <script type="text/javascript" src="assets/js/jquery-1.10.1.min.js"></script>
         <script type="text/javascript" src="assets/js/jquery-ui.min.js"></script>
         <script type="text/javascript" src="assets/js/jquery.timepicker.min.js"></script>
+        <script type="text/javascript" src="assets/js/forcenumeric.js"></script>
         <script type="text/javascript" src="assets/js/popup.js"></script>
         <audio id="audio"></audio>
     </body>

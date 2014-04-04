@@ -1,5 +1,7 @@
 $(function()
 {
+    $( "#tabs" ).tabs();
+
 	var audio = document.getElementById('audio');
 	var isDoneInitializing = false;
 
@@ -30,6 +32,8 @@ $(function()
 			chrome.runtime.sendMessage({ "eventName": "resetSettings" }, populateSettings);
 		}
 	});
+
+	$('#hoursPerWeek').forcenumeric(true);
 
 	$('#notificationSound').change(function() 
 	{
