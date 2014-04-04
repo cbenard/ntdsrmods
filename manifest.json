@@ -10,7 +10,8 @@
         "alarms",
         "tabs",
         "<all_urls>",
-		"management"
+		"management",
+        "notifications"
     ],
     "web_accessible_resources":
     [

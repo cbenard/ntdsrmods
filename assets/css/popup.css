@@ -8,6 +8,18 @@ body {
 	width: 500px;
 }
 
+#tabs {
+	height: 284px;
+	margin-bottom: 10px;
+}
+
+.link-info {
+	background-image: url('../img/icon-info-16.png');
+	padding-left: 20px;
+	background-repeat: no-repeat;
+	background-position: left; 
+}
+
 .logo {
 	width: 179px;
 	height: 76px;
@@ -53,6 +65,7 @@ h1 {
 .form-row {
 	margin-bottom: 0.5em;
 	width: 100%;
+	font-size: 11pt;
 }
 
 label.for-text {
@@ -66,7 +79,7 @@ label.after-text {
 }
 
 .hours, .minutes {
-	width: 40px;
+	width: 60px;
 }
 
 .time-friendly {

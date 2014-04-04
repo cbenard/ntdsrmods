@@ -53,6 +53,12 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
 		sendHeartbeat();
 	}
 });
+chrome.notifications.onButtonClicked.addListener(HandleNotificationButtonClick);
+chrome.notifications.onClicked.addListener(
+	function (notificationID, buttonIndex) {
+		HandleNotificationButtonClick(notificationID, -1);
+	});
+
 
 var defaultOptions =
 {
@@ -192,13 +198,39 @@ function raiseNotification(title, message, tabID, settings, responseCallback)
 
 function raiseUpdateNotification(message)
 {
-	var title = 'Daily Status Mods Updated';
+	//var title = 'Daily Status Mods Updated';
 	//var notification = webkitNotifications.createNotification(chrome.runtime.getURL("assets/img/niblet-48.png"), title, message);
-	var notification = webkitNotifications.createHTMLNotification(chrome.runtime.getURL('updatenotification.html'));
-	notification.onclick = function() { notification.cancel(); chrome.tabs.create({ "url": chrome.runtime.getURL('info.html') }); };
-	notification.show();
+	//var notification = webkitNotifications.createHTMLNotification(chrome.runtime.getURL('updatenotification.html'));
+	var notificationOptions = {
+		type: "basic",
+		title: "Daily Status Mods Updated",
+		message: "New features: Sound options (defaults on). \"Time you can leave\"" +
+				 "wraps to the next day (so be sure to set the \"Beginning of Day\"" +
+				 "correctly) and Monday clock-in support (finally!). Click for more information.",
+		iconUrl: chrome.runtime.getURL("assets/img/niblet-128.png"),
+		buttons: [
+			{ title: "More Information", iconUrl: chrome.runtime.getURL("assets/img/icon-info-32.png")},
+			{ title: "Close", iconUrl: chrome.runtime.getURL("assets/img/icon-check-32.png")}
+		],
+		isClickable: true
+	};
+	chrome.notifications.create("updatenotification", notificationOptions, function() {});
+
+	//notification.onclick = function() { notification.cancel(); chrome.tabs.create({ "url": chrome.runtime.getURL('info.html') }); };
+	//notification.show();
 }
 
+function HandleNotificationButtonClick(notificationID, buttonIndex) {
+	if (notificationID === "updatenotification") {
+		console.log('update notification: user clicked button index ' + buttonIndex);
+		chrome.notifications.clear(notificationID, function() {});
+		if (buttonIndex === 0 || buttonIndex === -1) {
+			chrome.tabs.create({ url: chrome.runtime.getURL("info.html") }, function() {});
+		}
+	}
+}
+
+/*
 chrome.notifications.onClicked.addListener(function(incomingNotificationID) {
 	if (incomingNotificationID == notificationID)
 	{
@@ -208,6 +240,7 @@ chrome.notifications.onClicked.addListener(function(incomingNotificationID) {
 		}
 	}
 });
+*/
 
 chrome.runtime.onInstalled.addListener(function(details) {
 	if (details.reason == 'install') // This is annoying with frequent updates... || details.reason == 'update')

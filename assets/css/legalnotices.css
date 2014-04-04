@@ -1,0 +1,8 @@
+body {
+	width: auto;
+	max-width: 800px;
+}
+
+li {
+	line-height: 150%;
+}
