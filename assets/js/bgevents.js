@@ -40,7 +40,7 @@ function onMessage(request, sender, responseCallback)
 		else if (request.eventName == "raiseNotification")
 		{
 			console.log('received raiseNotification');
-			raiseNotification(request.title, request.message, sender.tab.id, request.settings, responseCallback);
+			raiseNotification(request.notificationID, request.title, request.message, sender.tab.id, request.settings, responseCallback);
 			return true;
 		}
 	}
@@ -165,32 +165,47 @@ function raiseContentError(errorText)
 	sendOneWayMessageToContentScript({ "eventName": "uiException", "errorText": errorText });
 }
 
-function raiseNotification(title, message, tabID, settings, responseCallback)
+function raiseNotification(notificationID, title, message, tabID, settings, responseCallback)
 {
-	if (lastNotificationTime && new Date() < new Date(lastNotificationTime + acceptableNotificationTime))
+	if (lastNotificationTime && new Date() < new Date(lastNotificationTime.getTime() + acceptableNotificationTime))
 	{
+		console.log('not notifying. last update time: ' +
+			lastNotificationTime + '. waiting until ' +
+			new Date(lastNotificationTime.getTime() + acceptableNotificationTime));
 		// Too soon, but this isn't working yet
 		responseCallback();
 	}
 	else
 	{
-		var notification = webkitNotifications.createNotification(chrome.runtime.getURL("assets/img/niblet-48.png"), title, message);
-		notification.onclick = function() { notification.cancel(); chrome.tabs.update(tabID, { active: true }); };
-		notification.show();
-		// Not sure if we should auto close since you want to see it
-		//setTimeout(function() { notification.close(); }, 10000);
+		var notificationOptions = {
+			type: "basic",
+			title: title,
+			message: message,
+			iconUrl: chrome.runtime.getURL("assets/img/niblet-128.png"),
+			buttons: [
+				{ title: "Go to Daily Status", iconUrl: chrome.runtime.getURL("assets/img/icon-clock-grey-32.png")},
+				{ title: "Close", iconUrl: chrome.runtime.getURL("assets/img/icon-close-grey-32.png")}
+			],
+			isClickable: true
+		};
+		chrome.notifications.getAll(function (openNotifications) {
+			if (!openNotifications.timewarning) {
+				chrome.notifications.create("timewarning", notificationOptions, function() {
+					if (settings && settings.notificationSound)
+					{
+						console.log(chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg"));
+						setTimeout(function() {
+							var notificationAudio = new Audio();
+							notificationAudio.src = chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg");
+							notificationAudio.play();
+						}, 1);
+					}
 
-		if (settings && settings.notificationSound)
-		{
-			console.log(chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg"));
-			setTimeout(function() {
-				var notificationAudio = new Audio();
-				notificationAudio.src = chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg");
-				notificationAudio.play();
-			}, 1);
-		}
-
-		lastNotificationTime = new Date();
+					lastNotificationTabID = tabID;
+					lastNotificationTime = new Date();
+				});
+			}
+		});
 
 		responseCallback();
 	}
@@ -198,49 +213,45 @@ function raiseNotification(title, message, tabID, settings, responseCallback)
 
 function raiseUpdateNotification(message)
 {
-	//var title = 'Daily Status Mods Updated';
-	//var notification = webkitNotifications.createNotification(chrome.runtime.getURL("assets/img/niblet-48.png"), title, message);
-	//var notification = webkitNotifications.createHTMLNotification(chrome.runtime.getURL('updatenotification.html'));
 	var notificationOptions = {
 		type: "basic",
 		title: "Daily Status Mods Updated",
-		message: "New features: Sound options (defaults on). \"Time you can leave\"" +
-				 "wraps to the next day (so be sure to set the \"Beginning of Day\"" +
+		message: "New features: Sound options (defaults on). \"Time you can leave\" " +
+				 "wraps to the next day (so be sure to set the \"Beginning of Day\" " +
 				 "correctly) and Monday clock-in support (finally!). Click for more information.",
 		iconUrl: chrome.runtime.getURL("assets/img/niblet-128.png"),
 		buttons: [
-			{ title: "More Information", iconUrl: chrome.runtime.getURL("assets/img/icon-info-32.png")},
-			{ title: "Close", iconUrl: chrome.runtime.getURL("assets/img/icon-check-32.png")}
+			{ title: "More Information", iconUrl: chrome.runtime.getURL("assets/img/icon-clock-grey-32.png")},
+			{ title: "Close", iconUrl: chrome.runtime.getURL("assets/img/icon-close-grey-32.png")}
 		],
 		isClickable: true
 	};
 	chrome.notifications.create("updatenotification", notificationOptions, function() {});
-
-	//notification.onclick = function() { notification.cancel(); chrome.tabs.create({ "url": chrome.runtime.getURL('info.html') }); };
-	//notification.show();
 }
 
 function HandleNotificationButtonClick(notificationID, buttonIndex) {
+	chrome.notifications.clear(notificationID, function() {});
+
 	if (notificationID === "updatenotification") {
 		console.log('update notification: user clicked button index ' + buttonIndex);
-		chrome.notifications.clear(notificationID, function() {});
 		if (buttonIndex === 0 || buttonIndex === -1) {
 			chrome.tabs.create({ url: chrome.runtime.getURL("info.html") }, function() {});
 		}
 	}
-}
-
-/*
-chrome.notifications.onClicked.addListener(function(incomingNotificationID) {
-	if (incomingNotificationID == notificationID)
-	{
-		if (lastNotificationTabID)
-		{
-			chrome.tabs.update(lastNotificationTabID, { active: true });
+	else if (notificationID === "timewarning") {
+		console.log('time warning notification: user clicked button index ' + buttonIndex);
+		if (buttonIndex === 0 || buttonIndex === -1) {
+			chrome.tabs.query({ url: "*://*/*/DailyStatusListForPerson.aspx" }, function (tabResults) {
+				if (tabResults && tabResults.length > 0) {
+					var tabToFocus = tabResults[0];
+					chrome.windows.update(tabToFocus.windowId, { focused: true }, function (updatedWindow) {
+						chrome.tabs.update(tabToFocus.id, { active: true }, function () {});
+					});
+				}
+			});
 		}
 	}
-});
-*/
+}
 
 chrome.runtime.onInstalled.addListener(function(details) {
 	if (details.reason == 'install') // This is annoying with frequent updates... || details.reason == 'update')

@@ -17,6 +17,7 @@ $(function ()
     function warningFiredEventHandler(message)
     {
         chrome.runtime.sendMessage({
+            "notificationID": "timewarning",
             "eventName": "raiseNotification",
             "title": "Time to Clock Out",
             "message": message,
