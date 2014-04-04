@@ -8,3 +8,33 @@
 	cursor: pointer;
 	font-size: 1.2em;
 }
+
+.ntdsrmods-alert {
+	display: block;
+	width: 100%;
+	padding: 5px 5px 5px 26px;
+	background-color: #FFED90;
+	border: 1px solid #B47B00;
+	background-image: url('chrome-extension://__MSG_@@extension_id__/assets/img/icon-info-16.png');
+	background-position: 4px 5px;
+	background-repeat: no-repeat;
+	width: 369px;
+	margin-top: 10px;
+}
+
+.ntdsrmods-alert-link {
+	font-weight: bold;
+	font-size: 1.1em;
+	margin-right: 15px;
+}
+
+.ntdsrmods-alert-heading {
+	font-weight: bold;
+	font-size: 1.3em;
+	margin-bottom: 5px;
+}
+
+.ntdsrmods-alert-message {
+	font-size: 1.1em;
+	margin-bottom: 5px;
+}

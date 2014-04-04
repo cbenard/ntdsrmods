@@ -15,7 +15,7 @@
     ],
     "web_accessible_resources":
     [
-        "assets/img/niblet-48.png"
+        "assets/img/*"
     ],
     "page_action" :
     {
@@ -29,6 +29,8 @@
         "scripts" :
         [
             "assets/js/jquery-1.10.1.min.js",
+            "assets/js/rot13x.js",
+            "assets/js/versionhistory.js",
             "assets/js/bgevents.js"
         ],
         "persistent" : false
@@ -44,9 +46,10 @@
             ],
             "js" :
             [
+                "assets/js/rot13x.js",
                 "assets/js/jquery-1.10.1.min.js",
-                "assets/js/jquery.cookie.js",
                 "assets/js/jquery-ui.min.js",
+                "assets/js/jquery.cookie.js",
                 "assets/js/formattime.js",
                 "assets/js/stringtrim.js",
                 "assets/js/DsrManager.js",
