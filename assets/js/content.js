@@ -70,23 +70,22 @@ $(function ()
         var info = $(document.createElement('a'))
             .addClass('ntdsrmods-alert-link ntdsrmods-alert-link-info')
             .attr('href', '#')
-            .text('More Info');
+            .text('More Info')
+            .click(function(evt) {
+                evt.preventDefault();
+                chrome.runtime.sendMessage({ eventName: "openTab", url: chrome.runtime.getURL("info.html") });
+            });
         var close = $(document.createElement('a'))
             .addClass('ntdsrmods-alert-link ntdsrmods-alert-link-close')
             .attr('href', '#')
-            .text('Close');
+            .text('Close')
+            .click(function(evt) {
+                evt.preventDefault();
+                chrome.runtime.sendMessage({ eventName: "ackNewVersion" });
+            });
         links.append(info, close);
         alert.append(heading, message, links);
 
         $('#ctl00_ContentPlaceHolder2_dgResults').after(alert);
     }
-
-    $(document).on('click', '.ntdsrmods-alert-link-close', function(evt) {
-        evt.preventDefault();
-        chrome.runtime.sendMessage({ eventName: "ackNewVersion" });
-    });
-    $(document).on('click', '.ntdsrmods-alert-link-info', function(evt) {
-        evt.preventDefault();
-        chrome.runtime.sendMessage({ eventName: "openTab", url: chrome.runtime.getURL("info.html") });
-    });
 });
