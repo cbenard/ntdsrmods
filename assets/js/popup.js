@@ -86,6 +86,18 @@ $(function()
 			{
 				$('#notificationSound').val(settings.notificationSound);
 			}
+			if (settings.displayGoToIssue != undefined)
+			{
+				$('#displayGoToIssue').prop('checked', settings.displayGoToIssue);
+			}
+			if (settings.suppressEditIssuePopup != undefined)
+			{
+				$('#suppressEditIssuePopup').prop('checked', settings.suppressEditIssuePopup);
+			}
+			if (settings.suppressAllPopups != undefined)
+			{
+				$('#suppressAllPopups').prop('checked', settings.suppressAllPopups);
+			}
 		}
 
 		toggleNotificationSubSettings($('#notifyMe').prop('checked'));
@@ -237,7 +249,10 @@ $(function()
 				"endOfDayTimeMinute": endTimeDto.minute,
 				"notifyMe": $('#notifyMe').prop('checked') ? true : false,
 				"minuteWarning": $('#minuteWarning').val() ? parseInt($('#minuteWarning').val()) : 0,
-				"notificationSound": $('#notificationSound').val()
+				"notificationSound": $('#notificationSound').val(),
+				"displayGoToIssue": $('#displayGoToIssue').prop('checked') ? true : false,
+				"suppressEditIssuePopup": $('#suppressEditIssuePopup').prop('checked') ? true : false,
+				"suppressAllPopups": $('#suppressAllPopups').prop('checked') ? true : false
 			};
 
 			chrome.runtime.sendMessage({ "eventName": "saveSettings", "dto": dto }, function(response) {

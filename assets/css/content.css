@@ -12,13 +12,13 @@
 .ntdsrmods-alert {
 	display: block;
 	width: 100%;
-	padding: 5px 5px 5px 26px;
+	padding: 5px 26px 5px 26px;
 	background-color: #FFED90;
 	border: 1px solid #B47B00;
 	background-image: url('chrome-extension://__MSG_@@extension_id__/assets/img/icon-info-16.png');
 	background-position: 4px 5px;
 	background-repeat: no-repeat;
-	width: 369px;
+	width: 348px;
 	margin-top: 10px;
 }
 

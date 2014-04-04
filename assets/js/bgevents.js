@@ -90,7 +90,10 @@ var defaultOptions =
 	"endOfDayTimeMinute": 0,
 	"beginningOfDayTimeHour": 8,
 	"beginningOfDayTimeMinute": 0,
-	"notificationSound": "dee_doo"
+	"notificationSound": "dee_doo",
+	"displayGoToIssue": true,
+	"suppressEditIssuePopup": true,
+	"suppressAllPopups": true
 };
 
 function getSettings(responseCallback)
@@ -292,10 +295,10 @@ chrome.runtime.onInstalled.addListener(function(details) {
 	{
 		chrome.tabs.create({ "url": chrome.runtime.getURL('info.html') }, function() { });
 	}
-	else if (details.reason == 'update')
-	{
-		raiseUpdateNotification();
-	}
+	// else if (details.reason == 'update')
+	// {
+	// 	raiseUpdateNotification();
+	// }
 
 	for (var j = 0; j < matchingUrls.length; j++)
 	{
