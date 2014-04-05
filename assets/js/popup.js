@@ -98,6 +98,14 @@ $(function()
 			{
 				$('#suppressAllPopups').prop('checked', settings.suppressAllPopups);
 			}
+			if (settings.displayAccountManagerInServerEdit != undefined)
+			{
+				$('#displayAccountManagerInServerEdit').prop('checked', settings.displayAccountManagerInServerEdit);
+			}
+			if (settings.reEnableIssueEditScroll != undefined)
+			{
+				$('#reEnableIssueEditScroll').prop('checked', settings.reEnableIssueEditScroll);
+			}
 		}
 
 		toggleNotificationSubSettings($('#notifyMe').prop('checked'));
@@ -252,7 +260,9 @@ $(function()
 				"notificationSound": $('#notificationSound').val(),
 				"displayGoToIssue": $('#displayGoToIssue').prop('checked') ? true : false,
 				"suppressEditIssuePopup": $('#suppressEditIssuePopup').prop('checked') ? true : false,
-				"suppressAllPopups": $('#suppressAllPopups').prop('checked') ? true : false
+				"suppressAllPopups": $('#suppressAllPopups').prop('checked') ? true : false,
+				"displayAccountManagerInServerEdit": $('#displayAccountManagerInServerEdit').prop('checked') ? true : false,
+				"reEnableIssueEditScroll": $('#reEnableIssueEditScroll').prop('checked') ? true : false
 			};
 
 			chrome.runtime.sendMessage({ "eventName": "saveSettings", "dto": dto }, function(response) {

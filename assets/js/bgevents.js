@@ -6,6 +6,7 @@ var acceptableNotificationTime = 60 * 1000;
 var lastNotificationTime;
 var notificationID = "clockOutNotification";
 var lastNotificationTabID;
+var oldExtensionID = 'imdhbhbmbnnlaffbhhhjccnighckieja';
 
 function onMessage(request, sender, responseCallback)
 {
@@ -15,6 +16,11 @@ function onMessage(request, sender, responseCallback)
 		{
 			console.log('received pageLoaded');
 			pageLoaded(sender, request.logonName);
+		}
+		else if (request.eventName == "needsPageAction")
+		{
+			console.log('received needsPageAction');
+			placePageAction(sender);
 		}
 		else if (request.eventName == "getSettings" || request.eventName == "resetSettings")
 		{
@@ -93,7 +99,9 @@ var defaultOptions =
 	"notificationSound": "dee_doo",
 	"displayGoToIssue": true,
 	"suppressEditIssuePopup": true,
-	"suppressAllPopups": true
+	"suppressAllPopups": true,
+	"displayAccountManagerInServerEdit": false,
+	"reEnableIssueEditScroll": true
 };
 
 function getSettings(responseCallback)
@@ -128,10 +136,12 @@ function saveSettings(settings, responseCallback)
 	});
 }
 
+function placePageAction(sender) {
+	chrome.pageAction.show(sender.tab.id);
+}
+
 function pageLoaded(sender, logonName)
 {
-	chrome.pageAction.show(sender.tab.id);
-
 	chrome.storage.sync.get('lastVersion', function(data)
 	{
 		console.log('pulled version from sync');
@@ -174,7 +184,6 @@ function sendHeartbeat()
 
 function sendOneWayMessageToContentScript(message)
 {
-	var matchingUrls = [ "*://*/*/DailyStatusListForPerson.aspx", "http://localhost:*/*clocked*.htm" ];
 	for (var j = 0; j < matchingUrls.length; j++)
 	{
 		chrome.tabs.query({ "url": matchingUrls[j] }, function(tabs) {
@@ -187,7 +196,7 @@ function sendOneWayMessageToContentScript(message)
 					chrome.tabs.sendMessage(tabs[i].id, message, function() {
 						if (chrome.runtime.lastError)
 						{
-							console.log('error sending to tab ' + tabID + ':');
+							console.log('error sending to tab:');
 							console.log(chrome.runtime.lastError);
 						}
 					});
@@ -299,6 +308,18 @@ chrome.runtime.onInstalled.addListener(function(details) {
 	// {
 	// 	raiseUpdateNotification();
 	// }
+
+	chrome.management.get(oldExtensionID, function(data) {
+		if (data) {
+			chrome.management.uninstall(oldExtensionID, { showConfirmDialog: false }, function() {
+				if (chrome.extension.lastError)
+				{
+					console.log('error uninstalling dev site extension:');
+					console.log(chrome.extension.lastError);
+				}
+			});
+		}
+	});
 
 	for (var j = 0; j < matchingUrls.length; j++)
 	{

@@ -2,7 +2,6 @@
     "name": "Programmer Enhancement Suite",
     "description": "Enhances the user experience on an internal site in various ways, including daily status, popup suppression, and other features.",
     "version": "1.0",
-    "update_url": "http://ntdsrmods.chrisbenard.net/checkupdate.php",
     "permissions":
     [
         "storage",
@@ -15,7 +14,8 @@
     ],
     "web_accessible_resources":
     [
-        "assets/img/*"
+        "assets/img/*",
+        "assets/js/content-scope-functions.js"
     ],
     "page_action" :
     {
@@ -42,7 +42,10 @@
             [
                 "http://localhost:*/*.htm",
                 "http://localhost/*.htm",
-                "*://*/*/DailyStatusListForPerson.aspx"
+                "*://*/*/DailyStatusListForPerson.aspx",
+                "*://*/SupportCenter/*.aspx*",
+                "*://*/LocationSearch.aspx*",
+                "*://*/Updater/*.aspx*"
             ],
             "js" :
             [
@@ -53,6 +56,7 @@
                 "assets/js/formattime.js",
                 "assets/js/stringtrim.js",
                 "assets/js/DsrManager.js",
+                "assets/js/MiscManager.js",
                 "assets/js/content.js"
             ],
             "css" : [ "assets/css/content.css" ],
