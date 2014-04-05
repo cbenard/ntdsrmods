@@ -10,12 +10,14 @@
         "tabs",
         "<all_urls>",
 		"management",
-        "notifications"
+        "notifications",
+        "clipboardWrite"
     ],
     "web_accessible_resources":
     [
         "assets/img/*",
-        "assets/js/content-scope-functions.js"
+        "assets/js/content-scope-functions.js",
+        "assets/js/rot13x.js"
     ],
     "page_action" :
     {

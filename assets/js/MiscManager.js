@@ -26,26 +26,27 @@
 	    }
 
 	    function doStartup() {
-	        console.log('MiscManager doing startup with these settings:');
-	        console.log(currentSettings);
+	        console.logv('MiscManager doing startup with these settings:');
+	        console.logv(currentSettings);
 
     		if (typeof currentSettings !== 'undefined') {
 				displayGoToIssue(currentSettings.displayGoToIssue);
-
 				displayAccountManagerInServerEdit(currentSettings.displayAccountManagerInServerEdit);
-
 				reEnableIssueEditScroll(currentSettings.reEnableIssueEditScroll);
+				copyWithoutSilverlight(currentSettings.copyWithoutSilverlight);
     		}
 	    }
 
 	    function displayAccountManagerInServerEdit(shouldDisplayAccountManagerInServerEdit) {
-	    	console.log('in display: should display: ' + shouldDisplayAccountManagerInServerEdit +
-	    		', location: ' + location + ', valid: ' + serverEditRegExp.test(location));
+	    	if (logVerbose) {
+	    		console.log('in display: should display: ' + shouldDisplayAccountManagerInServerEdit +
+	    			', location: ' + location + ', valid: ' + serverEditRegExp.test(location));
+    		}
 
 	    	if (shouldDisplayAccountManagerInServerEdit && serverEditRegExp.test(location) &&
 	    		$('#accountManagerName', context).length === 0) {
 	            var request = { eventName: "getComboValue", id: 'cmbLocationQuickSearch_cmbLocationQuickSearch' };
-	            console.log('sending message to window:' + JSON.stringify(request) + ', ' + location);
+	            if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + location);
 	            exports.postMessage(request, location);
 			}
 			else if (!shouldDisplayAccountManagerInServerEdit && $('#accountManagerName', context).length > 0) {
@@ -68,6 +69,33 @@
 						}
 					});
 				}
+			}
+		}
+
+		function copyWithoutSilverlight(shouldCopyWithoutSilverlight) {
+			if (shouldCopyWithoutSilverlight) {
+				$('input[id$=_hidClipboardValue]')
+					.each(function (i, v) {
+						$(v).next().replaceWith(
+							$(context.createElement('img'))
+								.css('cursor', 'pointer')
+								.attr('src', chrome.runtime.getURL('assets/img/icon-copy-16.png'))
+								.attr('title', 'Copy "' + $(v).val() + '" to the clipboard')
+								.click(function(evt) {
+									chrome.runtime.sendMessage({ eventName: "setClipboard", copyText: $(v).val() }, function() {
+										$(evt.target).effect('pulsate', { times: 1 }, 200, function() {
+											$(evt.target)
+												.attr('src', chrome.runtime.getURL('assets/img/icon-check-16.png'))
+												.attr('title', 'Copied "' + $(v).val() + '" to the clipboard');
+												setTimeout(function() {
+													$(evt.target)
+														.attr('src', chrome.runtime.getURL('assets/img/icon-copy-16.png'))
+														.attr('title', 'Copy "' + $(v).val() + '" to the clipboard');
+												}, 2000);
+										});
+									});
+								}));
+						});
 			}
 		}
 
@@ -128,7 +156,7 @@
 
 		function onWindowMessage(evt) {
 			if(evt.source === exports) {
-				console.log(evt);
+				console.logv(evt);
 				var request = evt.data;
 
 				if (request.eventName === "gotComboValue" && request.val) {
@@ -145,11 +173,11 @@
 		exports.addEventListener('message', onWindowMessage, false);
 
 		function handleGotComboValue(val) {
-			console.log('content script received gotComboValue message:' + (val ? val : 'undefined value'));
+			if (logVerbose) console.log('content script received gotComboValue message:' + (val ? val : 'undefined value'));
 
 			var locationID = val;
 			if (!locationID) {
-				console.log('unable to determine locationID from location quick search');
+				console.logv('unable to determine locationID from location quick search');
 				return;
 			}
 

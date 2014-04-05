@@ -47,8 +47,8 @@ function DsrManager(inputContext)
 
     function doStartup()
     {
-        console.log('DsrManager doing startup with these settings:');
-        console.log(currentSettings);
+        console.logv('DsrManager doing startup with these settings:');
+        console.logv(currentSettings);
 
         findElements();
         addOurElements();
@@ -79,7 +79,7 @@ function DsrManager(inputContext)
             totalEstimated = 0;
         }
 
-        console.log('estimated now ' + totalEstimated);
+        if (logVerbose) console.log('estimated now ' + totalEstimated);
 
         clockedIn = timeTable.find('tr').last().find('td').eq(1).text().trim() == "";
     }
@@ -289,7 +289,7 @@ function DsrManager(inputContext)
                     var warningTime = new Date(getTimeToLeave() - (currentSettings.minuteWarning * 60000));
                     if (warningTime <= now)
                     {
-                        console.log('firing warning');
+                        console.logv('firing warning');
                         fireWarning();
                         hasFiredWarning = true;
                     }

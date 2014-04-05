@@ -36,6 +36,12 @@ $(function()
 	$('#hoursPerWeek').forcenumeric(true);
 	$('#minuteWarning').forcenumeric(true);
 
+	$('.tooltip').tooltip({
+		content: function () {
+			return $(this).prop('title');
+		}
+	});
+
 	$('#notificationSound').change(function() 
 	{
 		var sndFile = $(this).val();

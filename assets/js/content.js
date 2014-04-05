@@ -1,5 +1,9 @@
-console.log('content script loaded');
+console.logv('content script loaded');
 jQuery.fn.exists = function(){ return this.length>0; };
+
+var rot13functions = document.createElement("script");
+rot13functions.src = chrome.extension.getURL("assets/js/rot13x.js");
+(document.head||document.documentElement).appendChild(rot13functions);
 
 var contentscopefunctions = document.createElement("script");
 contentscopefunctions.src = chrome.extension.getURL("assets/js/content-scope-functions.js");
@@ -25,7 +29,7 @@ $(function ()
             currentSettings = settings;
 
             var request = { eventName: "settingsUpdated", settings: settings };
-            console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);
+            if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);
 
             window.postMessage(request, window.location.href);
 
@@ -52,8 +56,8 @@ $(function ()
 
     function onMessage(request, sender, responseCallback)
     {
-        console.log('received request');
-        console.log(request);
+        console.logv('received request');
+        console.logv(request);
 
         if (request && request.eventName)
         {
@@ -66,7 +70,7 @@ $(function ()
             {
                 currentSettings = request.settings;
                 // send to content-scope-functions
-                console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);
+                if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);
                 window.postMessage(request, window.location.href);
 
                 if (dsr.isValidDailyStatusPage()) {
@@ -84,7 +88,7 @@ $(function ()
             }
             else if (request.eventName == "ackNewVersion")
             {
-                console.log('received ackNewVersion');
+                console.logv('received ackNewVersion');
                 $('.ntdsrmods-alert').effect("puff", {});
             }
         }

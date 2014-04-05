@@ -54,8 +54,9 @@ $hostmask = "*://*.${voldemort}.com/*"
 
 $currentDir = Split-Path -parent $MyInvocation.MyCommand.Definition
 $buildDir = Join-Path $currentDir "builds/chrome"
-$buildZip = Join-Path $currentDir "builds/ntdsrmods.zip"
+$buildZip = Join-Path $currentDir "builds/ntdsrmods-chrome.zip"
 $manifest = Join-Path $buildDir "manifest.json"
+$rot13x = Join-Path $buildDir "assets/js/rot13x.js"
 
 If (Test-Path $buildDir)
 {
@@ -69,11 +70,22 @@ New-Item -ItemType directory -Path $buildDir
 
 Copy-Item (GetSourceFiles $currentDir @("*.info", "*.md", "*.json", "*.html", "assets")) $buildDir -Recurse
 
+# Set Manifest matching urls
 $json = Get-Content $manifest | Out-String
 $ob = ConvertFrom-Json $json
-
 $ob.content_scripts[0].matches = @($hostmask)
+$json = ConvertTo-Json $ob
+$json = $json -replace ".js ", ".js"", """
+$json = $json -replace "(""js"":  "")(.*)("",)", '"js": ["$2"],'
+$json = $json -replace ".css ", ".css"", """
+$json = $json -replace "(""css"":  "")(.*)("",)", '"css": ["$2"],'
+$json = $json -replace "\\u003e", ">"
+$json = $json -replace "\\u003c", "<"
+Set-Content $manifest $json
 
-Set-Content $manifest (ConvertTo-Json $ob)
+# Turn off verbose logging
+$rot13fileText = Get-Content $rot13x | Out-String
+$rot13fileText = $rot13fileText -replace "var logVerbose = true;", "var logVerbose = false;"
+Set-Content $rot13x $rot13fileText
 
 ZipFiles $buildZip $buildDir
