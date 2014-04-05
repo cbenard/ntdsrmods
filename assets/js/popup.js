@@ -112,6 +112,22 @@ $(function()
 			{
 				$('#reEnableIssueEditScroll').prop('checked', settings.reEnableIssueEditScroll);
 			}
+			if (settings.copyWithoutSilverlight != undefined)
+			{
+				$('#copyWithoutSilverlight').prop('checked', settings.copyWithoutSilverlight);
+			}
+			if (settings.promoteIssueEditClickableSpansToLinks != undefined)
+			{
+				$('#promoteIssueEditClickableSpansToLinks').prop('checked', settings.promoteIssueEditClickableSpansToLinks);
+			}
+			if (settings.linkIssueSubject != undefined)
+			{
+				$('#linkIssueSubject').prop('checked', settings.linkIssueSubject);
+			}
+			if (settings.linkIssueSubject != undefined)
+			{
+				$('#displayServerSearchFromIssueEdit').prop('checked', settings.displayServerSearchFromIssueEdit);
+			}
 		}
 
 		toggleNotificationSubSettings($('#notifyMe').prop('checked'));
@@ -268,7 +284,11 @@ $(function()
 				"suppressEditIssuePopup": $('#suppressEditIssuePopup').prop('checked') ? true : false,
 				"suppressAllPopups": $('#suppressAllPopups').prop('checked') ? true : false,
 				"displayAccountManagerInServerEdit": $('#displayAccountManagerInServerEdit').prop('checked') ? true : false,
-				"reEnableIssueEditScroll": $('#reEnableIssueEditScroll').prop('checked') ? true : false
+				"reEnableIssueEditScroll": $('#reEnableIssueEditScroll').prop('checked') ? true : false,
+				"copyWithoutSilverlight": $('#copyWithoutSilverlight').prop('checked') ? true : false,
+				"promoteIssueEditClickableSpansToLinks": $('#promoteIssueEditClickableSpansToLinks').prop('checked') ? true : false,
+				"linkIssueSubject": $('#linkIssueSubject').prop('checked') ? true : false,
+				"displayServerSearchFromIssueEdit": $('#displayServerSearchFromIssueEdit').prop('checked') ? true : false
 			};
 
 			chrome.runtime.sendMessage({ "eventName": "saveSettings", "dto": dto }, function(response) {

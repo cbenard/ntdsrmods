@@ -10,13 +10,13 @@ var versionHistory = {
 		heading: "Programmer Enhancement Suite Update",
 		message: "<p>Welcome to the new and improved Programmer Enhancement Suite (PES).</p>" +
 				 "<strong>New features:</strong> <ul>" +
-				 "<li>New name: No longer just Daily Status Modifications.</li>" +
+				 "<li>New name: No longer just \"Daily Status Modifications\".</li>" +
 				 "<li>Other dev site mods in \"Misc\" tab in options (click Niblet's head):<ul>" + 
-				 "<li>Suppressing Popups</li>" +
+				 "<li>Suppress popups (Issue Edit and/or All)</li>" +
 				 "<li>Promote issue edit clickable spans to links</li>" +
 				 "<li>Copy without Silverlight</li>" +
-				 "<li>Server search from issue edit</li>" +
-				 "<li>Display support person on server edit</li>" +
+				 "<li>Server search from Issue Edit</li>" +
+				 "<li>Display support person on Server Edit</li>" +
 				 "</ul></li>" +
 				 "</ul>" +
 				 "<p>Additionally, if you had the \"PRx Dev Site Modifications\" extension, <strong>it has been uninstalled</strong>, as this extension encompasses its functionality.</p>" +
