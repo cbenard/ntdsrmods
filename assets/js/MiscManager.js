@@ -56,11 +56,11 @@
 	    function reEnableIssueEditScroll(shouldReEnableIssueEditScroll) {
 	    	if (shouldReEnableIssueEditScroll) {
 				// Re-enable scroll in separate windows for IssueEdit
-				if (exports.innerHeight != 830 && /IssueEdit.aspx/i.test(document.URL)) {
+				if (exports.innerHeight != 830 && /IssueEdit.aspx/i.test(location)) {
 					$('html,body,form,.GreyFrameWhiteAdminBG').css('height', 'auto').css('overflow-y', 'visible').css('overflow-x', 'visible');
 					hasEnabledScrolling = true;
 				}
-				else if (/IssueEdit.aspx/i.test(document.URL)) {
+				else if (/IssueEdit.aspx/i.test(location)) {
 					$(exports).resize(function() {
 						if (!hasEnabledScrolling) {
 							$('html,body,form,.GreyFrameWhiteAdminBG').css('height', 'auto').css('overflow-y', 'visible').css('overflow-x', 'visible');
@@ -72,7 +72,7 @@
 		}
 
 		function displayGoToIssue(shouldDisplayGoToIssue) {
-			if (/IssueMyListAdvanced.aspx/i.test(document.URL)) {
+			if (/IssueMyListAdvanced.aspx/i.test(location)) {
 				var alreadyExists = $('#issueDirectRow', context).length > 0;
 				if (alreadyExists) {
 					if (!shouldDisplayGoToIssue) {
