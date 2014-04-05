@@ -22,5 +22,7 @@ function rot13x(s) {
 var voldemort = rot13x('cvbarreek');
 var matchingUrls = [
     "*://*." + voldemort + ".com/*",
-    "http://localhost:*/*clocked*.htm"
+    "http://localhost:*/*clocked*.htm",
+    "http://localhost:*/*.htm",
+    "http://localhost/*.htm"
 ];

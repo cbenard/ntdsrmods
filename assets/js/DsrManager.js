@@ -47,7 +47,7 @@ function DsrManager(inputContext)
 
     function doStartup()
     {
-        console.log('Doing startup with these settings:');
+        console.log('DsrManager doing startup with these settings:');
         console.log(currentSettings);
 
         findElements();
@@ -367,7 +367,8 @@ function DsrManager(inputContext)
 
     this.isValidDailyStatusPage = function()
     {
-        return $('div[id$="pnlTime"] table[id$="dgResults"]', context).length > 0;
+        return /DailyStatusListForPerson.aspx/i.test(context.location.href) &&
+            $('div[id$="pnlTime"] table[id$="dgResults"]', context).length > 0;
     };
 
     this.refresh = function(settings)

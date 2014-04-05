@@ -1,8 +1,14 @@
+console.log('content script loaded');
 jQuery.fn.exists = function(){ return this.length>0; };
+
+var contentscopefunctions = document.createElement("script");
+contentscopefunctions.src = chrome.extension.getURL("assets/js/content-scope-functions.js");
+(document.head||document.documentElement).appendChild(contentscopefunctions);
 
 $(function ()
 {
     var dsr = new DsrManager(document);
+    var misc = new MiscManager(document, window.location.href);
     var currentSettings;
 
     if (dsr.isValidDailyStatusPage())
@@ -10,8 +16,27 @@ $(function ()
         dsr.addWarningFiredListener(warningFiredEventHandler);
 
         chrome.runtime.sendMessage({ "eventName": "pageLoaded", "logonName": $.cookie('LogonName') });
+    }
 
-        chrome.runtime.sendMessage({ "eventName": "getSettings" }, function(settings) { currentSettings = settings; dsr.refresh(settings); });
+    if (dsr.isValidDailyStatusPage() || misc.isValidPage()) {
+        chrome.runtime.sendMessage({ "eventName": "needsPageAction" });
+
+        chrome.runtime.sendMessage({ "eventName": "getSettings" }, function(settings) {
+            currentSettings = settings;
+
+            var request = { eventName: "settingsUpdated", settings: settings };
+            console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);
+
+            window.postMessage(request, window.location.href);
+
+            if (dsr.isValidDailyStatusPage()) {
+                dsr.refresh(settings);
+            }
+
+            if (misc.isValidPage()) {
+                misc.refresh(settings);
+            }
+        });
     }
 
     function warningFiredEventHandler(message)
@@ -40,7 +65,17 @@ $(function ()
             else if (request.eventName == "settingsUpdated")
             {
                 currentSettings = request.settings;
-                dsr.refresh(request.settings);
+                // send to content-scope-functions
+                console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);
+                window.postMessage(request, window.location.href);
+
+                if (dsr.isValidDailyStatusPage()) {
+                    dsr.refresh(request.settings);
+                }
+
+                if (misc.isValidPage()) {
+                    misc.refresh(request.settings);
+                }
             }
             else if (request.eventName == "newVersionNotification")
             {
