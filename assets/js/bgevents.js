@@ -110,7 +110,10 @@ var defaultOptions =
 	"suppressAllPopups": true,
 	"displayAccountManagerInServerEdit": false,
 	"reEnableIssueEditScroll": true,
-	"copyWithoutSilverlight": true
+	"copyWithoutSilverlight": true,
+	"promoteIssueEditClickableSpansToLinks": true,
+	"linkIssueSubject": true,
+	"displayServerSearchFromIssueEdit": true
 };
 
 function getSettings(responseCallback)
