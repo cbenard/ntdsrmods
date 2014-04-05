@@ -38,3 +38,13 @@
 	font-size: 1.1em;
 	margin-bottom: 5px;
 }
+
+a.spanReplacementLink, a.spanReplacementLink:visited, a.spanReplacementLink:link {
+	color: #006;
+	text-decoration: none;
+}
+
+a.spanReplacementLink:hover, a.spanReplacementLink:active, a.spanReplacementLink:focus {
+	color: #CC3300;
+	text-decoration: underline;
+}
