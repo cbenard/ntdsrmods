@@ -10,4 +10,10 @@ $(function()
 		e.preventDefault();
 		window.close();
 	});
-})
+
+	$('#currentVersion').text(chrome.runtime.getManifest().version);
+
+	$('.toggleImageLink').click(function() {
+		$('#' + $(this).attr('data-toggle')).slideToggle();
+	});
+});
