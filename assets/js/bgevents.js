@@ -27,7 +27,7 @@ function onMessage(request, sender, responseCallback)
 			console.log('received ' + request.eventName);
 			if (request.eventName == "resetSettings")
 			{
-				chrome.storage.sync.clear(function () {
+				chrome.storage.sync.remove('settings', function () {
 					getSettings(responseCallback);
 				});
 			}
