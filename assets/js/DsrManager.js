@@ -367,7 +367,10 @@ function DsrManager(inputContext)
 
     this.isValidDailyStatusPage = function()
     {
-        return /DailyStatusListForPerson.aspx/i.test(context.location.href) &&
+        var regexMatch = /DailyStatusListForPerson.aspx/i.test(context.location.href) ||
+            /localhost.*clocked/i.test(context.location.href);
+
+        return (regexMatch) &&
             $('div[id$="pnlTime"] table[id$="dgResults"]', context).length > 0;
     };
 
