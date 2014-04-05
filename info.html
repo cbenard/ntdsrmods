@@ -6,25 +6,26 @@
         <link rel="stylesheet" type="text/css" href="assets/css/reset.min.css" />
         <link rel="stylesheet" type="text/css" href="assets/css/popup.css" />
     </head>
-    <body>
-        <h5>Programmer Enhancement Suite</h5>
+    <body class="changelog">
+        <h1>Programmer Enhancement Suite</h1>
+        <div class="subtitle">
+            Current Version:
+            <!-- filled in with javascript from manifest -->
+            <span id="currentVersion"></span>
+        </div>
         <form id="frm">
             <fieldset>
-                <legend>New Information</legend>
-                <div class="response response-success hidden"><strong>Success:</strong> <span class="contents"></span></div>
-                <div class="response response-error hidden"><strong>Error:</strong> <span class="contents"></span></div>
-                <div class="form-row">
-                    The extension has been updated or installed.
-                </div>
-                <div class="form-row">
-                    <label class="for-text">New Version</label>
-                    <span>0.46</span>
-                </div>
+                <legend>Changelog</legend>
                 <div class="changelog">
-                    <h3>Changelog</h3>
+                    <h2>Changelog</h2>
                     <h4>1.0</h4>
                     <ul>
                         <li>New name (Programmer Enhancement Suite): No longer just "Daily Status Modifications".</li>
+                        <li>Additionally, if you had the "PRx Dev Site Modifications" extension, <strong>it has been uninstalled</strong>, as this extension encompasses and supersedes its functionality.</li>
+                        <li>
+                            Notifications have been completely rewritten to take advantage of Chrome's new rich desktop notifications. In the time warning dialog, you will be able to go directly to the Daily Status page or close the notification. <span class="toggleImageLink" data-toggle="newNotificationStyleImage">Show Example</span>
+                            <img id="newNotificationStyleImage" style="display:none" class="page-action-illustration" src="assets/img/new-notification.png" alt="New Notification Style" />
+                        </li>
                         <li>Other dev site mods in "Misc" tab in options (click Niblet's head):
                             <ul>
                                 <li>"Go To Issue Number" Box on My Issues Page
@@ -70,7 +71,6 @@
                             </ul>
                         </li>
                     </ul>
-                    <p>Additionally, if you had the "PRx Dev Site Modifications" extension, <strong>it has been uninstalled</strong>, as this extension encompasses its functionality.</p>
                     <h4>0.46</h4>
                     <ul>
                         <li>Clock out notification no longer automatically disappears.</li>

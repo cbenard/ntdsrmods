@@ -12,11 +12,14 @@ var versionHistory = {
 				 "<strong>New features:</strong> <ul>" +
 				 "<li>New name: No longer just \"Daily Status Modifications\".</li>" +
 				 "<li>Other dev site mods in \"Misc\" tab in options (click Niblet's head):<ul>" + 
+				 "<li>Display \"Go To Issue Number\" Box</li>" +
 				 "<li>Suppress popups (Issue Edit and/or All)</li>" +
-				 "<li>Promote issue edit clickable spans to links</li>" +
+				 "<li>Display Account Manager on Server Edit</li>" +
+				 "<li>Issue Edit window scrolling fix</li>" +
 				 "<li>Copy without Silverlight</li>" +
+				 "<li>Promote issue edit clickable spans to links</li>" +
+				 "<li>Link Issue Subject</li>" +
 				 "<li>Server search from Issue Edit</li>" +
-				 "<li>Display support person on Server Edit</li>" +
 				 "</ul></li>" +
 				 "</ul>" +
 				 "<p>Additionally, if you had the \"PRx Dev Site Modifications\" extension, <strong>it has been uninstalled</strong>, as this extension encompasses its functionality.</p>" +
