@@ -11,7 +11,8 @@
         "<all_urls>",
 		"management",
         "notifications",
-        "clipboardWrite"
+        "clipboardWrite",
+        "contentSettings"
     ],
     "web_accessible_resources":
     [

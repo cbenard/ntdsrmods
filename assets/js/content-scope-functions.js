@@ -39,6 +39,9 @@ function onMessage(evt) {
             if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);
             window.postMessage(request, location);
 		}
+		else if (request.eventName === "editDailyStatusGeneratedItem" && typeof request.linkTypeID !== 'undefined' && request.contentID) {
+			editDailyStatusGeneratedItem(request.linkTypeID, request.contentID);
+		}
 
 		/* In case we want to do callback later
 		if (typeof request.callback === 'function') {

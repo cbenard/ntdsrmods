@@ -34,6 +34,7 @@
 				displayAccountManagerInServerEdit(currentSettings.displayAccountManagerInServerEdit);
 				reEnableIssueEditScroll(currentSettings.reEnableIssueEditScroll);
 				copyWithoutSilverlight(currentSettings.copyWithoutSilverlight);
+				promoteIssueEditClickableSpansToLinks(currentSettings.promoteIssueEditClickableSpansToLinks);
     		}
 	    }
 
@@ -96,6 +97,50 @@
 									});
 								}));
 						});
+			}
+		}
+
+		function promoteIssueEditClickableSpansToLinks(shouldPromoteIssueEditClickableSpansToLinks) {
+			if (shouldPromoteIssueEditClickableSpansToLinks) {
+				$('span[onclick^="javascript:editDailyStatusGeneratedItem"]', context)
+					.each(function(i, v) {
+						var match = /editDailyStatusGeneratedItem\(([0-2]),\s?["']([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})/i.exec($(v)[0].getAttribute('onclick'));
+						if (match && match.length >= 3) {
+							var linkTypeID = parseInt(match[1], 10);
+							var contentID = match[2];
+							var linkUrl;
+
+							switch (linkTypeID) {
+								case 0:
+									linkUrl = 'IssueEdit.aspx?IssueID=' + contentID;
+									break;
+								case 1:
+									linkUrl = '../QBIntegration/SalesOrderEdit.aspx?SalesOrderID=' + contentID;
+									break;
+								case 2:
+									linkUrl = '../LocationEdit.aspx?LocationID=' + contentID;
+									break;
+								default:
+									return;
+							}
+
+							var a = $(context.createElement('a'))
+								.attr('href', linkUrl)
+								.html($(v)[0].innerText)
+								.attr('target', '_blank')
+								.addClass('spanReplacementLink')
+								.click(function (evt) {
+									console.logv(currentSettings);
+									if (!currentSettings || !currentSettings.promoteIssueEditClickableSpansToLinks) {
+										evt.preventDefault();
+							            var request = { eventName: "editDailyStatusGeneratedItem", linkTypeID: linkTypeID, contentID: contentID };
+							            if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + location);
+							            exports.postMessage(request, location);
+									}
+								});
+							$(v).replaceWith(a);
+						}
+					});
 			}
 		}
 

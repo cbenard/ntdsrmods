@@ -111,7 +111,7 @@ var defaultOptions =
 	"displayAccountManagerInServerEdit": false,
 	"reEnableIssueEditScroll": true,
 	"copyWithoutSilverlight": true,
-	"promoteIssueEditClickableSpansToLinks": true,
+	"promoteIssueEditClickableSpansToLinks": false,
 	"linkIssueSubject": true,
 	"displayServerSearchFromIssueEdit": true
 };
@@ -132,8 +132,7 @@ function saveSettings(settings, responseCallback)
 	console.logv('push to sync');
 	console.logv(settings);
 
-	chrome.storage.sync.set({ 'settings': settings }, function()
-	{
+	chrome.storage.sync.set({ 'settings': settings }, function() {
 		var err = chrome.runtime.lastError;
 		if (err)
 		{
@@ -142,7 +141,7 @@ function saveSettings(settings, responseCallback)
 
 		responseCallback({ 'success': true, 'errorMessage': null });
 
-		settings = $.extend(defaultOptions, data.settings);
+		settings = $.extend(defaultOptions, settings);
 
 		sendOneWayMessageToContentScript({ "eventName": "settingsUpdated", "settings": settings });
 
@@ -377,3 +376,12 @@ chrome.runtime.onInstalled.addListener(function(details) {
 		});
 	}
 });
+
+(function() {
+	var popupSettings = { primaryPattern: matchingUrls[0], setting: 'allow' };
+	if (matchingUrls.length > 1) {
+		popupSettings.secondaryPattern = matchingUrls[1];
+	}
+	chrome.contentSettings.popups.set(popupSettings);
+	if (logVerbose) console.log('set popup settings to: ' + JSON.stringify(popupSettings));
+})();
