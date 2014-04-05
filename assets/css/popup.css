@@ -66,6 +66,7 @@ h1 {
 	margin-bottom: 0.5em;
 	width: 100%;
 	font-size: 11pt;
+	clear: both;
 }
 
 label.for-text {
@@ -194,4 +195,29 @@ body.notification {
 
 .pull-left {
 	float: left;
+}
+
+.subtitle {
+	font-style: italic;
+}
+
+span.tooltip {
+	border-bottom: 1px dashed black;
+}
+
+.ui-tooltip {
+	font-size: 11pt;
+	color: rgb(88, 88, 88);
+	line-height: 130%;
+}
+
+.optionhelp {
+	float: right;
+	cursor: help;
+}
+
+.code {
+	background: rgb(204, 204, 204);
+	padding: 3px 8px 3px 8px;
+	font-family: 'Consolas', 'Andale Mono', 'Courier New', 'Fixed', 'monospace';
 }

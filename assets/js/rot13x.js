@@ -26,3 +26,6 @@ var matchingUrls = [
     "http://localhost:*/*.htm",
     "http://localhost/*.htm"
 ];
+
+var logVerbose = true;
+console.logv = function(data) { if (logVerbose) { console.log(data); } };

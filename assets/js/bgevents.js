@@ -14,17 +14,17 @@ function onMessage(request, sender, responseCallback)
 	{
 		if (request.eventName == "pageLoaded")
 		{
-			console.log('received pageLoaded');
+			console.logv('received pageLoaded');
 			pageLoaded(sender, request.logonName);
 		}
 		else if (request.eventName == "needsPageAction")
 		{
-			console.log('received needsPageAction');
+			console.logv('received needsPageAction');
 			placePageAction(sender);
 		}
 		else if (request.eventName == "getSettings" || request.eventName == "resetSettings")
 		{
-			console.log('received ' + request.eventName);
+			if (logVerbose) console.log('received ' + request.eventName);
 			if (request.eventName == "resetSettings")
 			{
 				chrome.storage.sync.remove('settings', function () {
@@ -39,20 +39,19 @@ function onMessage(request, sender, responseCallback)
 		}
 		else if (request.eventName == "saveSettings")
 		{
-			console.log('received saveSettings');
+			console.logv('received saveSettings');
 			saveSettings(request.dto, responseCallback);
 			return true;
 		}
 		else if (request.eventName == "raiseNotification")
 		{
-			console.log('received raiseNotification');
+			console.logv('received raiseNotification');
 			raiseNotification(request.notificationID, request.title, request.message, sender.tab.id, request.settings, responseCallback);
 			return true;
 		}
 		else if (request.eventName == "openTab")
 		{
 			chrome.tabs.create({ url: request.url }, function() {});
-			return true;
 		}
 		else if (request.eventName == "ackNewVersion")
 		{
@@ -66,8 +65,17 @@ function onMessage(request, sender, responseCallback)
 				}
 
 				sendOneWayMessageToContentScript(request);
-				console.log('Acknowledged version: ' + ackedVersion);
+				if (logVerbose) console.log('Acknowledged version: ' + ackedVersion);
 			});
+		}
+		else if (request.eventName == "setClipboard")
+		{
+			var text = request.copyText ? request.copyText : '';
+
+			copyText(text);
+
+			responseCallback();
+
 			return true;
 		}
 	}
@@ -101,15 +109,16 @@ var defaultOptions =
 	"suppressEditIssuePopup": true,
 	"suppressAllPopups": true,
 	"displayAccountManagerInServerEdit": false,
-	"reEnableIssueEditScroll": true
+	"reEnableIssueEditScroll": true,
+	"copyWithoutSilverlight": true
 };
 
 function getSettings(responseCallback)
 {
 	chrome.storage.sync.get('settings', function(data)
 	{
-		console.log('pulled from sync');
-		console.log(data);
+		console.logv('pulled from sync');
+		console.logv(data);
 		var settings = $.extend(defaultOptions, data.settings);
 		responseCallback(settings);
 	});
@@ -117,8 +126,8 @@ function getSettings(responseCallback)
 
 function saveSettings(settings, responseCallback)
 {
-	console.log('push to sync');
-	console.log(settings);
+	console.logv('push to sync');
+	console.logv(settings);
 
 	chrome.storage.sync.set({ 'settings': settings }, function()
 	{
@@ -130,9 +139,11 @@ function saveSettings(settings, responseCallback)
 
 		responseCallback({ 'success': true, 'errorMessage': null });
 
+		settings = $.extend(defaultOptions, data.settings);
+
 		sendOneWayMessageToContentScript({ "eventName": "settingsUpdated", "settings": settings });
 
-		console.log('sent settingsUpdated message');
+		console.logv('sent settingsUpdated message');
 	});
 }
 
@@ -144,8 +155,8 @@ function pageLoaded(sender, logonName)
 {
 	chrome.storage.sync.get('lastVersion', function(data)
 	{
-		console.log('pulled version from sync');
-		console.log(data);
+		console.logv('pulled version from sync');
+		console.logv(data);
 
 		var manifest = chrome.runtime.getManifest();
 		var versionInfo = versionHistory[manifest.version];
@@ -160,6 +171,22 @@ function pageLoaded(sender, logonName)
 		LogonName = logonName;
 		sendHeartbeat();
 	}
+}
+
+function copyText(text) {
+	// Adapted from http://stackoverflow.com/a/5255791/448
+	var textarea = document.createElement("textarea");
+	var body = document.getElementsByTagName('body')[0];
+	body.appendChild(textarea);
+
+	// now we put the message in the textarea
+	textarea.value = text;
+
+	// and copy the text from the textarea
+	textarea.select();
+	document.execCommand("copy", false, null);
+	body.removeChild(textarea);
+	if (logVerbose) console.log('copied ' + text);
 }
 
 function sendHeartbeat()
@@ -191,7 +218,7 @@ function sendOneWayMessageToContentScript(message)
 			{
 				for (var i = 0; i < tabs.length; i++)
 				{
-					console.log('sending message to tab id: ' + tabs[i].id);
+					if (logVerbose) console.log('sending message to tab id: ' + tabs[i].id);
 
 					chrome.tabs.sendMessage(tabs[i].id, message, function() {
 						if (chrome.runtime.lastError)
@@ -215,9 +242,11 @@ function raiseNotification(notificationID, title, message, tabID, settings, resp
 {
 	if (lastNotificationTime && new Date() < new Date(lastNotificationTime.getTime() + acceptableNotificationTime))
 	{
-		console.log('not notifying. last update time: ' +
+		if (logVerbose) {
+			console.log('not notifying. last update time: ' +
 			lastNotificationTime + '. waiting until ' +
 			new Date(lastNotificationTime.getTime() + acceptableNotificationTime));
+		}
 		// Too soon, but this isn't working yet
 		responseCallback();
 	}
@@ -239,7 +268,7 @@ function raiseNotification(notificationID, title, message, tabID, settings, resp
 				chrome.notifications.create("timewarning", notificationOptions, function() {
 					if (settings && settings.notificationSound)
 					{
-						console.log(chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg"));
+						if (logVerbose) console.log(chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg"));
 						setTimeout(function() {
 							var notificationAudio = new Audio();
 							notificationAudio.src = chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg");
@@ -279,24 +308,34 @@ function HandleNotificationButtonClick(notificationID, buttonIndex) {
 	chrome.notifications.clear(notificationID, function() {});
 
 	if (notificationID === "updatenotification") {
-		console.log('update notification: user clicked button index ' + buttonIndex);
+		if (logVerbose) console.log('update notification: user clicked button index ' + buttonIndex);
 		if (buttonIndex === 0 || buttonIndex === -1) {
 			chrome.tabs.create({ url: chrome.runtime.getURL("info.html") }, function() {});
 		}
 	}
 	else if (notificationID === "timewarning") {
-		console.log('time warning notification: user clicked button index ' + buttonIndex);
+		if (logVerbose) console.log('time warning notification: user clicked button index ' + buttonIndex);
 		if (buttonIndex === 0 || buttonIndex === -1) {
-			chrome.tabs.query({ url: "*://*/*/DailyStatusListForPerson.aspx" }, function (tabResults) {
-				if (tabResults && tabResults.length > 0) {
-					var tabToFocus = tabResults[0];
-					chrome.windows.update(tabToFocus.windowId, { focused: true }, function (updatedWindow) {
-						chrome.tabs.update(tabToFocus.id, { active: true }, function () {});
+			chrome.tabs.get(lastNotificationTabID, function(lastTab) {
+				if (lastTab) {
+					focusTab(lastTab);
+				}
+				else {
+					chrome.tabs.query({ url: "*://*/*/DailyStatusListForPerson.aspx" }, function (tabResults) {
+						if (tabResults && tabResults.length > 0) {
+							focusTab(tabResults[0]);
+						}
 					});
 				}
 			});
 		}
 	}
+}
+
+function focusTab (tab) {
+	chrome.windows.update(tab.windowId, { focused: true }, function (updatedWindow) {
+		chrome.tabs.update(tab.id, { active: true }, function () {});
+	});
 }
 
 chrome.runtime.onInstalled.addListener(function(details) {
@@ -328,7 +367,7 @@ chrome.runtime.onInstalled.addListener(function(details) {
 			{
 				for (var i = 0; i < tabs.length; i++)
 				{
-					console.log('reloading matching tab ' + tabs[i].id + ' with url ' + tabs[i].url);
+					if (logVerbose) console.log('reloading matching tab ' + tabs[i].id + ' with url ' + tabs[i].url);
 					chrome.tabs.reload(tabs[i].id);
 				}
 			}
