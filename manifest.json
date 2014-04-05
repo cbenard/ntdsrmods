@@ -54,6 +54,7 @@
                 "assets/js/jquery-ui.min.js",
                 "assets/js/jquery.cookie.js",
                 "assets/js/formattime.js",
+                "assets/js/forcenumeric.js",
                 "assets/js/stringtrim.js",
                 "assets/js/DsrManager.js",
                 "assets/js/MiscManager.js",
