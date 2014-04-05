@@ -108,27 +108,19 @@
 							insertedBodyKeypress = true;
 						}
 						
-						$('#issueNumberDirect', context).keypress(function(evt) {
+						input
+							.forcenumeric()
+							.keypress(function(evt) {
 							if (evt.which == 13) {
 								evt.preventDefault();
 								
 								exports.open('IssueEdit.aspx?IssueNumber=' + this.value);
 							}
-							else if (evt.which > 31 && (evt.which < 48 || evt.which > 57)) {
-								evt.preventDefault();
-							}
-						});
-						
-						$('#issueNumberDirect', context).keyup(function(evt) {
-							if (/\D/.test($(this).val())) {
-								$(this).val($(this).val().replace(/\D/g, ''));
-							}
-						});
-						
-						$('#issueNumberDirect', context).focus(function() {
-							$(this).select();
-							exports.setTimeout(function() { $('#issueNumberDirect', context).select(); }, 100);
-						});
+							})
+							.focus(function() {
+								$(this).select();
+								exports.setTimeout(function() { $('#issueNumberDirect', context).select(); }, 100);
+							});
 					}
 				}
 			}
