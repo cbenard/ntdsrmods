@@ -55,6 +55,10 @@ function onMessage(request, sender, responseCallback)
 		else if (request.eventName == "ackNewVersion")
 		{
 			var ackedVersion = chrome.runtime.getManifest().version;
+			var versionInfo = versionHistory[ackedVersion];
+			if (versionInfo.sameAs !== undefined) {
+				ackedVersion = versionInfo.sameAs;
+			}
 			chrome.storage.sync.set({ 'lastVersion': ackedVersion }, function() {
 				var err = chrome.runtime.lastError;
 				if (err)
