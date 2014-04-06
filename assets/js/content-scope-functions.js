@@ -37,16 +37,43 @@ function onMessage(evt) {
 
 			var request = { eventName: "gotComboValue", val: quickSearchVal };
             if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);
-            window.postMessage(request, location);
+            window.postMessage(request, window.location.href);
 		}
 		else if (request.eventName === "editDailyStatusGeneratedItem" && typeof request.linkTypeID !== 'undefined' && request.contentID) {
 			editDailyStatusGeneratedItem(request.linkTypeID, request.contentID);
 		}
-
-		/* In case we want to do callback later
-		if (typeof request.callback === 'function') {
-			callback();
-		}*/
+		else if (request.eventName === "editIssue" && typeof request.issueID !== 'undefined' && request.issueID) {
+			EditIssue(request.issueID);;
+		}
+		else if (request.eventName === "findRadGridColumnIndex") {
+			try {
+				var foundColumnIndex;
+				var grid = $find(request.gridClientID);
+				if (grid.constructor === Telerik.Web.UI.RadGrid) {
+					var cols = $find(request.gridClientID)
+						.get_masterTableView()
+						.get_columns();
+					
+					for (var i = 0; i < cols.length; i++) {
+						if (cols[i].get_uniqueName() === request.columnName) {
+							foundColumnIndex = i;
+							break;
+						}
+					}
+				}
+				if (foundColumnIndex !== undefined) {
+					window.postMessage({
+						eventName: 'foundRadGridColumnIndex',
+						gridClientID: request.gridClientID,
+						columnName: request.columnName,
+						foundColumnIndex: foundColumnIndex
+					}, window.location.href);
+				}
+			} catch (err) {
+				console.log('error finding rad grid column:');
+				console.log(err);
+			}
+		}
 	}
 }
 
