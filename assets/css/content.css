@@ -20,6 +20,11 @@
 	background-repeat: no-repeat;
 	width: 348px;
 	margin-top: 10px;
+	line-height: 140%;
+}
+
+.ntdsrmods-alert li {
+	margin-bottom: 5px;
 }
 
 .ntdsrmods-alert-link {
