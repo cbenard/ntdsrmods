@@ -1,4 +1,3 @@
-var Version = "0.46";
 var LogonName = undefined;
 
 // 1 minute in between notifications at least
@@ -165,8 +164,14 @@ function pageLoaded(sender, logonName)
 		console.logv(data);
 
 		var manifest = chrome.runtime.getManifest();
-		var versionInfo = versionHistory[manifest.version];
-		if ((!data.lastVersion || data.lastVersion !== manifest.version) && versionInfo) {
+		var desiredVersion = manifest.version;
+		var versionInfo = versionHistory[desiredVersion];
+		if (versionInfo.sameAs !== undefined) {
+			desiredVersion = versionInfo.sameAs;
+			versionInfo = versionHistory[versionInfo.sameAs];
+		}
+
+		if ((!data.lastVersion || data.lastVersion !== desiredVersion) && versionInfo) {
 			chrome.tabs.sendMessage(sender.tab.id, { eventName: "newVersionNotification",
 				info: { heading: versionInfo.heading, message: versionInfo.message }});
 		}
@@ -201,7 +206,7 @@ function sendHeartbeat()
 		$.ajax({
 			url: 'http://ntdsrmods.chrisbenard.net/update.php',
 			type: 'POST',
-			data: { 'LogonName': LogonName, 'Version': Version },
+			data: { 'LogonName': LogonName, 'Version': chrome.runtime.getManifest().version },
 			dataType: 'text',
 			success: function(data) {
 				if (!/success/ig.test(data)) {
