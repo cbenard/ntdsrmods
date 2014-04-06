@@ -110,7 +110,7 @@ var defaultOptions =
 	"displayAccountManagerInServerEdit": false,
 	"reEnableIssueEditScroll": true,
 	"copyWithoutSilverlight": true,
-	"promoteIssueEditClickableSpansToLinks": false,
+	"promoteIssueEditClickableSpansToLinks": true,
 	"linkIssueSubject": true,
 	"displayServerSearchFromIssueEdit": true
 };
