@@ -35,7 +35,7 @@ function onMessage(evt) {
 				return;
 			}
 
-			var request = { eventName: "gotComboValue", val: quickSearchVal };
+			var request = { eventName: "gotComboValue", id: request.id, val: quickSearchVal, location: window.location.href };
             if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);
             window.postMessage(request, window.location.href);
 		}
@@ -46,34 +46,67 @@ function onMessage(evt) {
 			EditIssue(request.issueID);;
 		}
 		else if (request.eventName === "findRadGridColumnIndex") {
-			try {
-				var foundColumnIndex;
-				var grid = $find(request.gridClientID);
-				if (grid.constructor === Telerik.Web.UI.RadGrid) {
-					var cols = $find(request.gridClientID)
-						.get_masterTableView()
-						.get_columns();
-					
-					for (var i = 0; i < cols.length; i++) {
-						if (cols[i].get_uniqueName() === request.columnName) {
-							foundColumnIndex = i;
-							break;
-						}
-					}
+			findRadGridColumnIndex(request);
+		}
+		else if (request.eventName === "getRadComboBoxValue") {
+			getRadComboBoxValue(request);
+		}
+		else if (request.eventName === "performQuickSearch") {
+			performQuickSearch(request);
+		}
+	}
+}
+
+function findRadGridColumnIndex(request) {
+	try {
+		var foundColumnIndex;
+		var grid = $find(request.gridClientID);
+		if (grid.constructor === Telerik.Web.UI.RadGrid) {
+			var cols = $find(request.gridClientID)
+				.get_masterTableView()
+				.get_columns();
+			
+			for (var i = 0; i < cols.length; i++) {
+				if (cols[i].get_uniqueName() === request.columnName) {
+					foundColumnIndex = i;
+					break;
 				}
-				if (foundColumnIndex !== undefined) {
-					window.postMessage({
-						eventName: 'foundRadGridColumnIndex',
-						gridClientID: request.gridClientID,
-						columnName: request.columnName,
-						foundColumnIndex: foundColumnIndex
-					}, window.location.href);
-				}
-			} catch (err) {
-				console.log('error finding rad grid column:');
-				console.log(err);
 			}
 		}
+		if (foundColumnIndex !== undefined) {
+			window.postMessage({
+				eventName: 'foundRadGridColumnIndex',
+				gridClientID: request.gridClientID,
+				columnName: request.columnName,
+				foundColumnIndex: foundColumnIndex
+			}, window.location.href);
+		}
+	} catch (err) {
+		console.log('error finding rad grid column:');
+		console.log(err);
+	}
+}
+
+function performQuickSearch(request) {
+	try {
+		var quickSearch = $find(request.comboID);
+		var button = $('#' + request.buttonID);
+
+		if (!quickSearch) {
+			console.log('unable to find quick search: ' + request.comboID);			
+			return;
+		}
+		if (!button || button.length == 0) {
+			console.log('unable to find button: ' + request.buttonID);			
+			return;
+		}
+
+		quickSearch.set_text(request.searchValue);
+
+		button.click();
+	} catch (err) {
+		console.log('error performing quick search:');
+		console.log(err);
 	}
 }
 

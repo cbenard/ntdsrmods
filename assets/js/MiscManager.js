@@ -10,6 +10,7 @@
 		// Only include ones with Action (2nd parameter) omitted or Action === 0
 		var editIssueRegex = new RegExp("EditIssue\\([\"']([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})[\"'](,\\s?0)?\\)", "i");
 		var editIssueLinkRegex = new RegExp("^IssueEdit.aspx\\?IssueID=([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$", "i");
+		var serverSearchHashRegex = new RegExp("/P.{6}ServerSearch.aspx#LocationID=([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})", "i");
 		var issueListRadGridClientID = 'ctl00_ContentPlaceHolder2_rgMyIssues_dgResults';
 		var subjectColumn = 'Subject';
 		var numberOfSentinels;
@@ -43,10 +44,16 @@
 				copyWithoutSilverlight(currentSettings.copyWithoutSilverlight);
 				promoteIssueEditClickableSpansToLinks(currentSettings.promoteIssueEditClickableSpansToLinks);
 
-				if (/\/IssueMyListAdvanced.aspx/i.test(location)) {
+				if (/\/IssueMyListAdvanced\.aspx/i.test(location)) {
 					linkIssueSubject(currentSettings.linkIssueSubject);
 
 					placeSentinels();
+				}
+				else if (/\/IssueEdit\.aspx/i.test(location)) {
+					displayServerSearchFromIssueEdit(currentSettings.displayServerSearchFromIssueEdit);
+				}
+				else if (serverSearchHashRegex.test(exports.location.href)) {
+					handleServerSearchLoad();
 				}
     		}
 	    }
@@ -96,6 +103,38 @@
 			}
 			else if (!shouldDisplayAccountManagerInServerEdit && $('#accountManagerName', context).length > 0) {
 				$('#accountManagerName', context).remove();
+			}
+		}
+
+		function displayServerSearchFromIssueEdit(shouldDisplayServerSearchFromIssueEdit) {
+			if (!shouldDisplayServerSearchFromIssueEdit && $('#cmbIssueLocationSearch_lblClipboard a').length > 0) {
+				$('#cmbIssueLocationSearch_lblClipboard').html('Multiple servers');
+			}
+			else {
+	            var request = { eventName: "getComboValue", id: 'cmbIssueLocationSearch_cmbLocation' };
+	            if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + location);
+	            exports.postMessage(request, location);
+			}
+		}
+
+		function handleServerSearchLoad() {
+			var match = serverSearchHashRegex.exec(exports.location.href);
+
+			if (match && match.length > 0) {
+				history.replaceState({}, context.title, exports.location.pathname);
+		        chrome.runtime.sendMessage({ "eventName": "needsPageAction" });
+		        
+				var locationID = match[1];
+				if (logVerbose) console.log('handling server search for location ID: ' + locationID);
+
+	            var request = {
+	            	eventName: "performQuickSearch",
+	            	comboID: 'ctl00_ContentPlaceHolder2_cmbLocationQuickSearch_cmbLocationQuickSearch',
+	            	searchValue: locationID,
+	            	buttonID: 'ctl00_ContentPlaceHolder2_btnSearch'
+	            };
+	            if (logVerbose) console.log('sending message to window: ' + JSON.stringify(request) + ', ' + location);
+	            exports.postMessage(request, location);
 			}
 		}
 
@@ -303,7 +342,7 @@
 				var request = evt.data;
 
 				if (request.eventName === "gotComboValue" && request.val) {
-					handleGotComboValue(request.val);
+					handleGotComboValue(request);
 				}
 				else if (request.eventName === 'foundRadGridColumnIndex') {
 					handleGotColumnIndex(request);
@@ -313,25 +352,45 @@
 
 		exports.addEventListener('message', onWindowMessage, false);
 
-		function handleGotComboValue(val) {
-			if (logVerbose) console.log('content script received gotComboValue message:' + (val ? val : 'undefined value'));
+		function handleGotComboValue(request) {
+			if (logVerbose) console.log('content script received gotComboValue message:' + (request.val ? request.val : 'undefined value'));
 
-			var locationID = val;
-			if (!locationID) {
-				console.logv('unable to determine locationID from location quick search');
-				return;
-			}
-
-			var locationURL = 'https://www.' + voldemort + '.com/LocationEdit.aspx?LocationID=' + locationID;
-
-			$.get(locationURL, function (data) {
-				var accountMgr = $(data).find('#cmbTechnicalAccountManager_cmbPerson_Input');
-				if (accountMgr && accountMgr.val() && accountMgr.val().length > 0) {
-					$('#pnlEditFields tr')
-						.first()
-						.after('<tr id="accountManagerName"><td class="formLabel">Account Manager</td><td class="formElement">' + accountMgr.val().replace("  ", " ") + '</td></tr>');
+			if (request.id === 'cmbLocationQuickSearch_cmbLocationQuickSearch' &&
+				serverEditRegExp.test(request.location)) {
+				var locationID = request.val;
+				if (!locationID) {
+					console.logv('unable to determine locationID from location quick search');
+					return;
 				}
-			});
+
+				var locationURL = 'https://www.' + voldemort + '.com/LocationEdit.aspx?LocationID=' + locationID;
+
+				$.get(locationURL, function (data) {
+					var accountMgr = $(data).find('#cmbTechnicalAccountManager_cmbPerson_Input');
+					if (accountMgr && accountMgr.val() && accountMgr.val().length > 0) {
+						$('#pnlEditFields tr')
+							.first()
+							.after('<tr id="accountManagerName"><td class="formLabel">Account Manager</td><td class="formElement">' + accountMgr.val().replace("  ", " ") + '</td></tr>');
+					}
+				});
+			}
+			else if (request.id === 'cmbIssueLocationSearch_cmbLocation' &&
+				/\/IssueEdit.aspx/i.test(request.location)) {
+				var locationID = request.val;
+				if (!locationID) {
+					console.logv('unable to determine locationID from location quick search');
+					return;
+				}
+
+				var serverSearchUrl = 'https://www.' + voldemort + '.com/SupportCenter/PioneerServerSearch.aspx#LocationID=' + locationID;
+
+				var serverLink = $(context.createElement('a'))
+					.addClass('spanReplacementLink')
+					.attr('href', serverSearchUrl)
+					.attr('target', '_blank')
+					.text('Multiple servers');
+				$('#cmbIssueLocationSearch_lblClipboard').html(serverLink);
+			}
 		}
 
 		function handleGotColumnIndex(request) {
