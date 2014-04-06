@@ -75,6 +75,7 @@ $json = Get-Content $manifest | Out-String
 $ob = ConvertFrom-Json $json
 $ob.content_scripts[0].matches = @($hostmask)
 $json = ConvertTo-Json $ob
+$json = $json -replace "(""matches"":  "")(.*)("",)", '"matches": ["$2"],'
 $json = $json -replace ".js ", ".js"", """
 $json = $json -replace "(""js"":  "")(.*)("",)", '"js": ["$2"],'
 $json = $json -replace ".css ", ".css"", """
