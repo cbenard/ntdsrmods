@@ -423,8 +423,18 @@ chrome.omnibox.onInputEntered.addListener(function (text, disposition) {
 	for (var i = 0; i < searchTerms.length; i++) {
 		if (searchTerms[i].length >= text.trim().length &&
 			searchTerms[i].substring(0, text.trim().length) == text.trim().toLowerCase()) {
-			if (logVerbose) console.log('replacing search "' + text + '" with "' + searchTerms[i] + '"');
-			text = searchTerms[i];
+			var otherMatch = false;
+			for (var j = 0; j < searchTerms.length; j++) {
+				if (j !== i && searchTerms[j].length >= text.trim().length &&
+					searchTerms[j].substring(0, text.trim().length) == text.trim().toLowerCase()) {
+					otherMatch = true;
+					if (logVerbose) console.log(text + ' was ambiguous. matched "' + searchTerms[i] + '" and "' + searchTerms[j] + '"');
+				}
+			}
+			if (!otherMatch) {
+				if (logVerbose) console.log('replacing search "' + text + '" with "' + searchTerms[i] + '"');
+				text = searchTerms[i];
+			}
 			break;
 		}
 	}
