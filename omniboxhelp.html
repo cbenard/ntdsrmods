@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+    <head>
+        <style>
+        </style>
+        <link rel="stylesheet" type="text/css" href="assets/css/reset.min.css" />
+        <link rel="stylesheet" type="text/css" href="assets/css/popup.css" />
+    </head>
+    <body class="changelog">
+        <h1>Programmer Enhancement Suite</h1>
+        <div class="subtitle">
+            Current Version:
+            <!-- filled in with javascript from manifest -->
+            <span id="currentVersion"></span>
+        </div>
+        <form id="frm">
+            <fieldset>
+                <legend>Omnibox Help</legend>
+                <div class="changelog">
+                    <h2>Available Commands</h2>
+                    <ul>
+                        <li><strong>dsr</strong> &raquo; Goes directly to Daily Status</li>
+                        <li><strong>issues or issue</strong> &raquo; Goes directly to Issue List</li>
+                        <li><strong>issue 123456</strong> &raquo; Goes directly to Issue #123456</li>
+                        <li><strong>servers</strong> &raquo; Goes directly to Server Search</li>
+                        <li><strong>help</strong> &raquo; Goes directly to this help page</li>
+                    </ul>
+                    <p><strong>In all cases, you can shorten the commands as long as they are non ambiguous:</strong></p>
+                    <p>For example:</p>
+                    <ul>
+                        <li><strong>d</strong> &raquo; Daily Status</li>
+                        <li><strong>i</strong> &raquo; Issue List</li>
+                        <li><strong>i</strong> 123456 &raquo; Issue #123456</li>
+                        <li><strong>s</strong> &raquo; Server Search</li>
+                        <li><strong>hel</strong> &raquo; Satan's Lair</li>
+                    </ul>
+                </div>
+                <div class="form-row">
+                    <button id="close">Close</button>
+                </div>
+            </fieldset>
+        </form>
+
+        <p>
+            <a href="info.html">More info</a> about the extension.
+        </p>
+
+        <script type="text/javascript" src="assets/js/jquery-1.10.1.min.js"></script>
+        <script type="text/javascript" src="assets/js/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="assets/js/info.js"></script>
+    </body>
+</html>

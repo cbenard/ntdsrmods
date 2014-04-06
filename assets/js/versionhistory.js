@@ -11,6 +11,7 @@ var versionHistory = {
 		message: "<p>Welcome to the new and improved Programmer Enhancement Suite (PES).</p>" +
 				 "<strong>New features:</strong> <ul>" +
 				 "<li>New name: No longer just \"Daily Status Modifications\".</li>" +
+				 "<li><strong>Omnibox Support!</strong> Type \"nib\" into your address bar and hit space. Hit space again to see options listed. Type \"nib help\" to get started or click \"More Info\" below.</li>" +
 				 "<li>Other dev site mods in \"Misc\" tab in options (click Niblet's head):<ul>" + 
 				 "<li>Display \"Go To Issue Number\" Box</li>" +
 				 "<li>Suppress popups (Issue Edit and/or All)</li>" +
