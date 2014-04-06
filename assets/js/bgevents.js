@@ -377,6 +377,114 @@ chrome.runtime.onInstalled.addListener(function(details) {
 	}
 });
 
+// http://stackoverflow.com/a/17246127/448
+chrome.omnibox.onInputChanged.addListener(function (text, suggest) {
+	// Add suggestions to an array
+    var suggestions = [];
+    if (text.length <= 1 || 'issue'.substring(0, Math.min(text.length, 5)) == text.substring(0, Math.min(text.length, 5))) {
+	    suggestions.push({ content: 'issue', description: 'issue <dim>Edit an issue by typing "issue 123456" or go to issues with "issue"</dim>'});
+	}
+    if (text.length <= 1 || 'divmanage'.substring(0, Math.min(text.length, 9)) == text.substring(0, Math.min(text.length, 9))) {
+    	suggestions.push({ content: 'divmanage', description: 'divmanage <dim>Manage Download Item Versions by typing "divmanage"</dim>'});
+	}
+    if (text.length <= 1 || 'dsr'.substring(0, Math.min(text.length, 3)) == text.substring(0, Math.min(text.length, 3))) {
+    	suggestions.push({ content: 'dsr', description: 'dsr <dim>Go directly to Daily Status or open by typing "dsr"</dim>'});
+	}
+    if (text.length <= 1 || 'servers'.substring(0, Math.min(text.length, 7)) == text.substring(0, Math.min(text.length, 7))) {
+    	suggestions.push({ content: 'servers', description: 'servers <dim>Go directly to Server Search by typing "servers"</dim>'});
+	}
+    if (text.length <= 1 || 'help'.substring(0, Math.min(text.length, 4)) == text.substring(0, Math.min(text.length, 4)) ||
+    	suggestions.length === 0) {
+	    suggestions.push({ content: 'help', description: 'Help! <dim>What can I type here?</dim>' });
+	}
+
+    // Set first suggestion as the default suggestion
+    chrome.omnibox.setDefaultSuggestion({description:suggestions[0].description});
+
+    // Remove the first suggestion from the array since we just suggested it
+    suggestions.shift();
+
+    suggest(suggestions);
+});
+
+var searchTerms = [
+	"dsr",
+	"issues",
+	"divmanage",
+	"servers",
+	"help"
+];
+
+chrome.omnibox.onInputEntered.addListener(function (text, disposition) {
+	for (var i = 0; i < searchTerms.length; i++) {
+		if (searchTerms[i].length >= text.trim().length &&
+			searchTerms[i].substring(0, text.trim().length) == text.trim().toLowerCase()) {
+			if (logVerbose) console.log('replacing search "' + text + '" with "' + searchTerms[i] + '"');
+			text = searchTerms[i];
+			break;
+		}
+	}
+
+	if (logVerbose) console.log('searching for: ' + text);
+
+	if (/^dsr/i.test(text)) {
+		navigateOmniTab('/SupportCenter/DailyStatusListForPerson.aspx', 'http', disposition, "*/DailyStatusListForPerson.aspx");
+	}
+	else if (/^divmanage/i.test(text)) {
+		navigateOmniTab('/Updater/DownloadItemVersionPermissionManage.aspx', 'http', disposition, "*/DownloadItemVersionPermissionManage.aspx");
+	}
+	else if (/^servers/i.test(text)) {
+		var miniVoldemort = 'P' + voldemort.substring(1, 7);
+		navigateOmniTab('/SupportCenter/' + miniVoldemort + 'ServerSearch.aspx', 'https', disposition, "*/" + miniVoldemort + 'ServerSearch.aspx');
+	}
+	else if (/^i(ssues?)? ([0-9]+)/i.test(text)) {
+		var match = /^i(ssues?)? ([0-9]+)/i.exec(text);
+		console.log(match);
+		var issueNumber = match[2];
+		navigateOmniTab('/SupportCenter/IssueEdit.aspx?IssueNumber=' + issueNumber, 'https', disposition, "*/IssueEdit.aspx?IssueNumber=" + issueNumber);
+	}
+	else if (/^i(ssues?)?/i.test(text)) {
+		navigateOmniTab('/SupportCenter/IssueMyListAdvanced.aspx', 'https', disposition, "*/IssueMyListAdvanced.aspx");
+	}
+	else {
+		navigateOmniTab(chrome.runtime.getURL('omniboxhelp.html'), null, disposition);
+	}
+});
+
+function navigateOmniTab(url, proto, disposition, existingTabPattern) {
+	var chromePrefix = 'chrome-extension://';
+
+	if (url.length < chromePrefix.length || url.substring(0, chromePrefix.length) !== chromePrefix) {
+		proto = proto ? proto : 'http';
+		url = proto + '://www.' + voldemort + '.com' + url;
+	}
+
+	if (existingTabPattern) {
+		existingTabPattern = "*://*." + voldemort + ".com/" + existingTabPattern;
+
+		chrome.tabs.query({ url: existingTabPattern }, function (tabResults) {
+			if (tabResults && tabResults.length > 0) {
+				focusTab(tabResults[0]);
+			}
+			else {
+				openOmniTab(url, disposition);
+			}
+		});
+	} else {
+		openOmniTab(url, disposition);
+	}
+}
+
+function openOmniTab(url, disposition) {
+	if (disposition === "currentTab") {
+		chrome.tabs.update(undefined, { url: url, active: true }, function() {});
+	}
+	else {
+		var isActive = disposition == "newForegroundTab";
+		chrome.tabs.create({ url: url, active: isActive }, function() {});
+	}
+}
+
 (function() {
 	var popupSettings = { primaryPattern: matchingUrls[0], setting: 'allow' };
 	if (matchingUrls.length > 1) {

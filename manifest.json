@@ -70,10 +70,12 @@
     ],
     "icons" :
     {
+        "16" : "assets/img/niblet-16.png",
         "19" : "assets/img/niblet-19.png",
         "38" : "assets/img/niblet-38.png",
         "48" : "assets/img/niblet-48.png",
         "128" : "assets/img/niblet-128.png"
     },
+    "omnibox": { "keyword" : "nib" },
     "manifest_version": 2
 }
