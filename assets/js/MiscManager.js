@@ -6,6 +6,13 @@
 		var insertedBodyKeypress = false;
 		var hasEnabledScrolling = false;
 		var serverEditRegExp = new RegExp("/P.{6}ServerEdit.aspx?.*ID=", "i");
+		var editDailyStatusGeneratedItemRegex = new RegExp("editDailyStatusGeneratedItem\\(([0-2]),\\s?[\"']([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})", "i");
+		// Only include ones with Action (2nd parameter) omitted or Action === 0
+		var editIssueRegex = new RegExp("EditIssue\\([\"']([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})[\"'](,\\s?0)?\\)", "i");
+		var editIssueLinkRegex = new RegExp("^IssueEdit.aspx\\?IssueID=([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$", "i");
+		var issueListRadGridClientID = 'ctl00_ContentPlaceHolder2_rgMyIssues_dgResults';
+		var subjectColumn = 'Subject';
+		var numberOfSentinels;
 
 	    this.isValidPage = function() {
 	    	// In case we need to exclude pages in the future
@@ -35,7 +42,44 @@
 				reEnableIssueEditScroll(currentSettings.reEnableIssueEditScroll);
 				copyWithoutSilverlight(currentSettings.copyWithoutSilverlight);
 				promoteIssueEditClickableSpansToLinks(currentSettings.promoteIssueEditClickableSpansToLinks);
+
+				if (/\/IssueMyListAdvanced.aspx/i.test(location)) {
+					linkIssueSubject(currentSettings.linkIssueSubject);
+
+					placeSentinels();
+				}
     		}
+	    }
+
+	    function createSentinelDiv() {
+	    	var sentinel = context.createElement('div');
+	    	sentinel.setAttribute('class', 'ntdsrmods-sentinel');
+	    	sentinel.setAttribute('style', 'display:none');
+	    	return sentinel;
+	    }
+
+	    function placeSentinels() {
+	    	var ajaxPanels = $('.RadAjaxPanel', context);
+	    	if (ajaxPanels && ajaxPanels.length) {
+	    		numberOfSentinels = ajaxPanels.length;
+	    		for (var i = 0; i < ajaxPanels.length; i++) {
+	    			if ($(ajaxPanels[i]).find('.ntdsrmods-sentinel').length === 0) {
+		    			console.logv('appending sentinel');
+		    			ajaxPanels[i].appendChild(createSentinelDiv());
+	    			}
+    			}
+	    		exports.setInterval(checkSentinels, 1000);
+	    	}
+	    }
+
+	    function checkSentinels() {
+	    	var ajaxPanels = $('.RadAjaxPanel', context);
+	    	var sentinels = $('.ntdsrmods-sentinel', context);
+
+	    	if (ajaxPanels.length != sentinels.length) {
+	    		if (logVerbose) console.log('ajaxPanels.length: ' + ajaxPanels.length + ' != sentinels.length: ' + sentinels.length);
+	    		doStartup();
+	    	}
 	    }
 
 	    function displayAccountManagerInServerEdit(shouldDisplayAccountManagerInServerEdit) {
@@ -100,11 +144,21 @@
 			}
 		}
 
+		function linkIssueSubject(shouldLinkIssueSubject) {
+			if (shouldLinkIssueSubject) {
+					exports.postMessage({
+						eventName: 'findRadGridColumnIndex',
+						gridClientID: issueListRadGridClientID,
+						columnName: subjectColumn
+					}, exports.location.href);
+			}
+		}
+
 		function promoteIssueEditClickableSpansToLinks(shouldPromoteIssueEditClickableSpansToLinks) {
 			if (shouldPromoteIssueEditClickableSpansToLinks) {
 				$('span[onclick^="javascript:editDailyStatusGeneratedItem"]', context)
 					.each(function(i, v) {
-						var match = /editDailyStatusGeneratedItem\(([0-2]),\s?["']([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})/i.exec($(v)[0].getAttribute('onclick'));
+						var match = editDailyStatusGeneratedItemRegex.exec($(v)[0].getAttribute('onclick'));
 						if (match && match.length >= 3) {
 							var linkTypeID = parseInt(match[1], 10);
 							var contentID = match[2];
@@ -141,7 +195,51 @@
 							$(v).replaceWith(a);
 						}
 					});
+				$('span[onclick^="EditIssue("]')
+					.filter(function() {
+						return editIssueRegex.test($(this).attr('onclick'));
+					})
+					.each(function(i,v) {
+						var match = editIssueRegex.exec($(v).attr('onclick'));
+						if (match && match.length > 0) {/*
+							var a = $(context.createElement('a'))
+								.attr('href', 'IssueEdit.aspx?IssueID=' + match[1])
+								.html($(v)[0].innerText)
+								.attr('target', '_blank')
+								.addClass('spanReplacementLink')
+								.click(function (evt) {
+									console.logv(currentSettings);
+									if (!currentSettings || !currentSettings.promoteIssueEditClickableSpansToLinks) {
+										evt.preventDefault();
+							            var request = { eventName: "editIssue", issueID: match[1] };
+							            if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + location);
+							            exports.postMessage(request, location);
+									}
+								});*/
+							var a = createIssueLink(match[1], $(v)[0].innerText);
+							$(v).replaceWith(a);
+						}
+					});
 			}
+		} // promoteIssueEditClickableSpansToLinks
+
+		function createIssueLink(issueID, linkText) {
+			var a = $(context.createElement('a'))
+				.attr('href', 'IssueEdit.aspx?IssueID=' + issueID)
+				.html(linkText)
+				.attr('target', '_blank')
+				.addClass('spanReplacementLink')
+				.click(function (evt) {
+					console.logv(currentSettings);
+					if (!currentSettings || !currentSettings.promoteIssueEditClickableSpansToLinks) {
+						evt.preventDefault();
+			            var request = { eventName: "editIssue", issueID: match[1] };
+			            if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + location);
+			            exports.postMessage(request, location);
+					}
+				});
+
+			return a;
 		}
 
 		function displayGoToIssue(shouldDisplayGoToIssue) {
@@ -207,11 +305,9 @@
 				if (request.eventName === "gotComboValue" && request.val) {
 					handleGotComboValue(request.val);
 				}
-
-				/* In case we want to do callback later
-				if (typeof request.callback === 'function') {
-					callback();
-				}*/
+				else if (request.eventName === 'foundRadGridColumnIndex') {
+					handleGotColumnIndex(request);
+				}
 			}
 		}
 
@@ -236,6 +332,66 @@
 						.after('<tr id="accountManagerName"><td class="formLabel">Account Manager</td><td class="formElement">' + accountMgr.val().replace("  ", " ") + '</td></tr>');
 				}
 			});
+		}
+
+		function handleGotColumnIndex(request) {
+			/*
+					window.postMessage({
+						eventName: 'foundRadGridColumnIndex',
+						gridClientID: request.gridClientID,
+						columnName: request.columnName,
+						index: foundColumnIndex
+					}, window.location.href);
+			*/
+			if (request.gridClientID === issueListRadGridClientID &&
+				request.columnName === subjectColumn) {
+				var foundColumnIndex = request.foundColumnIndex + 1; // DOM selectors are 1 based. jQuery is 0 based.
+
+				$('table.rgMasterTable tbody tr')
+					.each(function(i,v) {
+						var subjectNoBrs = $(v).find('td:nth-child(' + foundColumnIndex + ') nobr');
+						if (subjectNoBrs.length > 0) {
+							var subjectColumn = subjectNoBrs[0];
+							if (subjectColumn) {
+								var editLinks = $(v).find('span[onclick*="EditIssue("], a[href*="IssueEdit.aspx"]');
+
+								var issueID;
+								if (editLinks) {
+									for (var i = 0; i < editLinks.length; i++) {
+										if (editLinks[i].tagName === 'SPAN') {
+											var match = editIssueRegex.exec(editLinks[i].getAttribute('onclick'));
+											if (match && match.length > 0) {
+												issueID = match[1];
+												break;
+											}
+										}
+										else if (editLinks[i].tagName === 'A') {
+											var match = editIssueLinkRegex.exec(editLinks[i].getAttribute('href'));
+											if (match && match.length > 0) {
+												issueID = match[1];
+												break;
+											}
+										}
+									}
+								}
+
+								if (issueID) {
+									var replacementTag;
+									if (currentSettings.promoteIssueEditClickableSpansToLinks) {
+										replacementTag = createIssueLink(issueID, subjectColumn.innerText);
+									}
+									else {
+										replacementTag = $(context.createElement('span'))
+											.addClass('spanlink')
+											.attr('onclick', 'EditIssue("' + issueID + '");')
+											.text(subjectColumn.innerText);
+									}
+									$(subjectColumn).html(replacementTag);
+								}
+							}
+						}
+					});
+			}
 		}
 	}
 })(window);
