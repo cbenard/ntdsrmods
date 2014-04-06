@@ -25,5 +25,9 @@ var versionHistory = {
 				 "</ul>" +
 				 "<p>Additionally, if you had the \"PRx Dev Site Modifications\" extension, <strong>it has been uninstalled</strong>, as this extension encompasses its functionality.</p>" +
 				 "<p>Hit the more info button below for the full details.</p>"
+	},
+
+	"1.0.1": {
+		sameAs: "1.0"
 	}
 };
