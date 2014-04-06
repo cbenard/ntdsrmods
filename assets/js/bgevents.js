@@ -122,7 +122,11 @@ function getSettings(responseCallback)
 	{
 		console.logv('pulled from sync');
 		console.logv(data);
-		var settings = $.extend(defaultOptions, data.settings);
+		var settings = $.extend({}, defaultOptions, data.settings);
+		console.logv('default options');
+		console.logv(defaultOptions);
+		console.logv('pulled from sync and extended');
+		console.logv(settings);
 		responseCallback(settings);
 	});
 }
@@ -141,7 +145,7 @@ function saveSettings(settings, responseCallback)
 
 		responseCallback({ 'success': true, 'errorMessage': null });
 
-		settings = $.extend(defaultOptions, settings);
+		settings = $.extend({}, defaultOptions, settings);
 
 		sendOneWayMessageToContentScript({ "eventName": "settingsUpdated", "settings": settings });
 
