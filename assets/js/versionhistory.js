@@ -41,5 +41,9 @@ var versionHistory = {
 
 	"1.0.4": {
 		sameAs: "1.0"
+	},
+
+	"1.0.5": {
+		sameAs: "1.0"
 	}
 };

@@ -347,9 +347,17 @@ function HandleNotificationButtonClick(notificationID, buttonIndex) {
 	}
 }
 
-function focusTab (tab) {
+function focusTab (tab, url) {
 	chrome.windows.update(tab.windowId, { focused: true }, function (updatedWindow) {
-		chrome.tabs.update(tab.id, { active: true }, function () {});
+		var options = { active: true };
+		if (url) {
+			options.url = url;
+		}
+		chrome.tabs.update(tab.id, options, function () {
+			if (url) {
+				chrome.tabs.reload(tab.id);
+			}
+		});
 	});
 }
 
@@ -404,7 +412,7 @@ chrome.omnibox.onInputChanged.addListener(function (text, suggest) {
     	suggestions.push({ content: 'dsr', description: 'dsr <dim>Go directly to Daily Status or open by typing "dsr"</dim>'});
 	}
     if (text.length <= 1 || 'servers'.substring(0, Math.min(text.length, 7)) == text.substring(0, Math.min(text.length, 7))) {
-    	suggestions.push({ content: 'servers', description: 'servers <dim>Go directly to Server Search by typing "servers"</dim>'});
+    	suggestions.push({ content: 'servers', description: 'servers <dim>Go directly to Server Search by typing "servers" [location name]</dim>'});
 	}
     if (text.length <= 1 || 'help'.substring(0, Math.min(text.length, 4)) == text.substring(0, Math.min(text.length, 4)) ||
     	suggestions.length === 0) {
@@ -456,13 +464,19 @@ chrome.omnibox.onInputEntered.addListener(function (text, disposition) {
 	else if (/^divmanage/i.test(text)) {
 		navigateOmniTab('/Updater/DownloadItemVersionPermissionManage.aspx', 'http', disposition, "*/DownloadItemVersionPermissionManage.aspx");
 	}
-	else if (/^servers/i.test(text)) {
+	else if (/^s(e|er|erv|erve|erver|ervers)? (.+)/i.test(text)) {
+		var match = /^s(e|er|erv|erve|erver|ervers)? (.+)/i.exec(text);
+		console.logv(match);
+		var miniVoldemort = 'P' + voldemort.substring(1, 7);
+		navigateOmniTab('/SupportCenter/' + miniVoldemort + 'ServerSearch.aspx#SearchText=' + match[2], 'https', disposition, "*/" + miniVoldemort + 'ServerSearch.aspx', true);
+	}
+	else if (/^s(e|er|erv|erve|erver|ervers)?/i.test(text)) {
 		var miniVoldemort = 'P' + voldemort.substring(1, 7);
 		navigateOmniTab('/SupportCenter/' + miniVoldemort + 'ServerSearch.aspx', 'https', disposition, "*/" + miniVoldemort + 'ServerSearch.aspx');
 	}
-	else if (/^i(ssues?)? ([0-9]+)/i.test(text)) {
-		var match = /^i(ssues?)? ([0-9]+)/i.exec(text);
-		console.log(match);
+	else if (/^i(s|ss|ssu|ssue|ssues)? ([0-9]+)/i.test(text)) {
+		var match = /^i(s|ss|ssu|ssue|ssues)? ([0-9]+)/i.exec(text);
+		console.logv(match);
 		var issueNumber = match[2];
 		navigateOmniTab('/SupportCenter/IssueEdit.aspx?IssueNumber=' + issueNumber, 'https', disposition, "*/IssueEdit.aspx?IssueNumber=" + issueNumber);
 	}
@@ -474,7 +488,7 @@ chrome.omnibox.onInputEntered.addListener(function (text, disposition) {
 	}
 });
 
-function navigateOmniTab(url, proto, disposition, existingTabPattern) {
+function navigateOmniTab(url, proto, disposition, existingTabPattern, reNavigate) {
 	var chromePrefix = 'chrome-extension://';
 
 	if (url.length < chromePrefix.length || url.substring(0, chromePrefix.length) !== chromePrefix) {
@@ -487,7 +501,7 @@ function navigateOmniTab(url, proto, disposition, existingTabPattern) {
 
 		chrome.tabs.query({ url: existingTabPattern }, function (tabResults) {
 			if (tabResults && tabResults.length > 0) {
-				focusTab(tabResults[0]);
+				focusTab(tabResults[0], url);
 			}
 			else {
 				openOmniTab(url, disposition);

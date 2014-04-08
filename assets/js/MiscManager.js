@@ -10,7 +10,7 @@
 		// Only include ones with Action (2nd parameter) omitted or Action === 0
 		var editIssueRegex = new RegExp("EditIssue\\([\"']([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})[\"'](,\\s?0)?\\)", "i");
 		var editIssueLinkRegex = new RegExp("^IssueEdit.aspx\\?IssueID=([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$", "i");
-		var serverSearchHashRegex = new RegExp("/P.{6}ServerSearch.aspx#LocationID=([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})", "i");
+		var serverSearchHashRegex = new RegExp("/P.{6}ServerSearch.aspx#(LocationID|SearchText)=(.+)", "i");
 		var issueListRadGridClientID = 'ctl00_ContentPlaceHolder2_rgMyIssues_dgResults';
 		var subjectColumn = 'Subject';
 		var numberOfSentinels;
@@ -120,12 +120,12 @@
 		function handleServerSearchLoad() {
 			var match = serverSearchHashRegex.exec(exports.location.href);
 
-			if (match && match.length > 0) {
+			if (match && match.length > 1) {
 				history.replaceState({}, context.title, exports.location.pathname);
 		        chrome.runtime.sendMessage({ "eventName": "needsPageAction" });
 		        
-				var locationID = match[1];
-				if (logVerbose) console.log('handling server search for location ID: ' + locationID);
+				var locationID = match[2];
+				if (logVerbose) console.log('handling server search for search text: ' + locationID);
 
 	            var request = {
 	            	eventName: "performQuickSearch",
@@ -234,27 +234,14 @@
 							$(v).replaceWith(a);
 						}
 					});
+
 				$('span[onclick^="EditIssue("]')
 					.filter(function() {
 						return editIssueRegex.test($(this).attr('onclick'));
 					})
 					.each(function(i,v) {
 						var match = editIssueRegex.exec($(v).attr('onclick'));
-						if (match && match.length > 0) {/*
-							var a = $(context.createElement('a'))
-								.attr('href', 'IssueEdit.aspx?IssueID=' + match[1])
-								.html($(v)[0].innerText)
-								.attr('target', '_blank')
-								.addClass('spanReplacementLink')
-								.click(function (evt) {
-									console.logv(currentSettings);
-									if (!currentSettings || !currentSettings.promoteIssueEditClickableSpansToLinks) {
-										evt.preventDefault();
-							            var request = { eventName: "editIssue", issueID: match[1] };
-							            if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + location);
-							            exports.postMessage(request, location);
-									}
-								});*/
+						if (match && match.length > 0) {
 							var a = createIssueLink(match[1], $(v)[0].innerText);
 							$(v).replaceWith(a);
 						}
@@ -388,7 +375,10 @@
 					.addClass('spanReplacementLink')
 					.attr('href', serverSearchUrl)
 					.attr('target', '_blank')
-					.text('Multiple servers');
+					.html('Multiple servers (click to go to server search)')
+					.css('display', 'block')
+					.css('margin', '4px 0px 4px 0px');
+
 				$('#cmbIssueLocationSearch_lblClipboard').html(serverLink);
 			}
 		}
