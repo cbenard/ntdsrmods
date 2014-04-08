@@ -1,7 +1,7 @@
 {
     "name": "Programmer Enhancement Suite",
     "description": "Enhances the user experience on an internal site in various ways, including daily status, popup suppression, and other features.",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "permissions":
     [
         "storage",
@@ -48,7 +48,8 @@
                 "*://*/*/DailyStatusListForPerson.aspx",
                 "*://*/SupportCenter/*.aspx*",
                 "*://*/LocationSearch.aspx*",
-                "*://*/Updater/*.aspx*"
+                "*://*/Updater/*.aspx*",
+                "*://*/PasswordManage.aspx*"
             ],
             "js" :
             [
@@ -65,7 +66,7 @@
             ],
             "css" : [ "assets/css/content.css" ],
             "run_at" : "document_end",
-            "all_frames" : false
+            "all_frames" : true
         }
     ],
     "icons" :
