@@ -371,6 +371,7 @@ chrome.runtime.onInstalled.addListener(function(details) {
 	// 	raiseUpdateNotification();
 	// }
 
+	/*
 	chrome.management.get(oldExtensionID, function(data) {
 		if (data) {
 			chrome.management.uninstall(oldExtensionID, { showConfirmDialog: false }, function() {
@@ -382,6 +383,7 @@ chrome.runtime.onInstalled.addListener(function(details) {
 			});
 		}
 	});
+	*/
 
 	for (var j = 0; j < matchingUrls.length; j++)
 	{
