@@ -44,6 +44,15 @@ var versionHistory = {
 	},
 
 	"1.0.5": {
-		sameAs: "1.0"
+		heading: "Programmer Enhancement Suite Update",
+		message: "New Omnibox commands for location and server searching (Type \"nib help\" into the Omnibox for more information)" + 
+			"<ul>" +
+			"<li>nib locations (location search)</li>" +
+			"<li>nib locations [location name] (location search for name)</li>" +
+			"<li>nib locations [location id] (location edit for ID)</li>" +
+			"<li>nib servers (server search)</li>" +
+			"<li>nib servers [location name] (server search for name)</li>" +
+			"<li>nib servers [location id] (server search for LocationID)</li>" +
+			"</ul>"
 	}
 };
