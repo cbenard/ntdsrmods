@@ -11,6 +11,7 @@
 		var editIssueRegex = new RegExp("EditIssue\\([\"']([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})[\"'](,\\s?0)?\\)", "i");
 		var editIssueLinkRegex = new RegExp("^IssueEdit.aspx\\?IssueID=([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$", "i");
 		var serverSearchHashRegex = new RegExp("/P.{6}ServerSearch.aspx#(LocationID|SearchText)=(.+)", "i");
+		var locationSearchRegex = new RegExp("/LocationSearch.aspx#SearchText=(.+)", "i");
 		var issueListRadGridClientID = 'ctl00_ContentPlaceHolder2_rgMyIssues_dgResults';
 		var subjectColumn = 'Subject';
 		var numberOfSentinels;
@@ -54,6 +55,9 @@
 				}
 				else if (serverSearchHashRegex.test(exports.location.href)) {
 					handleServerSearchLoad();
+				}
+				else if (locationSearchRegex.test(exports.location.href)) {
+					handleLocationSearchLoad();
 				}
     		}
 	    }
@@ -120,7 +124,7 @@
 		function handleServerSearchLoad() {
 			var match = serverSearchHashRegex.exec(exports.location.href);
 
-			if (match && match.length > 1) {
+			if (match && match.length > 2) {
 				history.replaceState({}, context.title, exports.location.pathname);
 		        chrome.runtime.sendMessage({ "eventName": "needsPageAction" });
 		        
@@ -135,6 +139,21 @@
 	            };
 	            if (logVerbose) console.log('sending message to window: ' + JSON.stringify(request) + ', ' + location);
 	            exports.postMessage(request, location);
+			}
+		}
+
+		function handleLocationSearchLoad() {
+			var match = locationSearchRegex.exec(exports.location.href);
+
+			if (match && match.length > 0) {
+				history.replaceState({}, context.title, exports.location.pathname);
+		        chrome.runtime.sendMessage({ "eventName": "needsPageAction" });
+		        
+				var searchText = match[1];
+				if (logVerbose) console.log('handling location search for search text: ' + searchText);
+
+	            $('.GreyFrameWhiteAdminBG input[name$=txtName]', context).val(searchText);
+	            $('.GreyFrameWhiteAdminBG input[name$=btnSubmit]').click();
 			}
 		}
 
