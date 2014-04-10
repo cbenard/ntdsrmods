@@ -404,6 +404,9 @@ chrome.runtime.onInstalled.addListener(function(details) {
 chrome.omnibox.onInputChanged.addListener(function (text, suggest) {
 	// Add suggestions to an array
     var suggestions = [];
+    if (text.length <= 1 || 'calendar'.substring(0, Math.min(text.length, 8)) == text.substring(0, Math.min(text.length, 8))) {
+	    suggestions.push({ content: 'calendar', description: 'calendar <dim>Go directly to the calendar</dim>' });
+	}
     if (text.length <= 1 || 'divmanage'.substring(0, Math.min(text.length, 9)) == text.substring(0, Math.min(text.length, 9))) {
     	suggestions.push({ content: 'divmanage', description: 'divmanage <dim>Manage Download Item Versions by typing "divmanage"</dim>'});
 	}
@@ -424,8 +427,8 @@ chrome.omnibox.onInputChanged.addListener(function (text, suggest) {
 	    suggestions.push({ content: 'help', description: 'Help! <dim>What can I type here?</dim>' });
 	}
 
-    // Set first suggestion as the default suggestion
-    chrome.omnibox.setDefaultSuggestion({description:suggestions[0].description});
+    // Set help suggestion as the default suggestion
+    chrome.omnibox.setDefaultSuggestion({description:suggestions[suggestions.length-1].description});
 
     // Remove the first suggestion from the array since we just suggested it
     suggestions.shift();
@@ -434,6 +437,7 @@ chrome.omnibox.onInputChanged.addListener(function (text, suggest) {
 });
 
 var searchTerms = [
+	"calendar",
 	"dsr",
 	"issues",
 	"divmanage",
@@ -469,6 +473,9 @@ chrome.omnibox.onInputEntered.addListener(function (text, disposition) {
 	}
 	else if (/^divmanage/i.test(text)) {
 		navigateOmniTab('/Updater/DownloadItemVersionPermissionManage.aspx', 'http', disposition, "*/DownloadItemVersionPermissionManage.aspx");
+	}
+	else if (/^calendar/i.test(text)) {
+		navigateOmniTab('/SupportCenter/ScheduleView.aspx', 'https', disposition, "*/ScheduleView.aspx");
 	}
 	else if (/^s(e|er|erv|erve|erver|ervers)? (.+)/i.test(text)) {
 		var match = /^s(e|er|erv|erve|erver|ervers)? (.+)/i.exec(text);
