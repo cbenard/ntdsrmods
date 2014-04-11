@@ -331,20 +331,31 @@ function HandleNotificationButtonClick(notificationID, buttonIndex) {
 	else if (notificationID === "timewarning") {
 		if (logVerbose) console.log('time warning notification: user clicked button index ' + buttonIndex);
 		if (buttonIndex === 0 || buttonIndex === -1) {
-			chrome.tabs.get(lastNotificationTabID, function(lastTab) {
-				if (lastTab) {
-					focusTab(lastTab);
-				}
-				else {
-					chrome.tabs.query({ url: "*://*/*/DailyStatusListForPerson.aspx" }, function (tabResults) {
-						if (tabResults && tabResults.length > 0) {
-							focusTab(tabResults[0]);
-						}
-					});
-				}
-			});
+			var urlPattern = "*://*/*/DailyStatusListForPerson.aspx";
+
+			if (lastNotificationTabID !== undefined) {
+				chrome.tabs.get(lastNotificationTabID, function(lastTab) {
+					if (lastTab) {
+						focusTab(lastTab);
+					}
+					else {
+						focusTabByUrlPattern(urlPattern);
+					}
+				});
+			}
+			else {
+				focusTabByUrlPattern(urlPattern);
+			}
 		}
 	}
+}
+
+function focusTabByUrlPattern(urlPattern) {
+	chrome.tabs.query({ url: urlPattern }, function (tabResults) {
+		if (tabResults && tabResults.length > 0) {
+			focusTab(tabResults[0]);
+		}
+	});
 }
 
 function focusTab (tab, url) {
