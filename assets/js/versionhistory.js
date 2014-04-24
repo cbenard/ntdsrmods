@@ -54,5 +54,14 @@ var versionHistory = {
 			"<li>nib servers [location name] (server search for name)</li>" +
 			"<li>nib servers [location id] (server search for LocationID)</li>" +
 			"</ul>"
+	},
+
+	"1.0.6": {
+		heading: "Programmer Enhancement Suite Minor Update",
+		message: "" + 
+			"<ul>" +
+			"<li>Bug fix for calculating date/times precisely.</li>" +
+			"<li>Bug fix for \"Go to Daily Status\" button in notification when not clicked for a while.</li>" +
+			"</ul>"
 	}
 };
