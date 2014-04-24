@@ -194,7 +194,7 @@ function DsrManager(inputContext)
             var minutes = parseInt((hours * 60) + 0.6);
 
             timeToLeave = new Date();
-            timeToLeave.setHours(timeToLeave.getHours() + hour);
+            timeToLeave.setHours(timeToLeave.getHours() + hour, 0, 0, 0);
             timeToLeave.setMinutes(timeToLeave.getMinutes() + minutes);
 
             timeToLeave.setSeconds(0);
@@ -208,7 +208,7 @@ function DsrManager(inputContext)
         if (todayStart == undefined)
         {
             todayStart = new Date();
-            todayStart.setHours(currentSettings.beginningOfDayTimeHour);
+            todayStart.setHours(currentSettings.beginningOfDayTimeHour, 0, 0, 0);
             todayStart.setMinutes(currentSettings.beginningOfDayTimeMinute);
         }
 
@@ -220,7 +220,7 @@ function DsrManager(inputContext)
         if (todayEnd == undefined)
         {
             todayEnd = new Date();
-            todayEnd.setHours(currentSettings.endOfDayTimeHour);
+            todayEnd.setHours(currentSettings.endOfDayTimeHour, 0, 0, 0);
             todayEnd.setMinutes(currentSettings.endOfDayTimeMinute);
         }
 
