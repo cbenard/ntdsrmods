@@ -258,6 +258,18 @@ function DsrManager(inputContext)
         };
     }
 
+    function hasSelectedDsrText() {
+        var sel = context.getSelection();
+
+        var shouldPause = sel &&
+            sel.type &&
+            sel.type == "Range" &&
+            sel.baseNode &&
+            $(sel.baseNode, context).parents('div[id$=divResults]').length > 0;
+
+        return shouldPause;
+    }
+
     function timerFired()
     {
         var now = new Date();
@@ -273,7 +285,7 @@ function DsrManager(inputContext)
             scriptStartDate = now;
         }
 
-        if (!paused)
+        if (!paused && !hasSelectedDsrText())
         {
             if ($('#ntdsrmods-container', context).hasClass('ntdsrmods-hidden'))
             {
