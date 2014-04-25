@@ -350,7 +350,7 @@ function DsrManager(inputContext)
                 var difference = getTodayEndDate().getTime() - now.getTime();
                 // Convert to hours
                 difference = difference / 1000 / 60 / 60;
-                var differenceHours = round(difference + totalEstimated, 2);
+                var differenceHours = round(difference + getCurrentEstimatedHours(), 2);
                 var differenceFriendlyHours = formatHours(differenceHours);
 
                 $('#ntdsrmods-estimatedatend', context).removeClass('ntdsrmods-hidden');
