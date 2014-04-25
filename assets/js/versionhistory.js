@@ -80,5 +80,9 @@ var versionHistory = {
 			"<li>\"<code>nib divsearch</code>\" command added." +
 			"<li>Type \"<code>nib help</code>\" for more info on nib commands.</li>" +
 			"</ul>"
+	},
+
+	"1.0.9": {
+		sameAs: "1.0.8"
 	}
 };
