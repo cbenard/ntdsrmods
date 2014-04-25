@@ -13,6 +13,7 @@
 		var serverSearchHashRegex = new RegExp("/P.{6}ServerSearch.aspx#(LocationID|SearchText)=(.+)", "i");
 		var locationSearchRegex = new RegExp("/LocationSearch.aspx#SearchText=(.+)", "i");
 		var issueListRadGridClientID = 'ctl00_ContentPlaceHolder2_rgMyIssues_dgResults';
+		var issueSearchRadGridClientID = 'ctl00_ContentPlaceHolder2_dgSearch';
 		var subjectColumn = 'Subject';
 		var numberOfSentinels;
 
@@ -45,7 +46,8 @@
 				copyWithoutSilverlight(currentSettings.copyWithoutSilverlight);
 				promoteIssueEditClickableSpansToLinks(currentSettings.promoteIssueEditClickableSpansToLinks);
 
-				if (/\/IssueMyListAdvanced\.aspx/i.test(location)) {
+				if (/\/IssueMyListAdvanced\.aspx/i.test(location) ||
+					/\/IssueSearchAdvanced\.aspx/i.test(location)) {
 					linkIssueSubject(currentSettings.linkIssueSubject);
 
 					placeSentinels();
@@ -209,6 +211,12 @@
 						gridClientID: issueListRadGridClientID,
 						columnName: subjectColumn
 					}, exports.location.href);
+
+					exports.postMessage({
+						eventName: 'findRadGridColumnIndex',
+						gridClientID: issueSearchRadGridClientID,
+						columnName: subjectColumn
+					}, exports.location.href);
 			}
 		}
 
@@ -297,14 +305,10 @@
 				}
 				else {
 					if (shouldDisplayGoToIssue) {
-						var div = $('<div id="issueDirect" style="display: table-cell; padding-left: 15px" class="FormElement"></div>', context);
-						var input = $("<input id='issueNumberDirect' type='text' value=''></input>", context);
-						div.append(input);
-						var button = $("<input type='button' value='Go' />", context);
-						button.click(function() {
-							exports.open('IssueEdit.aspx?IssueNumber=' + input.val());
-						});
-						div.append(button);
+						var div = createGoToIssueDiv()
+							.css('display', 'table-cell')
+							.css('padding-left', '15px')
+							.addClass('FormElement');
 						var label = $('<span class="FormLabel" style="display: table-cell;">Go to Issue #</span>', context);
 						var row = $('<div id="issueDirectRow" style="display: table-row;"></div>', context);
 						var innerRow = $('<div></div>', context);
@@ -313,34 +317,69 @@
 						innerRow.append(div);
 						
 						$('#ctl00_ContentPlaceHolder2_divChooseDeveloper', context).parent().parent().prepend(row);
+					}
+				}
+			}
+			else if (/IssueSearchAdvanced.aspx/i.test(location)) {
+				var alreadyExists = $('#issueDirectRow', context).length > 0;
+				if (alreadyExists) {
+					if (!shouldDisplayGoToIssue) {
+						$('#issueDirectRow', context).remove();
+					}
+				}
+				else {
+					if (shouldDisplayGoToIssue) {
+						var div = createGoToIssueDiv()
+							.css('margin-left', '-2px');
+						var label = $('<td class="FormLabel" style="width: 100px;">Go to Issue #</td>', context);
+						var elementContainer = $('<td class="FormElement"></td>', context);
+						var row = $('<tr id="issueDirectRow"></tr>', context);
+
+						elementContainer.append(div);
+						row.append(label, elementContainer);
 						
-						if (!insertedBodyKeypress) {
-							$('body', context).keypress(function(evt) {
-								if (evt.which == 47 && $('#issueNumberDirect', context).length > 0) {
-									evt.preventDefault();
-									$('#issueNumberDirect', context).focus();
-								}
-							});
-							insertedBodyKeypress = true;
-						}
-						
-						input
-							.forcenumeric()
-							.keypress(function(evt) {
-							if (evt.which == 13) {
-								evt.preventDefault();
-								
-								exports.open('IssueEdit.aspx?IssueNumber=' + this.value);
-							}
-							})
-							.focus(function() {
-								$(this).select();
-								exports.setTimeout(function() { $('#issueNumberDirect', context).select(); }, 100);
-							});
+						$('div[id$="pnlSearchFieldsTop"] table:first tr:first', context).parent().prepend(row);
 					}
 				}
 			}
 		} // displayGoToIssue
+
+		function createGoToIssueDiv() {
+			var div = $('<div id="issueDirect"></div>', context);
+			var input = $("<input id='issueNumberDirect' type='text' value=''></input>", context);
+			div.append(input);
+			var button = $("<input type='button' value='Go' />", context);
+			button.click(function() {
+				exports.open('IssueEdit.aspx?IssueNumber=' + input.val());
+			});
+			div.append(button);
+			
+			if (!insertedBodyKeypress) {
+				$('body', context).keypress(function(evt) {
+					if (evt.which == 47 && $('#issueNumberDirect', context).length > 0) {
+						evt.preventDefault();
+						$('#issueNumberDirect', context).focus();
+					}
+				});
+				insertedBodyKeypress = true;
+			}
+			
+			input
+				.forcenumeric()
+				.keypress(function(evt) {
+				if (evt.which == 13) {
+					evt.preventDefault();
+					
+					exports.open('IssueEdit.aspx?IssueNumber=' + this.value);
+				}
+				})
+				.focus(function() {
+					$(this).select();
+					exports.setTimeout(function() { $('#issueNumberDirect', context).select(); }, 100);
+				});
+
+			return div;
+		}
 
 		function onWindowMessage(evt) {
 			if(evt.source === exports) {
@@ -411,7 +450,7 @@
 						index: foundColumnIndex
 					}, window.location.href);
 			*/
-			if (request.gridClientID === issueListRadGridClientID &&
+			if ((request.gridClientID === issueListRadGridClientID || request.gridClientID === issueSearchRadGridClientID) &&
 				request.columnName === subjectColumn) {
 				var foundColumnIndex = request.foundColumnIndex + 1; // DOM selectors are 1 based. jQuery is 0 based.
 
