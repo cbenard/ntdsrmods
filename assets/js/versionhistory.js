@@ -67,5 +67,18 @@ var versionHistory = {
 
 	"1.0.7": {
 		sameAs: "1.0.6"
+	},
+
+	"1.0.8": {
+		heading: "Programmer Enhancement Suite Update (1.0.8)",
+		message: "<ul>" +
+			"<li>Go to Issue # in Issue <strong>Search</strong></li>" +
+			"<li>Linked Subject in Issue <strong>Search</strong></li>" +
+			"<li>Bug fix from 1.0.7 for hours at day end calculation</li>" +
+			"<li>\"<code>nib q</code>\" command for Issue Search" +
+			"<li>\"<code>nib divmanage</code>\" becomes \"<code>nib divpermissions</code>\"" +
+			"<li>\"<code>nib divsearch</code>\" command added." +
+			"<li>Type \"<code>nib help</code>\" for more info on nib commands.</li>" +
+			"</ul>"
 	}
 };

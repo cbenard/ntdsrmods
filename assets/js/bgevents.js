@@ -418,8 +418,11 @@ chrome.omnibox.onInputChanged.addListener(function (text, suggest) {
     if (text.length <= 1 || 'calendar'.substring(0, Math.min(text.length, 8)) == text.substring(0, Math.min(text.length, 8))) {
 	    suggestions.push({ content: 'calendar', description: 'calendar <dim>Go directly to the calendar</dim>' });
 	}
-    if (text.length <= 1 || 'divmanage'.substring(0, Math.min(text.length, 9)) == text.substring(0, Math.min(text.length, 9))) {
-    	suggestions.push({ content: 'divmanage', description: 'divmanage <dim>Manage Download Item Versions by typing "divmanage"</dim>'});
+    if (text.length <= 1 || 'divpermissions'.substring(0, Math.min(text.length, 14)) == text.substring(0, Math.min(text.length, 14))) {
+    	suggestions.push({ content: 'divpermissions', description: 'divpermissions <dim>Manage Download Item Version Permissions by typing "divpermissions"</dim>'});
+	}
+    if (text.length <= 1 || 'divsearch'.substring(0, Math.min(text.length, 9)) == text.substring(0, Math.min(text.length, 9))) {
+    	suggestions.push({ content: 'divsearch', description: 'divsearch <dim>Manage Download Item Versions by typing "divsearch"</dim>'});
 	}
     if (text.length <= 1 || 'dsr'.substring(0, Math.min(text.length, 3)) == text.substring(0, Math.min(text.length, 3))) {
     	suggestions.push({ content: 'dsr', description: 'dsr <dim>Go directly to Daily Status or open by typing "dsr"</dim>'});
@@ -429,6 +432,9 @@ chrome.omnibox.onInputChanged.addListener(function (text, suggest) {
 	}
     if (text.length <= 1 || 'locations'.substring(0, Math.min(text.length, 9)) == text.substring(0, Math.min(text.length, 9))) {
 	    suggestions.push({ content: 'locations', description: 'locations <dim>Go to Location Search an issue by typing "locations" [location name|LocationID]</dim>'});
+	}
+    if (text.length <= 1 || 'queryissues'.substring(0, Math.min(text.length, 11)) == text.substring(0, Math.min(text.length, 11))) {
+    	suggestions.push({ content: 'queryissues', description: 'queryissues <dim>Go to Issue Search</dim>'});
 	}
     if (text.length <= 1 || 'servers'.substring(0, Math.min(text.length, 7)) == text.substring(0, Math.min(text.length, 7))) {
     	suggestions.push({ content: 'servers', description: 'servers <dim>Go directly to Server Search by typing "servers" [location name]</dim>'});
@@ -451,10 +457,12 @@ var searchTerms = [
 	"calendar",
 	"dsr",
 	"issues",
-	"divmanage",
+	"divpermissions",
+	"divsearch",
 	"servers",
 	"help",
-	"locations"
+	"locations",
+	"queryissues"
 ];
 
 chrome.omnibox.onInputEntered.addListener(function (text, disposition) {
@@ -482,8 +490,11 @@ chrome.omnibox.onInputEntered.addListener(function (text, disposition) {
 	if (/^dsr/i.test(text)) {
 		navigateOmniTab('/SupportCenter/DailyStatusListForPerson.aspx', 'http', disposition, "*/DailyStatusListForPerson.aspx");
 	}
-	else if (/^divmanage/i.test(text)) {
+	else if (/^divpermissions/i.test(text)) {
 		navigateOmniTab('/Updater/DownloadItemVersionPermissionManage.aspx', 'http', disposition, "*/DownloadItemVersionPermissionManage.aspx");
+	}
+	else if (/^divsearch/i.test(text)) {
+		navigateOmniTab('/Updater/DownloadItemVersionSearch.aspx', 'http', disposition, "*/DownloadItemVersionSearch.aspx");
 	}
 	else if (/^calendar/i.test(text)) {
 		navigateOmniTab('/SupportCenter/ScheduleView.aspx', 'https', disposition, "*/ScheduleView.aspx");
@@ -519,6 +530,9 @@ chrome.omnibox.onInputEntered.addListener(function (text, disposition) {
 	}
 	else if (/^locations/i.test(text)) {
 		navigateOmniTab('/LocationSearch.aspx', 'https', disposition, "LocationSearch.aspx");
+	}
+	else if (/^queryissues/i.test(text)) {
+		navigateOmniTab('/SupportCenter/IssueSearchAdvanced.aspx', 'https', disposition, "*/IssueSearchAdvanced.aspx");
 	}
 	else {
 		navigateOmniTab(chrome.runtime.getURL('omniboxhelp.html'), null, disposition);

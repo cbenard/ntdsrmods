@@ -61,7 +61,7 @@ function findRadGridColumnIndex(request) {
 	try {
 		var foundColumnIndex;
 		var grid = $find(request.gridClientID);
-		if (grid.constructor === Telerik.Web.UI.RadGrid) {
+		if (grid && grid.constructor === Telerik.Web.UI.RadGrid) {
 			var cols = $find(request.gridClientID)
 				.get_masterTableView()
 				.get_columns();
