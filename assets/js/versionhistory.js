@@ -84,5 +84,13 @@ var versionHistory = {
 
 	"1.0.9": {
 		sameAs: "1.0.8"
+	},
+
+	"1.0.10": {
+		heading: "Programmer Enhancement Suite Update (1.0.10)",
+		message: "<ul>" +
+			"<li>Highlighting Daily Status time updates stops the updates while the text is selected, so your selection is no longer cleared every second.</li>" +
+			"<li>Added \"<code>nib queryissues</code>\" to Omnibox Help (1.0.9).</li>" +
+			"</ul>"
 	}
 };
