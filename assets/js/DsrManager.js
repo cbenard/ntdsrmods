@@ -304,6 +304,7 @@ function DsrManager(inputContext)
             }
 
             var hoursNeeded = round(currentSettings.hoursPerWeek - getCurrentEstimatedHours(), 4);
+            var millisecondsNeeded = hoursNeeded * 60 * 60 * 1000;
 
             if (hoursNeeded >= 0)
             {
@@ -330,8 +331,15 @@ function DsrManager(inputContext)
                 // Only do the wraparound if it's not Saturday (we can't wrap to Sunday)
                 else if (new Date().getDay() < 6 && getTimeToLeave() < todayPlusOneWorkDay)
                 {
-                    var tomorrowLeave = getTodayStartDate();
-                    tomorrowLeave.setMilliseconds(getTimeToLeave() - getTodayEndDate());
+                    var tomorrowLeave;
+                    if (clockedIn) {
+                        tomorrowLeave = getTodayStartDate();
+                        tomorrowLeave.setMilliseconds(getTimeToLeave() - getTodayEndDate());
+                    }
+                    else {
+                        tomorrowLeave = getTodayStartDate();
+                        tomorrowLeave.setMilliseconds(tomorrowLeave.getMilliseconds() + millisecondsNeeded);
+                    }
 
                     $('#ntdsrmods-timeyoucanleave', context).removeClass('ntdsrmods-hidden');
                     $('#ntdsrmods-timeyoucanleave-time', context).text(formatDate(tomorrowLeave, "h:mm a"));

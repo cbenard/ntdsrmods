@@ -99,5 +99,12 @@ var versionHistory = {
 		message: "<ul>" +
 			"<li>Bug fix for \"Time to Leave\" calculation when set to a time with minutes (e.g. 5:30 instead of 5:00).</li>" +
 			"</ul>"
+	},
+
+	"1.0.12": {
+		heading: "Programmer Enhancement Suite Update (1.0.12)",
+		message: "<ul>" +
+			"<li>Bug fix for \"Time to Leave Tomorrow\" calculation (usually on a Thursday) when clocked out.</li>" +
+			"</ul>"
 	}
 };
