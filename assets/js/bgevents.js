@@ -86,9 +86,11 @@ function onMessage(request, sender, responseCallback)
 
 chrome.runtime.onMessage.addListener(onMessage);
 chrome.alarms.onAlarm.addListener(function(alarm) {
-	if (alarm.name == 'ntdsrmods_heartbeat')
-	{
+	if (alarm.name == 'ntdsrmods_heartbeat') {
 		sendHeartbeat();
+	}
+	else if (alarm.name == 'ntdsrmods_checksupportrequests') {
+		checkHasSupportRequests();
 	}
 });
 chrome.notifications.onButtonClicked.addListener(HandleNotificationButtonClick);
@@ -116,7 +118,9 @@ var defaultOptions =
 	"copyWithoutSilverlight": true,
 	"promoteIssueEditClickableSpansToLinks": true,
 	"linkIssueSubject": true,
-	"displayServerSearchFromIssueEdit": true
+	"displayServerSearchFromIssueEdit": true,
+	"notifySupportRequest": true,
+	"supportRequestSound": "dong"
 };
 
 function getSettings(responseCallback)
@@ -319,6 +323,33 @@ function raiseUpdateNotification(message)
 	chrome.notifications.create("updatenotification", notificationOptions, function() {});
 }
 
+function raiseSupportRequestNotification(settings)
+{
+	var notificationOptions = {
+		type: "basic",
+		title: "You have a support request",
+		message: "You have unhandled support request(s).",
+		iconUrl: chrome.runtime.getURL("assets/img/niblet-128.png"),
+		buttons: [
+			{ title: "View Requests", iconUrl: chrome.runtime.getURL("assets/img/icon-clock-grey-32.png")},
+			{ title: "Close", iconUrl: chrome.runtime.getURL("assets/img/icon-close-grey-32.png")}
+		],
+		isClickable: true
+	};
+	chrome.notifications.create("supportrequestnotification", notificationOptions, function() {
+		if (settings && settings.supportRequestSound)
+		{
+			if (logVerbose) console.log(chrome.runtime.getURL("assets/audio/" + settings.supportRequestSound + ".ogg"));
+			setTimeout(function() {
+				var notificationAudio = new Audio();
+				notificationAudio.src = chrome.runtime.getURL("assets/audio/" + settings.supportRequestSound + ".ogg");
+				notificationAudio.play();
+			}, 1);
+		}
+
+	});
+}
+
 function HandleNotificationButtonClick(notificationID, buttonIndex) {
 	chrome.notifications.clear(notificationID, function() {});
 
@@ -326,6 +357,12 @@ function HandleNotificationButtonClick(notificationID, buttonIndex) {
 		if (logVerbose) console.log('update notification: user clicked button index ' + buttonIndex);
 		if (buttonIndex === 0 || buttonIndex === -1) {
 			chrome.tabs.create({ url: chrome.runtime.getURL("info.html") }, function() {});
+		}
+	}
+	else if (notificationID === "supportrequestnotification") {
+		if (logVerbose) console.log('support request notification: user clicked button index ' + buttonIndex);
+		if (buttonIndex === 0 || buttonIndex === -1) {
+			navigateOmniTab('/SupportCenter/PersonIssueSupportRequests.aspx', 'https', 'newForegroundTab', '*/PersonIssueSupportRequests.aspx', true);
 		}
 	}
 	else if (notificationID === "timewarning") {
@@ -573,11 +610,31 @@ function openOmniTab(url, disposition) {
 	}
 }
 
+function checkHasSupportRequests() {
+	$.get('https://www.' + voldemort + '.com/SupportCenter/PersonIssueSupportRequests.aspx', function (data) {
+		var supportTable = $(data).find('.PersonIssueSupport tr');
+		var hasRequests = (supportTable !== undefined && supportTable.length > 1);
+		console.logv('Has support requests: ' + hasRequests);
+
+		if (hasRequests) {
+			getSettings(function(settings) {
+				if (settings.notifySupportRequest) {
+					raiseSupportRequestNotification(settings);
+				}
+			});
+		}
+	});
+}
+chrome.alarms.create('ntdsrmods_checksupportrequests', { 'when': Date.now() + 5000, 'periodInMinutes': 1 });
+
 (function() {
-	var popupSettings = { primaryPattern: matchingUrls[0], setting: 'allow' };
+	var popupSettings1 = { primaryPattern: "*://*." + voldemort + ".com/*", setting: 'allow' };
+	var popupSettings2 = { primaryPattern: "http://localhost/*", setting: 'allow' };
+	chrome.contentSettings.popups.set(popupSettings1);
+	if (logVerbose) console.log('set popup settings to: ' + JSON.stringify(popupSettings1));
+
 	if (matchingUrls.length > 1) {
-		popupSettings.secondaryPattern = matchingUrls[1];
+		chrome.contentSettings.popups.set(popupSettings2);
+		if (logVerbose) console.log('set popup settings to: ' + JSON.stringify(popupSettings2));
 	}
-	chrome.contentSettings.popups.set(popupSettings);
-	if (logVerbose) console.log('set popup settings to: ' + JSON.stringify(popupSettings));
 })();

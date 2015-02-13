@@ -128,6 +128,14 @@ $(function()
 			{
 				$('#displayServerSearchFromIssueEdit').prop('checked', settings.displayServerSearchFromIssueEdit);
 			}
+			if (settings.notifySupportRequest != undefined)
+			{
+				$('#notifySupportRequest').prop('checked', settings.notifySupportRequest);
+			}
+			if (settings.supportRequestSound !== undefined)
+			{
+				$('#supportRequestSound').val(settings.supportRequestSound);
+			}
 		}
 
 		toggleNotificationSubSettings($('#notifyMe').prop('checked'));
@@ -288,7 +296,9 @@ $(function()
 				"copyWithoutSilverlight": $('#copyWithoutSilverlight').prop('checked') ? true : false,
 				"promoteIssueEditClickableSpansToLinks": $('#promoteIssueEditClickableSpansToLinks').prop('checked') ? true : false,
 				"linkIssueSubject": $('#linkIssueSubject').prop('checked') ? true : false,
-				"displayServerSearchFromIssueEdit": $('#displayServerSearchFromIssueEdit').prop('checked') ? true : false
+				"displayServerSearchFromIssueEdit": $('#displayServerSearchFromIssueEdit').prop('checked') ? true : false,
+				"notifySupportRequest": $('#notifySupportRequest').prop('checked') ? true : false,
+				"supportRequestSound": $('#supportRequestSound').val()
 			};
 
 			chrome.runtime.sendMessage({ "eventName": "saveSettings", "dto": dto }, function(response) {
