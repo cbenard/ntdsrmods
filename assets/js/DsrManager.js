@@ -140,11 +140,11 @@ function DsrManager(inputContext)
 
     function formatHours(number)
     {
-        var hours = parseInt(number);
-        var partialHour = number - parseInt(number);
+        var hours = parseInt(number, 10);
+        var partialHour = number - parseInt(number, 10);
         var minutesDecimal = 60 * partialHour;
-        var minutes = parseInt(minutesDecimal);
-        var seconds = round((minutesDecimal - parseInt(minutesDecimal)) * 60, 0);
+        var minutes = parseInt(minutesDecimal, 10);
+        var seconds = round((minutesDecimal - parseInt(minutesDecimal, 10)) * 60, 0);
         
         var returnString = '';
         if (hours > 0)
@@ -189,15 +189,12 @@ function DsrManager(inputContext)
         if (timeToLeave == undefined)
         {
             var hours = currentSettings.hoursPerWeek - getCurrentEstimatedHours();
-            var hour = parseInt(hours);
-            hours -= hour;
-            var minutes = parseInt((hours * 60) + 0.6);
+            var hour = parseInt(hours, 10);
+            hours -= hour; // Take whole hours out of the time to get the minutes
+            var minutes = parseInt((hours * 60) + 0.6, 10); // 0.6 to round up
 
             timeToLeave = new Date();
-            timeToLeave.setHours(timeToLeave.getHours() + hour, 0, 0, 0);
-            timeToLeave.setMinutes(timeToLeave.getMinutes() + minutes);
-
-            timeToLeave.setSeconds(0);
+            timeToLeave.setHours(timeToLeave.getHours() + hour, timeToLeave.getMinutes() + minutes, 0, 0);
         }
         
         return new Date(timeToLeave);
@@ -208,8 +205,7 @@ function DsrManager(inputContext)
         if (todayStart == undefined)
         {
             todayStart = new Date();
-            todayStart.setHours(currentSettings.beginningOfDayTimeHour, 0, 0, 0);
-            todayStart.setMinutes(currentSettings.beginningOfDayTimeMinute);
+            todayStart.setHours(currentSettings.beginningOfDayTimeHour, currentSettings.beginningOfDayTimeMinute, 0, 0);
         }
 
         return new Date(todayStart);
@@ -220,8 +216,7 @@ function DsrManager(inputContext)
         if (todayEnd == undefined)
         {
             todayEnd = new Date();
-            todayEnd.setHours(currentSettings.endOfDayTimeHour, 0, 0, 0);
-            todayEnd.setMinutes(currentSettings.endOfDayTimeMinute);
+            todayEnd.setHours(currentSettings.endOfDayTimeHour, currentSettings.endOfDayTimeMinute, 0, 0);
         }
 
         return new Date(todayEnd);
@@ -234,7 +229,7 @@ function DsrManager(inputContext)
             dayDuration = getTodayEndDate() - getTodayStartDate();
         }
 
-        return parseInt(dayDuration);
+        return parseInt(dayDuration, 10);
     }
 
     function fireWarning()
