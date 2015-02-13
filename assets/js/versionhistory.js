@@ -92,5 +92,12 @@ var versionHistory = {
 			"<li>Highlighting Daily Status time updates stops the updates while the text is selected, so your selection is no longer cleared every second.</li>" +
 			"<li>Added \"<code>nib queryissues</code>\" to Omnibox Help (1.0.9).</li>" +
 			"</ul>"
+	},
+
+	"1.0.11": {
+		heading: "Programmer Enhancement Suite Update (1.0.11)",
+		message: "<ul>" +
+			"<li>Bug fix for \"Time to Leave\" calculation when set to a time with minutes (e.g. 5:30 instead of 5:00).</li>" +
+			"</ul>"
 	}
 };
