@@ -106,5 +106,13 @@ var versionHistory = {
 		message: "<ul>" +
 			"<li>Bug fix for \"Time to Leave Tomorrow\" calculation (usually on a Thursday) when clocked out.</li>" +
 			"</ul>"
+	},
+
+	"1.0.13": {
+		heading: "Programmer Enhancement Suite Update (1.0.13)",
+		message: "<ul>" +
+			"<li>Added checking for support requests (default but optional).</li>" +
+			"<li>Improved popup handling.</li>" +
+			"</ul>"
 	}
 };
