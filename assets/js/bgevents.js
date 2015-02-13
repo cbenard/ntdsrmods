@@ -625,7 +625,7 @@ function checkHasSupportRequests() {
 		}
 	});
 }
-chrome.alarms.create('ntdsrmods_checksupportrequests', { 'when': Date.now() + 5000, 'periodInMinutes': 1 });
+chrome.alarms.create('ntdsrmods_checksupportrequests', { 'when': Date.now() + 5000, 'periodInMinutes': 60 });
 
 (function() {
 	var popupSettings1 = { primaryPattern: "*://*." + voldemort + ".com/*", setting: 'allow' };
