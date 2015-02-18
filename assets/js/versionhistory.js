@@ -114,5 +114,14 @@ var versionHistory = {
 			"<li>Added checking for support requests (default but optional).</li>" +
 			"<li>Improved popup handling.</li>" +
 			"</ul>"
+	},
+
+	"1.0.14": {
+		heading: "Programmer Enhancement Suite Update (1.0.14)",
+		message: "<ul>" +
+			"<li>Support requests are now checked on the DSR page (appears above time summary).</li>" +
+			"<li>Support requests are now checked on the Issue List page (appears in Support Requests button).</li>" +
+			"<li>\"Support Requests\" button is now a link you can right click to open in new tab on Issue List page.</li>" +
+			"</ul>"
 	}
 };

@@ -91,6 +91,11 @@ $(function ()
                 console.logv('received ackNewVersion');
                 $('.ntdsrmods-alert').effect("puff", {});
             }
+            else if (request.eventName == "supportRequestsFound")
+            {
+                console.logv('received supportRequestsFound');
+                misc.updateSupportRequests(request.count);
+            }
         }
     }
 

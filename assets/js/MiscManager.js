@@ -49,8 +49,11 @@
 				if (/\/IssueMyListAdvanced\.aspx/i.test(location) ||
 					/\/IssueSearchAdvanced\.aspx/i.test(location)) {
 					linkIssueSubject(currentSettings.linkIssueSubject);
-
+					requestSupportRequestsCount();
 					placeSentinels();
+				}
+				else if (/\/DailyStatusListForPerson\.aspx/i.test(location)) {
+					requestSupportRequestsCount();
 				}
 				else if (/\/IssueEdit\.aspx/i.test(location)) {
 					displayServerSearchFromIssueEdit(currentSettings.displayServerSearchFromIssueEdit);
@@ -92,6 +95,32 @@
 	    	if (ajaxPanels.length != sentinels.length) {
 	    		if (logVerbose) console.log('ajaxPanels.length: ' + ajaxPanels.length + ' != sentinels.length: ' + sentinels.length);
 	    		doStartup();
+	    	}
+	    }
+
+	    function requestSupportRequestsCount() {
+		    chrome.runtime.sendMessage({"eventName": "supportRequestsRequest"});
+		}
+
+	    this.updateSupportRequests = function(count) {
+	    	console.logv('received support requests: ' + count);
+	    	var issueListSupportRequestButton = $('#ctl00_ContentPlaceHolder2_RadToolBar1').find('a > span > span > span > span:contains("Support Requests")');
+	    	console.logv(issueListSupportRequestButton);
+	    	if (issueListSupportRequestButton && issueListSupportRequestButton.length) {
+	    		issueListSupportRequestButton.text('Support Requests (' + count + ')');
+	    	}
+
+	    	var supportRequestContainer = $('#supportrequest-container');
+	    	if (supportRequestContainer && supportRequestContainer.length) {
+	    		$('#supportrequest-count').text(count);
+	    		if (count == 0 || count > 1) {
+	    			$('#supportrequest-plural').css('display', '');
+	    		}
+	    		else {
+	    			$('#supportrequest-plural').css('display', 'none');
+	    			supportRequestContainer.addClass('ntdsrmods-hidden');
+	    		}
+	    		supportRequestContainer.removeClass('ntdsrmods-hidden');
 	    	}
 	    }
 
@@ -272,6 +301,18 @@
 							var a = createIssueLink(match[1], $(v)[0].innerText);
 							$(v).replaceWith(a);
 						}
+					});
+
+				$("div.RadToolBar:contains('Support Requests'):has(a[onclick^='window.location.href = \'PersonIssueSupportRequests.aspx\''])")
+					.each(function(i,v) {
+						$(v).find("*").unbind('click');
+						$(v).find("*").removeAttr('onclick');
+						$(v).find("a:contains('Support Requests')")
+							.each(function(j,w) {
+								console.log('found link');
+								console.log(w);
+								$(w).attr('href', 'PersonIssueSupportRequests.aspx');
+							});
 					});
 			}
 		} // promoteIssueEditClickableSpansToLinks
