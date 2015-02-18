@@ -54,6 +54,18 @@ $(function()
 		}
 	});
 	
+	$('#supportRequestSound').change(function() 
+	{
+		var sndFile = $(this).val();
+		if (isDoneInitializing && sndFile)
+		{
+			setTimeout(function() {
+				audio.src = 'assets/audio/' + sndFile + '.ogg';
+				audio.play();
+			},1);
+		}
+	});
+	
 	$('#notifyMe').click(function() { toggleNotificationSubSettings($(this).prop('checked')); });
 
 	$('input[type="text"]').first().focus();
@@ -127,6 +139,10 @@ $(function()
 			if (settings.linkIssueSubject != undefined)
 			{
 				$('#displayServerSearchFromIssueEdit').prop('checked', settings.displayServerSearchFromIssueEdit);
+			}
+			if (settings.checkSupportRequests != undefined)
+			{
+				$('#checkSupportRequests').prop('checked', settings.checkSupportRequests);
 			}
 			if (settings.notifySupportRequest != undefined)
 			{
@@ -297,6 +313,7 @@ $(function()
 				"promoteIssueEditClickableSpansToLinks": $('#promoteIssueEditClickableSpansToLinks').prop('checked') ? true : false,
 				"linkIssueSubject": $('#linkIssueSubject').prop('checked') ? true : false,
 				"displayServerSearchFromIssueEdit": $('#displayServerSearchFromIssueEdit').prop('checked') ? true : false,
+				"checkSupportRequests": $('#checkSupportRequests').prop('checked') ? true : false,
 				"notifySupportRequest": $('#notifySupportRequest').prop('checked') ? true : false,
 				"supportRequestSound": $('#supportRequestSound').val()
 			};

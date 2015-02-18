@@ -81,6 +81,10 @@ function onMessage(request, sender, responseCallback)
 
 			return true;
 		}
+		else if (request.eventName == "supportRequestsRequest")
+		{
+			checkHasSupportRequests('pageMessage');
+		}
 	}
 };
 
@@ -90,7 +94,8 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
 		sendHeartbeat();
 	}
 	else if (alarm.name == 'ntdsrmods_checksupportrequests') {
-		checkHasSupportRequests();
+		console.logv('support requests alarm firing');
+		checkHasSupportRequests('alarm');
 	}
 });
 chrome.notifications.onButtonClicked.addListener(HandleNotificationButtonClick);
@@ -120,6 +125,7 @@ var defaultOptions =
 	"linkIssueSubject": true,
 	"displayServerSearchFromIssueEdit": true,
 	"notifySupportRequest": true,
+	"checkSupportRequests": true,
 	"supportRequestSound": "dong"
 };
 
@@ -610,22 +616,40 @@ function openOmniTab(url, disposition) {
 	}
 }
 
-function checkHasSupportRequests() {
-	$.get('https://www.' + voldemort + '.com/SupportCenter/PersonIssueSupportRequests.aspx', function (data) {
-		var supportTable = $(data).find('.PersonIssueSupport tr');
-		var hasRequests = (supportTable !== undefined && supportTable.length > 1);
-		console.logv('Has support requests: ' + hasRequests);
+function checkHasSupportRequests(source) {
+	getSettings(function(settings) {
+		if (settings.checkSupportRequests) {
+			$.get('https://www.' + voldemort + '.com/SupportCenter/PersonIssueSupportRequests.aspx', function (data) {
+				var supportTable = $(data).find('.PersonIssueSupport tr');
+				var hasRequests = (supportTable !== undefined && supportTable.length > 1);
 
-		if (hasRequests) {
-			getSettings(function(settings) {
-				if (settings.notifySupportRequest) {
-					raiseSupportRequestNotification(settings);
+				console.logv('Has support requests: ' + hasRequests + '. source: ' + source);
+
+				if (hasRequests) {
+					if (source == 'alarm') {
+						if (settings.notifySupportRequest) {
+							raiseSupportRequestNotification(settings);
+						}
+					}
+					else if (source == 'pageMessage') {
+						var count = supportTable.length - 1;
+						sendOneWayMessageToContentScript({"eventName": "supportRequestsFound", "count": count});
+					}
 				}
 			});
 		}
 	});
 }
-chrome.alarms.create('ntdsrmods_checksupportrequests', { 'when': Date.now() + 5000, 'periodInMinutes': 60 });
+
+function setupSupportRequestAlarm() {
+	chrome.alarms.clear('ntdsrmods_checksupportrequests', function() {
+		console.logv('Cleared alarm ntdsrmods_checksupportrequests. Recreating...');
+		chrome.alarms.create('ntdsrmods_checksupportrequests', { 'when': Date.now() + 5000, 'periodInMinutes': 60 });
+	});
+}
+
+chrome.runtime.onStartup.addListener(setupSupportRequestAlarm);
+chrome.runtime.onInstalled.addListener(setupSupportRequestAlarm);
 
 (function() {
 	var popupSettings1 = { primaryPattern: "*://*." + voldemort + ".com/*", setting: 'allow' };

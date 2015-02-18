@@ -11,6 +11,7 @@ function DsrManager(inputContext)
     var totalEstimated;
     var clockedIn;
     var ourElement;
+    var supportRequestsElement;
     var hoursNeededElement;
     var endOfDayElement;
     var overtimeElement;
@@ -86,6 +87,12 @@ function DsrManager(inputContext)
 
     function addOurElements()
     {
+        if (!$('#supportrequest-container', context).exists())
+        {
+            supportRequestsElement = $('<div id="supportrequest-container" style="padding: 10px 10px 5px 10px" class="ntdsrmods-hidden">You have <a href="/SupportCenter/PersonIssueSupportRequests.aspx"><span id="supportrequest-count">0</span> unhandled support request<span id="supportrequest-plural" style="display: none">s</span></a>.</div>');
+            supportRequestsElement.insertBefore(panelElement);
+        }
+
         if (!$('#ntdsrmods-container', context).exists())
         {
             ourElement = $('<div id="ntdsrmods-container" class="ntdsrmods-hidden"></div>');
