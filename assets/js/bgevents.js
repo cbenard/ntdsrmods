@@ -107,6 +107,7 @@ chrome.notifications.onClicked.addListener(
 
 var defaultOptions =
 {
+	"enabled": true,
 	"hoursPerWeek": 40.00,
 	"notifyMe": true,
 	"minuteWarning": 5,
@@ -151,12 +152,14 @@ function saveSettings(settings, responseCallback)
 
 	chrome.storage.sync.set({ 'settings': settings }, function() {
 		var err = chrome.runtime.lastError;
-		if (err)
+		if (err && responseCallback)
 		{
 			responseCallback({ 'success': false, 'errorMessage': err });
 		}
 
-		responseCallback({ 'success': true, 'errorMessage': null });
+		if (responseCallback) {
+			responseCallback({ 'success': true, 'errorMessage': null });
+		}
 
 		settings = $.extend({}, defaultOptions, settings);
 
@@ -439,6 +442,10 @@ chrome.runtime.onInstalled.addListener(function(details) {
 	});
 	*/
 
+	reloadAllTabs();
+});
+
+function reloadAllTabs() {
 	for (var j = 0; j < matchingUrls.length; j++)
 	{
 		chrome.tabs.query({ "url": matchingUrls[j] }, function(tabs) {
@@ -452,7 +459,7 @@ chrome.runtime.onInstalled.addListener(function(details) {
 			}
 		});
 	}
-});
+}
 
 // http://stackoverflow.com/a/17246127/448
 chrome.omnibox.onInputChanged.addListener(function (text, suggest) {
@@ -618,7 +625,7 @@ function openOmniTab(url, disposition) {
 
 function checkHasSupportRequests(source) {
 	getSettings(function(settings) {
-		if (settings.checkSupportRequests) {
+		if (settings.enabled && settings.checkSupportRequests) {
 			$.get('https://www.' + voldemort + '.com/SupportCenter/PersonIssueSupportRequests.aspx', function (data) {
 				var supportTable = $(data).find('.PersonIssueSupport tr');
 				var hasRequests = (supportTable !== undefined && supportTable.length > 1);
@@ -650,6 +657,28 @@ function setupSupportRequestAlarm() {
 
 chrome.runtime.onStartup.addListener(setupSupportRequestAlarm);
 chrome.runtime.onInstalled.addListener(setupSupportRequestAlarm);
+
+chrome.commands.onCommand.addListener(function(command) {
+	console.logv('Command: ' + command);
+	
+	if (command == 'toggle-enabled') {
+		getSettings(function(curSettings) {
+			console.logv('Toggling "enabled". Previous value: ' + curSettings.enabled + '. New value: ' + !curSettings.enabled);
+			
+			if (curSettings.enabled) {
+				chrome.notifications.getAll(function(currentNotifications) {
+					for (var key in currentNotifications) {
+						console.logv('Clearing notification: ' + key);
+						chrome.notifications.clear(key, function() {});						
+					}
+				});
+			}
+
+			curSettings.enabled = !curSettings.enabled;
+			saveSettings(curSettings, function() { reloadAllTabs(); });
+		});
+	}
+});
 
 (function() {
 	var popupSettings1 = { primaryPattern: "*://*." + voldemort + ".com/*", setting: 'allow' };

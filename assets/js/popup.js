@@ -152,6 +152,10 @@ $(function()
 			{
 				$('#supportRequestSound').val(settings.supportRequestSound);
 			}
+			if (settings.enabled !== undefined)
+			{
+				$('#enabled').prop('checked', settings.enabled);
+			}
 		}
 
 		toggleNotificationSubSettings($('#notifyMe').prop('checked'));
@@ -315,7 +319,8 @@ $(function()
 				"displayServerSearchFromIssueEdit": $('#displayServerSearchFromIssueEdit').prop('checked') ? true : false,
 				"checkSupportRequests": $('#checkSupportRequests').prop('checked') ? true : false,
 				"notifySupportRequest": $('#notifySupportRequest').prop('checked') ? true : false,
-				"supportRequestSound": $('#supportRequestSound').val()
+				"supportRequestSound": $('#supportRequestSound').val(),
+				"enabled": $('#enabled').prop('checked') ? true : false
 			};
 
 			chrome.runtime.sendMessage({ "eventName": "saveSettings", "dto": dto }, function(response) {

@@ -17,6 +17,10 @@
         <form id="frm">
             <fieldset>
                 <legend>Preferences</legend>
+                <div class="form-row form-row-checkbox">
+                    <input type="checkbox" id="enabled" />
+                    <label for="enabled" class="after-checkbox">Globally Enabled</label>
+                </div>
                 <div id="tabs">
                     <ul>
                         <li><a href="#tab-dsr">Daily Status</a></li>
@@ -61,7 +65,7 @@
                         </div>
                     </div>
                     <div id="tab-misc">
-                        <div class="form-row form-row-checkbox">
+                        <div class="form-row form-row-checkbox" style="display: none">
                             <div class="optionhelp">
                                 <span class="tooltip" title="Displayed at the top of the Issue List page. Press the <span class='code'>/</span> key anywhere on the issue list page to activate. Additionally, paste anything into the box and non-numerics will be removed.">info</span>
                             </div>

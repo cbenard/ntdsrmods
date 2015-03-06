@@ -15,30 +15,32 @@ $(function ()
     var misc = new MiscManager(document, window.location.href);
     var currentSettings;
 
-    if (dsr.isValidDailyStatusPage())
-    {
-        dsr.addWarningFiredListener(warningFiredEventHandler);
-
-        chrome.runtime.sendMessage({ "eventName": "pageLoaded", "logonName": $.cookie('LogonName') });
-    }
-
     if (dsr.isValidDailyStatusPage() || misc.isValidPage()) {
         chrome.runtime.sendMessage({ "eventName": "needsPageAction" });
 
         chrome.runtime.sendMessage({ "eventName": "getSettings" }, function(settings) {
             currentSettings = settings;
 
-            var request = { eventName: "settingsUpdated", settings: settings };
-            if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);
+            if (settings.enabled) {
+                if (dsr.isValidDailyStatusPage())
+                {
+                    dsr.addWarningFiredListener(warningFiredEventHandler);
 
-            window.postMessage(request, window.location.href);
+                    chrome.runtime.sendMessage({ "eventName": "pageLoaded", "logonName": $.cookie('LogonName') });
+                }
 
-            if (dsr.isValidDailyStatusPage()) {
-                dsr.refresh(settings);
-            }
+                var request = { eventName: "settingsUpdated", settings: settings };
+                if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);
 
-            if (misc.isValidPage()) {
-                misc.refresh(settings);
+                window.postMessage(request, window.location.href);
+
+                if (dsr.isValidDailyStatusPage()) {
+                    dsr.refresh(settings);
+                }
+
+                if (misc.isValidPage()) {
+                    misc.refresh(settings);
+                }
             }
         });
     }
