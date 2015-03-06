@@ -40,7 +40,7 @@
 	        console.logv(currentSettings);
 
     		if (typeof currentSettings !== 'undefined') {
-				displayGoToIssue(currentSettings.displayGoToIssue);
+				// Disabled: displayGoToIssue(currentSettings.displayGoToIssue);
 				displayAccountManagerInServerEdit(currentSettings.displayAccountManagerInServerEdit);
 				reEnableIssueEditScroll(currentSettings.reEnableIssueEditScroll);
 				copyWithoutSilverlight(currentSettings.copyWithoutSilverlight);

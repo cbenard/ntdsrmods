@@ -123,5 +123,18 @@ var versionHistory = {
 			"<li>Support requests are now checked on the Issue List page (appears in Support Requests button).</li>" +
 			"<li>\"Support Requests\" button is now a link you can right click to open in new tab on Issue List page.</li>" +
 			"</ul>"
+	},
+
+	"1.0.15": {
+		heading: "Programmer Enhancement Suite Update (1.0.15)",
+		message: "<ul>" +
+			"<li>Disabled \"Go to Issue\" box. Use the <code>\"nib i\"</code> omnibox command (use <code>\"nib help\"</code> in the omnibox for more information) instead.</li>" +
+			"<li>Global shortcut to toggle extension being enabled (<code>Ctrl+Shift+A</code>).</li>" +
+			"<li>You may change this shortcut in Chrome's extension settings at the bottom of the page.</li>" +
+			"</ul>"
+	},
+
+	"1.0.16": {
+		sameAs: "1.0.15"
 	}
 };
