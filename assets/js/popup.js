@@ -156,6 +156,10 @@ $(function()
 			{
 				$('#enabled').prop('checked', settings.enabled);
 			}
+			if (settings.distractionFreeMode !== undefined)
+			{
+				$('#distractionFreeMode').prop('checked', settings.distractionFreeMode);
+			}
 		}
 
 		toggleNotificationSubSettings($('#notifyMe').prop('checked'));
@@ -320,7 +324,8 @@ $(function()
 				"checkSupportRequests": $('#checkSupportRequests').prop('checked') ? true : false,
 				"notifySupportRequest": $('#notifySupportRequest').prop('checked') ? true : false,
 				"supportRequestSound": $('#supportRequestSound').val(),
-				"enabled": $('#enabled').prop('checked') ? true : false
+				"enabled": $('#enabled').prop('checked') ? true : false,
+				"distractionFreeMode": $('#distractionFreeMode').prop('checked') ? true : false
 			};
 
 			chrome.runtime.sendMessage({ "eventName": "saveSettings", "dto": dto }, function(response) {
