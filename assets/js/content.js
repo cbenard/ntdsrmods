@@ -11,23 +11,29 @@ contentscopefunctions.src = chrome.extension.getURL("assets/js/content-scope-fun
 
 $(function ()
 {
+    var sevenDays = 7 * 24 * 60 * 60 * 1000;
     var dsr = new DsrManager(document);
     var misc = new MiscManager(document, window.location.href);
     var currentSettings;
 
     if (dsr.isValidDailyStatusPage() || misc.isValidPage()) {
-        chrome.runtime.sendMessage({ "eventName": "needsPageAction" });
-
         chrome.runtime.sendMessage({ "eventName": "getSettings" }, function(settings) {
             currentSettings = settings;
 
-            if (settings.enabled) {
-                if (dsr.isValidDailyStatusPage())
-                {
-                    dsr.addWarningFiredListener(warningFiredEventHandler);
+            if (settings.enabled && dsr.isValidDailyStatusPage())
+            {
+                dsr.addWarningFiredListener(warningFiredEventHandler);
 
-                    chrome.runtime.sendMessage({ "eventName": "pageLoaded", "logonName": $.cookie('LogonName') });
-                }
+                chrome.runtime.sendMessage({ "eventName": "pageLoaded", "logonName": $.cookie('LogonName'), "settings": settings });
+            }
+
+            if (settings.enabled
+                && typeof settings.lastAllowedTime === 'number'
+                && Date.now() - settings.lastAllowedTime < sevenDays
+                && typeof settings.lastAllowedUsername === 'string'
+                && settings.lastAllowedUsername.toLowerCase() == $.cookie('LogonName').toLowerCase()) {
+
+                chrome.runtime.sendMessage({ "eventName": "needsPageAction" });
 
                 var request = { eventName: "settingsUpdated", settings: settings };
                 if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);

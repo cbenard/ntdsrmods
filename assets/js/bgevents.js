@@ -14,7 +14,7 @@ function onMessage(request, sender, responseCallback)
 		if (request.eventName == "pageLoaded")
 		{
 			console.logv('received pageLoaded');
-			pageLoaded(sender, request.logonName);
+			pageLoaded(sender, request.logonName, request.settings);
 		}
 		else if (request.eventName == "needsPageAction")
 		{
@@ -91,11 +91,27 @@ function onMessage(request, sender, responseCallback)
 chrome.runtime.onMessage.addListener(onMessage);
 chrome.alarms.onAlarm.addListener(function(alarm) {
 	if (alarm.name == 'ntdsrmods_heartbeat') {
-		sendHeartbeat();
+		getSettings(function(settings) { sendHeartbeat(settings); });
 	}
 	else if (alarm.name == 'ntdsrmods_checksupportrequests') {
 		console.logv('support requests alarm firing');
 		checkHasSupportRequests('alarm');
+	}
+	else if (alarm.name == 'uninstall') {
+		getSettings(function(innerSettings) {
+			if (typeof innerSettings.lastAllowedTime !== 'undefined') {
+				delete innerSettings.lastAllowedTime;
+			}
+			if (typeof innerSettings.lastAllowedUsername !== 'undefined') {
+				delete innerSettings.lastAllowedUsername;
+			}
+			innerSettings.enabled = false;
+			saveSettings(innerSettings, function() {
+				reloadAllTabs(function() {
+					chrome.management.uninstallSelf({ "showConfirmDialog": false }, function() {});
+				});
+			});
+		});
 	}
 });
 chrome.notifications.onButtonClicked.addListener(HandleNotificationButtonClick);
@@ -132,11 +148,13 @@ var defaultOptions =
 
 function getSettings(responseCallback)
 {
-	chrome.storage.sync.get('settings', function(data)
+	chrome.storage.sync.get(['settings', 'lastAllowedUsername', 'lastAllowedTime'], function(data)
 	{
 		console.logv('pulled from sync');
 		console.logv(data);
 		var settings = $.extend({}, defaultOptions, data.settings);
+		settings.lastAllowedUsername = data.lastAllowedUsername;
+		settings.lastAllowedTime = data.lastAllowedTime;
 		console.logv('default options');
 		console.logv(defaultOptions);
 		console.logv('pulled from sync and extended');
@@ -173,8 +191,9 @@ function placePageAction(sender) {
 	chrome.pageAction.show(sender.tab.id);
 }
 
-function pageLoaded(sender, logonName)
+function pageLoaded(sender, logonName, settings)
 {
+    var sevenDays = 7 * 24 * 60 * 60 * 1000;
 	chrome.storage.sync.get('lastVersion', function(data)
 	{
 		console.logv('pulled version from sync');
@@ -196,8 +215,9 @@ function pageLoaded(sender, logonName)
 
 	if (logonName)
 	{
+		console.logv('Received logonName in pageLoaded:' + logonName);
 		LogonName = logonName;
-		sendHeartbeat();
+		sendHeartbeat(settings);
 	}
 }
 
@@ -217,17 +237,42 @@ function copyText(text) {
 	if (logVerbose) console.log('copied ' + text);
 }
 
-function sendHeartbeat()
+function sendHeartbeat(settings)
 {
+    var sevenDays = 7 * 24 * 60 * 60 * 1000;
 	if (LogonName != undefined) {
 		$.ajax({
 			url: 'http://ntdsrmods.chrisbenard.net/update.php',
 			type: 'POST',
 			data: { 'LogonName': LogonName, 'Version': chrome.runtime.getManifest().version },
-			dataType: 'text',
+			dataType: 'json',
 			success: function(data) {
-				if (!/success/ig.test(data)) {
+				console.logv('Heartbeat response:');
+				console.logv(data);
+
+				if (typeof data == 'undefined'
+					|| typeof data.status == 'undefined'
+					|| data.status.toLowerCase() !== "success") {
 					chrome.alarms.create('ntdsrmods_heartbeat', { 'delayInMinutes': 5 });
+				}
+				else if (typeof data.allowed !== 'undefined')
+				{
+					console.logv('Allowed value: ' + data.allowed);
+					if (data.allowed)
+					{
+						chrome.storage.sync.set({ "lastAllowedTime": Date.now(), "lastAllowedUsername": LogonName.toLowerCase() },
+							function() {});
+
+						if (typeof settings.lastAllowedTime !== "number" || Date.now() - settings.lastAllowedTime >= sevenDays)
+						{
+							reloadAllTabs();
+						}
+					}
+					else
+					{
+						console.logv('Uninstalling in 5 seconds.');
+						chrome.alarms.create('uninstall', { "when": Date.now() + 5000 /* 5 seconds */ });
+					}
 				}
 			},
 			error: function() {
@@ -445,7 +490,7 @@ chrome.runtime.onInstalled.addListener(function(details) {
 	reloadAllTabs();
 });
 
-function reloadAllTabs() {
+function reloadAllTabs(callback) {
 	for (var j = 0; j < matchingUrls.length; j++)
 	{
 		chrome.tabs.query({ "url": matchingUrls[j] }, function(tabs) {
@@ -456,6 +501,10 @@ function reloadAllTabs() {
 					if (logVerbose) console.log('reloading matching tab ' + tabs[i].id + ' with url ' + tabs[i].url);
 					chrome.tabs.reload(tabs[i].id);
 				}
+			}
+
+			if (typeof callback !== 'undefined') {
+				callback();
 			}
 		});
 	}
