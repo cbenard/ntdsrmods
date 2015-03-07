@@ -2,6 +2,7 @@ function DsrManager(inputContext)
 {
     var currentSettings;
     var pnlTime;
+    var totalLabel;
     var totalElement;
     var totalEstimatedElement;
     var createdOnElement;
@@ -59,6 +60,7 @@ function DsrManager(inputContext)
     function findElements()
     {
         pnlTime = $('div[id$="pnlTime"]', context);
+        totalLabel = pnlTime.find("strong:contains('Total: ')");
         totalElement = pnlTime.find('[id$="lblTotal"]');
         totalEstimatedElement = pnlTime.find('[id$="lblTotalEstimated"]');
         createdOnElement = pnlTime.find('[id$="lblTime"]');
@@ -95,8 +97,17 @@ function DsrManager(inputContext)
 
         if (!$('#ntdsrmods-container', context).exists())
         {
+            outerElement = $('<div id="outer-ntdsrmods-container"></div>');
+            if (currentSettings.distractionFreeMode) {
+                outerElement.hide();
+                $(totalLabel).css('cursor', 'zoom-in');
+            }
+            else {
+                $(totalLabel).css('cursor', 'zoom-out');
+            }
             ourElement = $('<div id="ntdsrmods-container" class="ntdsrmods-hidden"></div>');
-            ourElement.insertBefore(timeTable);
+            outerElement.append(ourElement);
+            outerElement.insertBefore(timeTable);
             if (clockedIn && !totalEstimatedElement.exists())
             {
                 divEstimatedTotalElement = $('<div id="ntdsrmods-divEstimatedTotal"><strong>Estimated Total As Of Now:</strong> <span id="ntdsrmods-lblTotalEstimated">0.00</span></div>');
@@ -124,6 +135,13 @@ function DsrManager(inputContext)
 
         timeToLeave = undefined;
         todayEnd = undefined;
+
+        $(totalLabel).click(function(evt) {
+            evt.preventDefault();
+            console.logv('Toggling DSR info.');
+            $(outerElement).toggle();
+            $(totalLabel).css('cursor', $(outerElement).is(":visible") ? "zoom-out" : "zoom-in");
+        });
     }
 
     function setupTimer()

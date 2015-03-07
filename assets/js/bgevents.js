@@ -143,7 +143,8 @@ var defaultOptions =
 	"displayServerSearchFromIssueEdit": true,
 	"notifySupportRequest": true,
 	"checkSupportRequests": true,
-	"supportRequestSound": "dong"
+	"supportRequestSound": "dong",
+	"distractionFreeMode": true
 };
 
 function getSettings(responseCallback)
