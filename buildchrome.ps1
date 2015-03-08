@@ -82,6 +82,7 @@ $json = $json -replace ".css ", ".css"", """
 $json = $json -replace "(""css"":  "")(.*)("",)", '"css": ["$2"],'
 $json = $json -replace "\\u003e", ">"
 $json = $json -replace "\\u003c", "<"
+$json = $json -replace "\\u0027", "'"
 $json = $json -replace '"@{default=Ctrl\+Shift\+A}"', '{ "default": "Ctrl+Shift+A" }'
 Set-Content $manifest $json
 
