@@ -1,7 +1,7 @@
 {
     "name": "Programmer Enhancement Suite",
     "description": "Enhances the user experience on an internal site in various ways, including daily status, popup suppression, and other features.",
-    "version": "1.0.17",
+    "version": "1.0.18",
     "permissions":
     [
         "storage",
@@ -12,7 +12,8 @@
 		"management",
         "notifications",
         "clipboardWrite",
-        "contentSettings"
+        "contentSettings",
+        "cookies"
     ],
     "web_accessible_resources":
     [
