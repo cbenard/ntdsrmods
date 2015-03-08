@@ -45,6 +45,19 @@ function DsrManager(inputContext)
             dayDuration = undefined;
             timeToLeave = undefined;
         }
+
+        if (typeof settings !== 'undefined'
+            && typeof outerElement !== 'undefined'
+            && typeof totalLabel !== 'undefined'
+            && typeof settings.distractionFreeMode === 'boolean') {
+            if (settings.distractionFreeMode) {
+                $(outerElement).hide();
+            }
+            else {
+                $(outerElement).show();
+            }
+            $(totalLabel).css('cursor', $(outerElement).is(":visible") ? "zoom-out" : "zoom-in");
+        }
     }
 
     function doStartup()

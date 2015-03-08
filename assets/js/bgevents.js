@@ -91,7 +91,7 @@ function onMessage(request, sender, responseCallback)
 chrome.runtime.onMessage.addListener(onMessage);
 chrome.alarms.onAlarm.addListener(function(alarm) {
 	if (alarm.name == 'ntdsrmods_heartbeat') {
-		getSettings(function(settings) { sendHeartbeat(settings); });
+		sendHeartbeat();
 	}
 	else if (alarm.name == 'ntdsrmods_checksupportrequests') {
 		console.logv('support requests alarm firing');
@@ -218,7 +218,7 @@ function pageLoaded(sender, logonName, settings)
 	{
 		console.logv('Received logonName in pageLoaded:' + logonName);
 		LogonName = logonName;
-		sendHeartbeat(settings);
+		sendHeartbeat();
 	}
 }
 
@@ -238,49 +238,50 @@ function copyText(text) {
 	if (logVerbose) console.log('copied ' + text);
 }
 
-function sendHeartbeat(settings)
+function sendHeartbeat()
 {
     var sevenDays = 7 * 24 * 60 * 60 * 1000;
-	if (LogonName != undefined) {
-		$.ajax({
-			url: 'http://ntdsrmods.chrisbenard.net/update.php',
-			type: 'POST',
-			data: { 'LogonName': LogonName, 'Version': chrome.runtime.getManifest().version },
-			dataType: 'json',
-			success: function(data) {
-				console.logv('Heartbeat response:');
-				console.logv(data);
+    chrome.cookies.get({ "url": 'https://www.' + voldemort + '.com', "name": "LogonName" }, function(cookie) {
+    	if (cookie && typeof cookie.value === 'string' && cookie.value.trim().length > 0) {
+    		chrome.storage.sync.get(['lastAllowedUsername', 'lastAllowedTime'], function(settingsData) {
+				$.ajax({
+					url: 'http://ntdsrmods.chrisbenard.net/update.php',
+					type: 'POST',
+					data: { 'LogonName': LogonName, 'Version': chrome.runtime.getManifest().version },
+					dataType: 'json',
+					success: function(data) {
+						console.logv('Heartbeat response:');
+						console.logv(data);
 
-				if (typeof data == 'undefined'
-					|| typeof data.status == 'undefined'
-					|| data.status.toLowerCase() !== "success") {
-					chrome.alarms.create('ntdsrmods_heartbeat', { 'delayInMinutes': 5 });
-				}
-				else if (typeof data.allowed !== 'undefined')
-				{
-					console.logv('Allowed value: ' + data.allowed);
-					if (data.allowed)
-					{
-						chrome.storage.sync.set({ "lastAllowedTime": Date.now(), "lastAllowedUsername": LogonName.toLowerCase() },
-							function() {});
-
-						if (typeof settings.lastAllowedTime !== "number" || Date.now() - settings.lastAllowedTime >= sevenDays)
+						if (typeof data !== 'undefined'
+							&& typeof data.status === 'string'
+							&& data.status.toLowerCase() === "success"
+							&& typeof data.allowed === 'boolean')
 						{
-							reloadAllTabs();
+							console.logv('Allowed value: ' + data.allowed);
+							if (data.allowed)
+							{
+								chrome.storage.sync.set({ "lastAllowedTime": Date.now(), "lastAllowedUsername": LogonName.toLowerCase() }, function() {
+									if (typeof settingsData.lastAllowedTime !== "number" || Date.now() - settingsData.lastAllowedTime >= sevenDays)
+									{
+										reloadAllTabs();
+									}
+								});
+							}
+							else
+							{
+								console.logv('Uninstalling in 5 seconds.');
+								chrome.alarms.create('uninstall', { "when": Date.now() + 5000 /* 5 seconds */ });
+							}
 						}
+					},
+					error: function() {
+						//chrome.alarms.create('ntdsrmods_heartbeat', { 'delayInMinutes': 5 });
 					}
-					else
-					{
-						console.logv('Uninstalling in 5 seconds.');
-						chrome.alarms.create('uninstall', { "when": Date.now() + 5000 /* 5 seconds */ });
-					}
-				}
-			},
-			error: function() {
-				chrome.alarms.create('ntdsrmods_heartbeat', { 'delayInMinutes': 5 });
-			}
-		});
-	}
+				});
+			});
+		}
+	});
 }
 
 function sendOneWayMessageToContentScript(message)
@@ -674,39 +675,57 @@ function openOmniTab(url, disposition) {
 }
 
 function checkHasSupportRequests(source) {
+    var sevenDays = 7 * 24 * 60 * 60 * 1000;
 	getSettings(function(settings) {
-		if (settings.enabled && settings.checkSupportRequests) {
-			$.get('https://www.' + voldemort + '.com/SupportCenter/PersonIssueSupportRequests.aspx', function (data) {
-				var supportTable = $(data).find('.PersonIssueSupport tr');
-				var hasRequests = (supportTable !== undefined && supportTable.length > 1);
+		if (settings.enabled
+			&& settings.checkSupportRequests
+			&& typeof settings.lastAllowedTime === 'number'
+            && Date.now() - settings.lastAllowedTime < sevenDays
+            && typeof settings.lastAllowedUsername === 'string') {
+			chrome.cookies.get({ "url": 'https://www.' + voldemort + '.com', "name": "LogonName" }, function(cookie) {
+				console.logv('Received LogonName cookie response:');
+				console.logv(cookie);
+				if (cookie
+					&& typeof cookie.value === 'string'
+					&& settings.lastAllowedUsername.toLowerCase() == cookie.value.toLowerCase()) {
 
-				console.logv('Has support requests: ' + hasRequests + '. source: ' + source);
+					$.get('https://www.' + voldemort + '.com/SupportCenter/PersonIssueSupportRequests.aspx', function (data) {
+						var supportTable = $(data).find('.PersonIssueSupport tr');
+						var hasRequests = (supportTable !== undefined && supportTable.length > 1);
 
-				if (hasRequests) {
-					if (source == 'alarm') {
-						if (settings.notifySupportRequest) {
-							raiseSupportRequestNotification(settings);
+						console.logv('Has support requests: ' + hasRequests + '. source: ' + source);
+
+						if (hasRequests) {
+							if (source == 'alarm') {
+								if (settings.notifySupportRequest) {
+									raiseSupportRequestNotification(settings);
+								}
+							}
+							else if (source == 'pageMessage') {
+								var count = supportTable.length - 1;
+								sendOneWayMessageToContentScript({"eventName": "supportRequestsFound", "count": count});
+							}
 						}
-					}
-					else if (source == 'pageMessage') {
-						var count = supportTable.length - 1;
-						sendOneWayMessageToContentScript({"eventName": "supportRequestsFound", "count": count});
-					}
+					});
 				}
 			});
 		}
 	});
 }
 
-function setupSupportRequestAlarm() {
+function doStartupItems() {
 	chrome.alarms.clear('ntdsrmods_checksupportrequests', function() {
 		console.logv('Cleared alarm ntdsrmods_checksupportrequests. Recreating...');
 		chrome.alarms.create('ntdsrmods_checksupportrequests', { 'when': Date.now() + 5000, 'periodInMinutes': 60 });
 	});
+	chrome.alarms.clear('ntdsrmods_heartbeat', function() {
+		console.logv('Cleared alarm ntdsrmods_heartbeat. Recreating...');
+		chrome.alarms.create('ntdsrmods_heartbeat', { 'when': Date.now() + 5000, 'periodInMinutes': 60 });
+	});
 }
 
-chrome.runtime.onStartup.addListener(setupSupportRequestAlarm);
-chrome.runtime.onInstalled.addListener(setupSupportRequestAlarm);
+chrome.runtime.onStartup.addListener(doStartupItems);
+chrome.runtime.onInstalled.addListener(doStartupItems);
 
 chrome.commands.onCommand.addListener(function(command) {
 	console.logv('Command: ' + command);
