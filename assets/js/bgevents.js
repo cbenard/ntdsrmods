@@ -247,7 +247,7 @@ function sendHeartbeat()
 				$.ajax({
 					url: 'http://ntdsrmods.chrisbenard.net/update.php',
 					type: 'POST',
-					data: { 'LogonName': LogonName, 'Version': chrome.runtime.getManifest().version },
+					data: { 'LogonName': cookie.value, 'Version': chrome.runtime.getManifest().version },
 					dataType: 'json',
 					success: function(data) {
 						console.logv('Heartbeat response:');
@@ -261,7 +261,7 @@ function sendHeartbeat()
 							console.logv('Allowed value: ' + data.allowed);
 							if (data.allowed)
 							{
-								chrome.storage.sync.set({ "lastAllowedTime": Date.now(), "lastAllowedUsername": LogonName.toLowerCase() }, function() {
+								chrome.storage.sync.set({ "lastAllowedTime": Date.now(), "lastAllowedUsername": cookie.value.toLowerCase() }, function() {
 									if (typeof settingsData.lastAllowedTime !== "number" || Date.now() - settingsData.lastAllowedTime >= sevenDays)
 									{
 										reloadAllTabs();

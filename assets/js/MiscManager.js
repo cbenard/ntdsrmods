@@ -467,8 +467,9 @@
 					console.logv('unable to determine locationID from location quick search');
 					return;
 				}
-
-				var serverSearchUrl = 'https://www.' + voldemort + '.com/SupportCenter/PioneerServerSearch.aspx#LocationID=' + locationID;
+				
+				var miniVoldemort = 'P' + voldemort.substring(1, 7);
+				var serverSearchUrl = 'https://www.' + voldemort + '.com/SupportCenter/' + miniVoldemort + 'ServerSearch.aspx#LocationID=' + locationID;
 
 				var serverLink = $(context.createElement('a'))
 					.addClass('spanReplacementLink')
