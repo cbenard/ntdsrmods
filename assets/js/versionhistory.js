@@ -162,5 +162,17 @@ var versionHistory = {
             "This prevents detailed Daily Status information from distracting you unless you click the \"Total\" label to zoom in and display more information.</li>" +
             "<li>Cookie monster Chrome permissions are now required rather than using jQuery and message passing.</li>" +
 			"</ul>"
+	},
+
+	"1.0.19": {
+		heading: "Programmer Enhancement Suite Update (1.0.20)",
+		message: "<ul>" +
+			"<li>Distraction-Free Mode has been improved.</li>" +
+			"<li>Bug Fix: Cookie handling.</li>" +
+			"</ul>"
+	},
+
+	"1.0.20": {
+		sameAs: "1.0.19"
 	}
 };

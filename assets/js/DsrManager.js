@@ -327,7 +327,12 @@ function DsrManager(inputContext)
 
             if (clockedIn)
             {
-                totalEstimatedElement.text(round(getCurrentEstimatedHours(), 2) + " (" + formatHours(getCurrentEstimatedHours()) + ")");
+                if ($(outerElement).is(":visible")) {
+                    totalEstimatedElement.text(round(getCurrentEstimatedHours(), 2) + " (" + formatHours(getCurrentEstimatedHours()) + ")");
+                }
+                else if (/\(/.test(totalEstimatedElement.text())) {
+                    totalEstimatedElement.text(round(getCurrentEstimatedHours(), 2));
+                }
 
                 if (currentSettings.notifyMe && !hasFiredWarning)
                 {
