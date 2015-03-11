@@ -26,6 +26,7 @@ function DsrManager(inputContext)
     var hasFiredWarning = false;
     var warningFiredCallbacks = [];
     var context = inputContext;
+    var collapseTimerID = null;
 
     function handleSettingsReceived(settings)
     {
@@ -154,6 +155,20 @@ function DsrManager(inputContext)
             console.logv('Toggling DSR info.');
             $(outerElement).toggle();
             $(totalLabel).css('cursor', $(outerElement).is(":visible") ? "zoom-out" : "zoom-in");
+
+            if (currentSettings
+                && currentSettings.distractionFreeMode
+                && $(outerElement).is(":visible")) {
+                if (collapseTimerID) {
+                    console.logv('Clearing existing collapse timer: ' + collapseTimerID);
+                    clearTimeout(collapseTimerID);
+                }
+                collapseTimerID = setTimeout(function() {
+                    $(outerElement).hide();
+                    $(totalLabel).css('cursor', $(outerElement).is(":visible") ? "zoom-out" : "zoom-in");
+                }, 30000);
+                console.logv('Set collapse timer: ' + collapseTimerID);
+            }
         });
     }
 

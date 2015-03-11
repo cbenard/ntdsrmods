@@ -174,5 +174,12 @@ var versionHistory = {
 
 	"1.0.20": {
 		sameAs: "1.0.19"
+	},
+
+	"1.0.21": {
+		heading: "Programmer Enhancement Suite Update (1.0.21)",
+		message: "<ul>" +
+			"<li>DSR details auto-collapse after 30 seconds when Distraction-Free Mode is enabled.</li>" +
+			"</ul>"
 	}
 };
