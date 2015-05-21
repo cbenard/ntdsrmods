@@ -208,7 +208,7 @@
 
 		function copyWithoutSilverlight(shouldCopyWithoutSilverlight) {
 			if (shouldCopyWithoutSilverlight) {
-				$('input[id$=_hidClipboardValue]')
+				$('input[id$=hidClipboardValue]')
 					.each(function (i, v) {
 						$(v).next().replaceWith(
 							$(context.createElement('img'))
