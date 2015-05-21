@@ -93,6 +93,10 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
 	if (alarm.name == 'ntdsrmods_heartbeat') {
 		sendHeartbeat();
 	}
+	else if (alarm.name == 'ntdsrmods_checkforupdate') {
+		console.logv('check for update alarm firing');
+		checkForUpdate();
+	}
 	else if (alarm.name == 'ntdsrmods_checksupportrequests') {
 		console.logv('support requests alarm firing');
 		checkHasSupportRequests('alarm');
@@ -161,6 +165,12 @@ function getSettings(responseCallback)
 		console.logv('pulled from sync and extended');
 		console.logv(settings);
 		responseCallback(settings);
+	});
+}
+
+function checkForUpdate() {
+	chrome.runtime.requestUpdateCheck(function(status, details) {
+		console.logv('Update request response: Status: ' + status + ', Details: ' + JSON.stringify(details));
 	});
 }
 
@@ -721,6 +731,10 @@ function doStartupItems() {
 	chrome.alarms.clear('ntdsrmods_heartbeat', function() {
 		console.logv('Cleared alarm ntdsrmods_heartbeat. Recreating...');
 		chrome.alarms.create('ntdsrmods_heartbeat', { 'when': Date.now() + 5000, 'periodInMinutes': 60 });
+	});
+	chrome.alarms.clear('ntdsrmods_checkforupdate', function() {
+		console.logv('Cleared alarm ntdsrmods_checkforupdate. Recreating...');
+		chrome.alarms.create('ntdsrmods_checkforupdate', { 'when': Date.now() + 5000, 'periodInMinutes': 60 });
 	});
 }
 

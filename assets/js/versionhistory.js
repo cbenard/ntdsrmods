@@ -181,5 +181,9 @@ var versionHistory = {
 		message: "<ul>" +
 			"<li>DSR details auto-collapse after 30 seconds when Distraction-Free Mode is enabled.</li>" +
 			"</ul>"
+	},
+
+	"1.0.22": {
+		sameAs: "1.0.21"
 	}
 };
