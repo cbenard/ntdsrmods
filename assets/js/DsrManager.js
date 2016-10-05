@@ -139,7 +139,7 @@ function DsrManager(inputContext)
         }
         if (!$('#ntdsrmods-fontawesome', context).exists())
         {
-            $('head', context).append('<link id="ntdsrmods-fontawesome" rel="stylesheet" type="text/css" href="http://netdna.bootstrapcdn.com/font-awesome/3.2.0/css/font-awesome.min.css" />');
+            $('head', context).append('<link id="ntdsrmods-fontawesome" rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/font-awesome/3.2.0/css/font-awesome.min.css" />');
         }
         // if (!$('#ntdsrmods-actions').exists())
         // {
