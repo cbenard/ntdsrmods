@@ -185,5 +185,9 @@ var versionHistory = {
 
 	"1.0.22": {
 		sameAs: "1.0.21"
+	},
+
+	"1.0.23": {
+		sameAs: "1.0.21"
 	}
 };
