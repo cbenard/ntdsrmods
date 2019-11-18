@@ -541,6 +541,9 @@ chrome.omnibox.onInputChanged.addListener(function (text, suggest) {
     if (text.length <= 1 || 'issue'.substring(0, Math.min(text.length, 5)) == text.substring(0, Math.min(text.length, 5))) {
 	    suggestions.push({ content: 'issue', description: 'issue <dim>Edit an issue by typing "issue 123456" or go to issues with "issue"</dim>'});
 	}
+    if (text.length <= 1 || 'kb'.substring(0, Math.min(text.length, 5)) == text.substring(0, Math.min(text.length, 5))) {
+	    suggestions.push({ content: 'kb', description: 'kb issue <dim>View a KB article by typing "kb 123456" or go to KB Search with "kb"</dim>'});
+	}
     if (text.length <= 1 || 'locations'.substring(0, Math.min(text.length, 9)) == text.substring(0, Math.min(text.length, 9))) {
 	    suggestions.push({ content: 'locations', description: 'locations <dim>Go to Location Search an issue by typing "locations" [location name|LocationID]</dim>'});
 	}
@@ -568,6 +571,7 @@ var searchTerms = [
 	"calendar",
 	"dsr",
 	"issues",
+	"kb",
 	"divpermissions",
 	"divsearch",
 	"servers",
@@ -599,16 +603,16 @@ chrome.omnibox.onInputEntered.addListener(function (text, disposition) {
 	if (logVerbose) console.log('searching for: ' + text);
 
 	if (/^dsr/i.test(text)) {
-		navigateOmniTab('/SupportCenter/DailyStatusListForPerson.aspx', 'http', disposition, "*/DailyStatusListForPerson.aspx");
+		navigateOmniTab('/SupportCenter/DailyStatusListForPerson.aspx', 'https', disposition, "*/DailyStatusListForPerson.aspx");
 	}
 	else if (/^divpermissions/i.test(text)) {
-		navigateOmniTab('/Updater/DownloadItemVersionPermissionManage.aspx', 'http', disposition, "*/DownloadItemVersionPermissionManage.aspx");
+		navigateOmniTab('/Updater/DownloadItemVersionPermissionManage.aspx', 'https', disposition, "*/DownloadItemVersionPermissionManage.aspx");
 	}
 	else if (/^divsearch/i.test(text)) {
-		navigateOmniTab('/Updater/DownloadItemVersionSearch.aspx', 'http', disposition, "*/DownloadItemVersionSearch.aspx");
+		navigateOmniTab('/Updater/DownloadItemVersionSearch.aspx', 'https', disposition, "*/DownloadItemVersionSearch.aspx");
 	}
 	else if (/^calendar/i.test(text)) {
-		navigateOmniTab('/SupportCenter/ScheduleView.aspx', 'https', disposition, "*/ScheduleView.aspx");
+		navigateOmniTab('/SupportCenter/Calendar/', 'https', disposition, "*/ScheduleView.aspx");
 	}
 	else if (/^s(e|er|erv|erve|erver|ervers)? (.+)/i.test(text)) {
 		var match = /^s(e|er|erv|erve|erver|ervers)? (.+)/i.exec(text);
@@ -628,6 +632,20 @@ chrome.omnibox.onInputEntered.addListener(function (text, disposition) {
 	}
 	else if (/^issues/i.test(text)) {
 		navigateOmniTab('/SupportCenter/IssueMyListAdvanced.aspx', 'https', disposition, "*/IssueMyListAdvanced.aspx");
+	}
+	else if (/^k(b)? ([0-9]+)/i.test(text)) {
+		var match = /^k(b)? ([0-9]+)/i.exec(text);
+		console.logv(match);
+		var kbArticle = match[2];
+		navigateOmniTab('/SupportCenter/KnowledgeBaseItemView.aspx?ArticleID=' + kbArticle, 'https', disposition, "*/KnowledgeBaseItemView.aspx?ArticleID=" + kbArticle);
+	}
+	else if (/^k(b)? (.+)/i.test(text)) {
+		var match = /^k(b)? (.+)/i.exec(text);
+		console.logv(match);
+		navigateOmniTab('/SupportCenter/KnowledgeBaseSearch.aspx#SearchText=' + match[2], 'https', disposition, "LocationSearch.aspx", true);
+	}
+	else if (/^kb/i.test(text)) {
+		navigateOmniTab('/SupportCenter/KnowledgeBaseSearch.aspx', 'https', disposition, "*/KnowledgeBaseSearch.aspx");
 	}
 	else if (/^l(|o|oc|oca|ocat|ocati|ocatio|ocation|ocations)? ([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})/i.test(text)) {
 		var match = /^l(|o|oc|oca|ocat|ocati|ocatio|ocation|ocations)? ([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})/i.exec(text);
