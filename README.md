@@ -1,16 +1,16 @@
-#Daily Status Modifications
+# Daily Status Modifications
 
 This chrome extension is for use internally on a time clock web page. If you don't know what it's for, it's probably not for you.
 
-##Download Page
+## Download Page
 Please visit the [download page](http://cbenard.github.io/ntdsrmods/) for the download and more information.
 
-##Issues and Suggestions
+## Issues and Suggestions
 
 If you have an issue or a suggestion, please visit the [issues page](https://github.com/cbenard/ntdsrmods/issues).
 Pull requests are even more helpful for suggestions, but feel free to talk to me about it first.
 
-##License
+## License
 
 The MIT License (MIT)
 

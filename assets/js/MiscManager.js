@@ -12,6 +12,7 @@
 		var editIssueLinkRegex = new RegExp("^IssueEdit.aspx\\?IssueID=([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$", "i");
 		var serverSearchHashRegex = new RegExp("/P.{6}ServerSearch.aspx#(LocationID|SearchText)=(.+)", "i");
 		var locationSearchRegex = new RegExp("/LocationSearch.aspx#SearchText=(.+)", "i");
+		var kbSearchRegex = new RegExp("/KnowledgeBaseSearch.aspx#SearchText=(.+)", "i");
 		var issueListRadGridClientID = 'ctl00_ContentPlaceHolder2_rgMyIssues_dgResults';
 		var issueSearchRadGridClientID = 'ctl00_ContentPlaceHolder2_dgSearch';
 		var subjectColumn = 'Subject';
@@ -63,6 +64,9 @@
 				}
 				else if (locationSearchRegex.test(exports.location.href)) {
 					handleLocationSearchLoad();
+				}
+				else if (kbSearchRegex.test(exports.location.href)) {
+					handleKnowledgeBaseSearchLoad();
 				}
     		}
 	    }
@@ -132,7 +136,7 @@
 
 	    	if (shouldDisplayAccountManagerInServerEdit && serverEditRegExp.test(location) &&
 	    		$('#accountManagerName', context).length === 0) {
-	            var request = { eventName: "getComboValue", id: 'cmbLocationQuickSearch_cmbLocationQuickSearch' };
+	            var request = { eventName: "getComboValue", comboID: 'cmbLocationQuickSearch_cmbLocationQuickSearch' };
 	            if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + location);
 	            exports.postMessage(request, location);
 			}
@@ -146,7 +150,7 @@
 				$('#cmbIssueLocationSearch_lblClipboard').html('Multiple servers');
 			}
 			else {
-	            var request = { eventName: "getComboValue", id: 'cmbIssueLocationSearch_cmbLocation' };
+	            var request = { eventName: "getComboValue", comboID: 'cmbIssueLocationSearch_cmbLocation' };
 	            if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + location);
 	            exports.postMessage(request, location);
 			}
@@ -165,7 +169,7 @@
 	            var request = {
 	            	eventName: "performQuickSearch",
 	            	comboID: 'ctl00_ContentPlaceHolder2_cmbLocationQuickSearch_cmbLocationQuickSearch',
-	            	searchValue: locationID,
+	            	searchValue: unescape(locationID),
 	            	buttonID: 'ctl00_ContentPlaceHolder2_btnSearch'
 	            };
 	            if (logVerbose) console.log('sending message to window: ' + JSON.stringify(request) + ', ' + location);
@@ -183,8 +187,23 @@
 				var searchText = match[1];
 				if (logVerbose) console.log('handling location search for search text: ' + searchText);
 
-	            $('.GreyFrameWhiteAdminBG input[name$=txtName]', context).val(searchText);
+	            $('.GreyFrameWhiteAdminBG input[name$=txtName]', context).val(unescape(searchText));
 	            $('.GreyFrameWhiteAdminBG input[name$=btnSubmit]').click();
+			}
+		}
+
+		function handleKnowledgeBaseSearchLoad() {
+			var match = kbSearchRegex.exec(exports.location.href);
+
+			if (match && match.length > 0) {
+				history.replaceState({}, context.title, exports.location.pathname);
+		        chrome.runtime.sendMessage({ "eventName": "needsPageAction" });
+		        
+				var searchText = match[1];
+				if (logVerbose) console.log('handling kb search for search text: ' + searchText);
+
+	            $('input[name$=txtSearchFor]', context).val(unescape(searchText));
+	            $('input[name$=imgSubmit]').click();
 			}
 		}
 
@@ -439,9 +458,9 @@
 		exports.addEventListener('message', onWindowMessage, false);
 
 		function handleGotComboValue(request) {
-			if (logVerbose) console.log('content script received gotComboValue message:' + (request.val ? request.val : 'undefined value'));
+			if (logVerbose) console.log('content script received gotComboValue message: ' + (request.val ? request.val : 'undefined value'));
 
-			if (request.id === 'cmbLocationQuickSearch_cmbLocationQuickSearch' &&
+			if (request.comboID === 'cmbLocationQuickSearch_cmbLocationQuickSearch' &&
 				serverEditRegExp.test(request.location)) {
 				var locationID = request.val;
 				if (!locationID) {
@@ -460,7 +479,7 @@
 					}
 				});
 			}
-			else if (request.id === 'cmbIssueLocationSearch_cmbLocation' &&
+			else if (request.comboID === 'cmbIssueLocationSearch_cmbLocation' &&
 				/\/IssueEdit.aspx/i.test(request.location)) {
 				var locationID = request.val;
 				if (!locationID) {

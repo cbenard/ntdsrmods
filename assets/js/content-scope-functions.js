@@ -20,10 +20,10 @@ function onMessage(evt) {
 
 			window.currentPesMiscSettings = request.settings;
 		}
-		else if (request.eventName === "getComboValue" && request.id) {
-			if (logVerbose) console.log('content script received getComboValue message: ' + (request.id ? request.id : 'undefined'));
+		else if (request.eventName === "getComboValue" && request.comboID) {
+			if (logVerbose) console.log('content script received getComboValue message: ' + (request.comboID ? request.comboID : 'undefined'));
 
-			var quickSearch = $find(request.id);
+			var quickSearch = $find(request.comboID);
 			if (!quickSearch) {
 				console.logv('unable to find quick search');
 				return;
@@ -35,9 +35,9 @@ function onMessage(evt) {
 				return;
 			}
 
-			var request = { eventName: "gotComboValue", id: request.id, val: quickSearchVal, location: window.location.href };
-            if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);
-            window.postMessage(request, window.location.href);
+			var request = { eventName: "gotComboValue", comboID: request.comboID, val: quickSearchVal, location: window.location.href };
+			if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);
+			window.postMessage(request, window.location.href);
 		}
 		else if (request.eventName === "editDailyStatusGeneratedItem" && typeof request.linkTypeID !== 'undefined' && request.contentID) {
 			editDailyStatusGeneratedItem(request.linkTypeID, request.contentID);
