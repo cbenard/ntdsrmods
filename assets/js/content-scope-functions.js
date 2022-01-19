@@ -23,7 +23,7 @@ function onMessage(evt) {
 		else if (request.eventName === "getComboValue" && request.comboID) {
 			if (logVerbose) console.log('content script received getComboValue message: ' + (request.comboID ? request.comboID : 'undefined'));
 
-			var quickSearch = $find(request.comboID);
+			var quickSearch = window.hasOwnProperty('$find') && typeof $find === "function" ? $find(request.comboID) : null;
 			if (!quickSearch) {
 				console.logv('unable to find quick search');
 				return;

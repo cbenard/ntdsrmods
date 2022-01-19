@@ -36,7 +36,7 @@ function DsrManager(inputContext)
 
         if (shouldDoStartup)
         {
-            doStartup();
+            doGuardedStartup();
         }
         else
         {
@@ -61,6 +61,19 @@ function DsrManager(inputContext)
         }
     }
 
+    function doGuardedStartup()
+    {
+        if (hasLoadedTotal())
+        {
+            doStartup();
+        }
+        else
+        {
+            console.logv('Didn\'t find DSR total. Waiting 500ms');
+            setTimeout(doGuardedStartup, 500);
+        }
+    }
+
     function doStartup()
     {
         console.logv('DsrManager doing startup with these settings:');
@@ -69,6 +82,21 @@ function DsrManager(inputContext)
         findElements();
         addOurElements();
         setupTimer();
+    }
+
+    function hasLoadedTotal()
+    {
+        try
+        {
+            var tempPnlTime = $('div[id$="pnlTime"]', context);
+            var tempTotalElement = tempPnlTime.find('[id$="lblTotal"]');
+            console.logv(`tempTotalElement length: ${tempTotalElement.text().length}, text: ${tempTotalElement.text()}`);
+            return tempTotalElement.text().length > 0;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     function findElements()

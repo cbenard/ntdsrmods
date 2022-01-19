@@ -85,6 +85,18 @@ function onMessage(request, sender, responseCallback)
 		{
 			checkHasSupportRequests('pageMessage');
 		}
+		else if (request.eventName == "needsLogonName")
+		{
+			if (logVerbose) console.log('received ' + request.eventName);
+			
+			chrome.cookies.get({ "url": 'https://www.' + voldemort + '.com', "name": "LogonName" }, function(cookie) {
+                if (!cookie || typeof cookie.value !== 'string' || cookie.value.trim().length == 0) responseCallback(null);
+				
+				responseCallback(cookie.value);
+			});
+
+			return true;
+		}
 	}
 };
 
