@@ -202,5 +202,13 @@ var versionHistory = {
 			"<li>Fixed location search from omnibox with spaces in the name.</li>" +
 			"<li>Changed omnibox commands to all use HTTPS requests.</li>" +
 			"</ul>"
+	},
+
+	"1.0.25": {
+		heading: "Programmer Enhancement Suite Update (1.0.25)",
+		message: "<ul>" +
+			"<li>Improved cookie access code to match new Chrome security requirements.</li>" +
+			"<li>Added better error checking to resolve some background exceptions.</li>" +
+			"</ul>"
 	}
 };
