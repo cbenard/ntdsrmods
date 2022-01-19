@@ -20,34 +20,38 @@ $(function ()
         chrome.runtime.sendMessage({ "eventName": "getSettings" }, function(settings) {
             currentSettings = settings;
 
-            if (settings.enabled && dsr.isValidDailyStatusPage())
-            {
-                dsr.addWarningFiredListener(warningFiredEventHandler);
+            chrome.runtime.sendMessage({ "eventName": "needsLogonName" }, function(logonName) {
+                if (logonName) {
+                    if (settings.enabled && dsr.isValidDailyStatusPage())
+                    {
+                        dsr.addWarningFiredListener(warningFiredEventHandler);
 
-                chrome.runtime.sendMessage({ "eventName": "pageLoaded", "logonName": $.cookie('LogonName'), "settings": settings });
-            }
+                        chrome.runtime.sendMessage({ "eventName": "pageLoaded", "logonName": logonName, "settings": settings });
+                    }
 
-            if (settings.enabled
-                && typeof settings.lastAllowedTime === 'number'
-                && Date.now() - settings.lastAllowedTime < sevenDays
-                && typeof settings.lastAllowedUsername === 'string'
-                && settings.lastAllowedUsername.toLowerCase() == $.cookie('LogonName').toLowerCase()) {
+                    if (settings.enabled
+                        && typeof settings.lastAllowedTime === 'number'
+                        && Date.now() - settings.lastAllowedTime < sevenDays
+                        && typeof settings.lastAllowedUsername === 'string'
+                        && settings.lastAllowedUsername.toLowerCase() == logonName.toLowerCase()) {
 
-                chrome.runtime.sendMessage({ "eventName": "needsPageAction" });
+                        chrome.runtime.sendMessage({ "eventName": "needsPageAction" });
 
-                var request = { eventName: "settingsUpdated", settings: settings };
-                if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);
+                        var request = { eventName: "settingsUpdated", settings: settings };
+                        if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);
 
-                window.postMessage(request, window.location.href);
+                        window.postMessage(request, window.location.href);
 
-                if (dsr.isValidDailyStatusPage()) {
-                    dsr.refresh(settings);
+                        if (dsr.isValidDailyStatusPage()) {
+                            dsr.refresh(settings);
+                        }
+
+                        if (misc.isValidPage()) {
+                            misc.refresh(settings);
+                        }
+                    }
                 }
-
-                if (misc.isValidPage()) {
-                    misc.refresh(settings);
-                }
-            }
+            });
         });
     }
 
