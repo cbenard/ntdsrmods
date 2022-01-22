@@ -161,7 +161,6 @@
 
 			if (match && match.length > 2) {
 				history.replaceState({}, context.title, exports.location.pathname);
-		        chrome.runtime.sendMessage({ "eventName": "needsPageAction" });
 		        
 				var locationID = match[2];
 				if (logVerbose) console.log('handling server search for search text: ' + locationID);
@@ -182,7 +181,6 @@
 
 			if (match && match.length > 0) {
 				history.replaceState({}, context.title, exports.location.pathname);
-		        chrome.runtime.sendMessage({ "eventName": "needsPageAction" });
 		        
 				var searchText = match[1];
 				if (logVerbose) console.log('handling location search for search text: ' + searchText);
@@ -197,7 +195,6 @@
 
 			if (match && match.length > 0) {
 				history.replaceState({}, context.title, exports.location.pathname);
-		        chrome.runtime.sendMessage({ "eventName": "needsPageAction" });
 		        
 				var searchText = match[1];
 				if (logVerbose) console.log('handling kb search for search text: ' + searchText);

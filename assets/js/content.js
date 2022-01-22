@@ -2,11 +2,11 @@ console.logv('content script loaded');
 jQuery.fn.exists = function(){ return this.length>0; };
 
 var rot13functions = document.createElement("script");
-rot13functions.src = chrome.extension.getURL("assets/js/rot13x.js");
+rot13functions.src = chrome.runtime.getURL("assets/js/rot13x.js");
 (document.head||document.documentElement).appendChild(rot13functions);
 
 var contentscopefunctions = document.createElement("script");
-contentscopefunctions.src = chrome.extension.getURL("assets/js/content-scope-functions.js");
+contentscopefunctions.src = chrome.runtime.getURL("assets/js/content-scope-functions.js");
 (document.head||document.documentElement).appendChild(contentscopefunctions);
 
 $(function ()
@@ -34,8 +34,6 @@ $(function ()
                         && Date.now() - settings.lastAllowedTime < sevenDays
                         && typeof settings.lastAllowedUsername === 'string'
                         && settings.lastAllowedUsername.toLowerCase() == logonName.toLowerCase()) {
-
-                        chrome.runtime.sendMessage({ "eventName": "needsPageAction" });
 
                         var request = { eventName: "settingsUpdated", settings: settings };
                         if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);

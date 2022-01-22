@@ -1,10 +1,6 @@
-var LogonName = undefined;
-
 // 1 minute in between notifications at least
 var acceptableNotificationTime = 60 * 1000;
-var lastNotificationTime;
 var notificationID = "clockOutNotification";
-var lastNotificationTabID;
 var oldExtensionID = 'imdhbhbmbnnlaffbhhhjccnighckieja';
 
 function onMessage(request, sender, responseCallback)
@@ -15,11 +11,6 @@ function onMessage(request, sender, responseCallback)
 		{
 			console.logv('received pageLoaded');
 			pageLoaded(sender, request.logonName, request.settings);
-		}
-		else if (request.eventName == "needsPageAction")
-		{
-			console.logv('received needsPageAction');
-			placePageAction(sender);
 		}
 		else if (request.eventName == "getSettings" || request.eventName == "resetSettings")
 		{
@@ -169,7 +160,7 @@ function getSettings(responseCallback)
 	{
 		console.logv('pulled from sync');
 		console.logv(data);
-		var settings = $.extend({}, defaultOptions, data.settings);
+		var settings = Object.assign({}, defaultOptions, data.settings);
 		settings.lastAllowedUsername = data.lastAllowedUsername;
 		settings.lastAllowedTime = data.lastAllowedTime;
 		console.logv('default options');
@@ -202,16 +193,12 @@ function saveSettings(settings, responseCallback)
 			responseCallback({ 'success': true, 'errorMessage': null });
 		}
 
-		settings = $.extend({}, defaultOptions, settings);
+		settings = Object.assign({}, defaultOptions, settings);
 
 		sendOneWayMessageToContentScript({ "eventName": "settingsUpdated", "settings": settings });
 
 		console.logv('sent settingsUpdated message');
 	});
-}
-
-function placePageAction(sender) {
-	chrome.pageAction.show(sender.tab.id);
 }
 
 function pageLoaded(sender, logonName, settings)
@@ -239,7 +226,6 @@ function pageLoaded(sender, logonName, settings)
 	if (logonName)
 	{
 		console.logv('Received logonName in pageLoaded:' + logonName);
-		LogonName = logonName;
 		sendHeartbeat();
 	}
 }
@@ -266,39 +252,42 @@ function sendHeartbeat()
     chrome.cookies.get({ "url": 'https://www.' + voldemort + '.com', "name": "LogonName" }, function(cookie) {
     	if (cookie && typeof cookie.value === 'string' && cookie.value.trim().length > 0) {
     		chrome.storage.sync.get(['lastAllowedUsername', 'lastAllowedTime'], function(settingsData) {
-				$.ajax({
-					url: 'http://ntdsrmods.chrisbenard.net/update.php',
-					type: 'POST',
-					data: { 'LogonName': cookie.value, 'Version': chrome.runtime.getManifest().version },
-					dataType: 'json',
-					success: function(data) {
-						console.logv('Heartbeat response:');
-						console.logv(data);
-
-						if (typeof data !== 'undefined'
-							&& typeof data.status === 'string'
-							&& data.status.toLowerCase() === "success"
-							&& typeof data.allowed === 'boolean')
-						{
-							console.logv('Allowed value: ' + data.allowed);
-							if (data.allowed)
-							{
-								chrome.storage.sync.set({ "lastAllowedTime": Date.now(), "lastAllowedUsername": cookie.value.toLowerCase() }, function() {
-									if (typeof settingsData.lastAllowedTime !== "number" || Date.now() - settingsData.lastAllowedTime >= sevenDays)
-									{
-										reloadAllTabs();
-									}
-								});
-							}
-							else
-							{
-								console.logv('Uninstalling in 5 seconds.');
-								chrome.alarms.create('uninstall', { "when": Date.now() + 5000 /* 5 seconds */ });
-							}
-						}
+				fetch('https://ntdsrmods.chrisbenard.net/update.php', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded'
 					},
-					error: function() {
-						//chrome.alarms.create('ntdsrmods_heartbeat', { 'delayInMinutes': 5 });
+					body: `LogonName=${encodeURIComponent(cookie.value)}&Version=${chrome.runtime.getManifest().version}`
+				})
+				.then(response => {
+					if (response.status == 200) {
+						return response.json();
+					}
+				})
+				.then(data => {
+					console.logv('Heartbeat response:');
+					console.logv(data);
+
+					if (typeof data !== 'undefined'
+						&& typeof data.status === 'string'
+						&& data.status.toLowerCase() === "success"
+						&& typeof data.allowed === 'boolean')
+					{
+						console.logv('Allowed value: ' + data.allowed);
+						if (data.allowed)
+						{
+							chrome.storage.sync.set({ "lastAllowedTime": Date.now(), "lastAllowedUsername": cookie.value.toLowerCase() }, function() {
+								if (typeof settingsData.lastAllowedTime !== "number" || Date.now() - settingsData.lastAllowedTime >= sevenDays)
+								{
+									reloadAllTabs();
+								}
+							});
+						}
+						else
+						{
+							console.logv('Uninstalling in 5 seconds.');
+							chrome.alarms.create('uninstall', { "when": Date.now() + 5000 /* 5 seconds */ });
+						}
 					}
 				});
 			});
@@ -337,50 +326,51 @@ function raiseContentError(errorText)
 
 function raiseNotification(notificationID, title, message, tabID, settings, responseCallback)
 {
-	if (lastNotificationTime && new Date() < new Date(lastNotificationTime.getTime() + acceptableNotificationTime))
-	{
-		if (logVerbose) {
-			console.log('not notifying. last update time: ' +
-			lastNotificationTime + '. waiting until ' +
-			new Date(lastNotificationTime.getTime() + acceptableNotificationTime));
-		}
-		// Too soon, but this isn't working yet
-		responseCallback();
-	}
-	else
-	{
-		var notificationOptions = {
-			type: "basic",
-			title: title,
-			message: message,
-			iconUrl: chrome.runtime.getURL("assets/img/niblet-128.png"),
-			buttons: [
-				{ title: "Go to Daily Status", iconUrl: chrome.runtime.getURL("assets/img/icon-clock-grey-32.png")},
-				{ title: "Close", iconUrl: chrome.runtime.getURL("assets/img/icon-close-grey-32.png")}
-			],
-			isClickable: true
-		};
-		chrome.notifications.getAll(function (openNotifications) {
-			if (!openNotifications.timewarning) {
-				chrome.notifications.create("timewarning", notificationOptions, function() {
-					if (settings && settings.notificationSound)
-					{
-						if (logVerbose) console.log(chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg"));
-						setTimeout(function() {
-							var notificationAudio = new Audio();
-							notificationAudio.src = chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg");
-							notificationAudio.play();
-						}, 1);
-					}
-
-					lastNotificationTabID = tabID;
-					lastNotificationTime = new Date();
-				});
+	getLastNotificationTime(lastNotificationTime =>{
+		if (lastNotificationTime && new Date() < new Date(lastNotificationTime.getTime() + acceptableNotificationTime))
+		{
+			if (logVerbose) {
+				console.log('not notifying. last update time: ' +
+				lastNotificationTime + '. waiting until ' +
+				new Date(lastNotificationTime.getTime() + acceptableNotificationTime));
 			}
-		});
+			// Too soon, but this isn't working yet
+			responseCallback();
+		}
+		else
+		{
+			var notificationOptions = {
+				type: "basic",
+				title: title,
+				message: message,
+				iconUrl: chrome.runtime.getURL("assets/img/niblet-128.png"),
+				buttons: [
+					{ title: "Go to Daily Status", iconUrl: chrome.runtime.getURL("assets/img/icon-clock-grey-32.png")},
+					{ title: "Close", iconUrl: chrome.runtime.getURL("assets/img/icon-close-grey-32.png")}
+				],
+				isClickable: true
+			};
+			chrome.notifications.getAll(function (openNotifications) {
+				if (!openNotifications.timewarning) {
+					chrome.notifications.create("timewarning", notificationOptions, function() {
+						if (settings && settings.notificationSound)
+						{
+							if (logVerbose) console.log(chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg"));
+							setTimeout(function() {
+								var notificationAudio = new Audio();
+								notificationAudio.src = chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg");
+								notificationAudio.play();
+							}, 1);
+						}
 
-		responseCallback();
-	}
+						setLastNotificationTime(new Date());
+					});
+				}
+			});
+
+			responseCallback();
+		}
+	});
 }
 
 function raiseUpdateNotification(message)
@@ -447,20 +437,7 @@ function HandleNotificationButtonClick(notificationID, buttonIndex) {
 		if (logVerbose) console.log('time warning notification: user clicked button index ' + buttonIndex);
 		if (buttonIndex === 0 || buttonIndex === -1) {
 			var urlPattern = "*://*/*/DailyStatusListForPerson.aspx";
-
-			if (lastNotificationTabID !== undefined) {
-				chrome.tabs.get(lastNotificationTabID, function(lastTab) {
-					if (lastTab) {
-						focusTab(lastTab);
-					}
-					else {
-						focusTabByUrlPattern(urlPattern);
-					}
-				});
-			}
-			else {
-				focusTabByUrlPattern(urlPattern);
-			}
+			focusTabByUrlPattern(urlPattern);
 		}
 	}
 }
@@ -496,20 +473,6 @@ chrome.runtime.onInstalled.addListener(function(details) {
 	// {
 	// 	raiseUpdateNotification();
 	// }
-
-	/*
-	chrome.management.get(oldExtensionID, function(data) {
-		if (data) {
-			chrome.management.uninstall(oldExtensionID, { showConfirmDialog: false }, function() {
-				if (chrome.extension.lastError)
-				{
-					console.log('error uninstalling dev site extension:');
-					console.log(chrome.extension.lastError);
-				}
-			});
-		}
-	});
-	*/
 
 	reloadAllTabs();
 });
@@ -729,24 +692,33 @@ function checkHasSupportRequests(source) {
 					&& typeof cookie.value === 'string'
 					&& settings.lastAllowedUsername.toLowerCase() == cookie.value.toLowerCase()) {
 
-					$.get('https://www.' + voldemort + '.com/SupportCenter/PersonIssueSupportRequests.aspx', function (data) {
-						var supportTable = $(data).find('.PersonIssueSupport tr');
-						var hasRequests = (supportTable !== undefined && supportTable.length > 1);
+					fetch('https://www.' + voldemort + '.com/SupportCenter/PersonIssueSupportRequests.aspx')
+						.then(response => {
+							if (response.status == 200) {
+								response.text().then(data => {
+									var youRequestedSupportIndex = data.indexOf('You requested support');
+									var noRequestsFoundIndex = data.indexOf('No Requests found.');
 
-						console.logv('Has support requests: ' + hasRequests + '. source: ' + source);
-
-						if (hasRequests) {
-							if (source == 'alarm') {
-								if (settings.notifySupportRequest) {
-									raiseSupportRequestNotification(settings);
-								}
+									if (youRequestedSupportIndex >= 0) {
+										var hasRequests = noRequestsFoundIndex < 0 || noRequestsFoundIndex > youRequestedSupportIndex;
+										
+										console.logv('Has support requests: ' + hasRequests + '. source: ' + source);
+										
+										if (hasRequests) {
+											if (source == 'alarm') {
+												if (settings.notifySupportRequest) {
+													raiseSupportRequestNotification(settings);
+												}
+											}
+											else if (source == 'pageMessage') {
+												var count = supportTable.length - 1;
+												sendOneWayMessageToContentScript({"eventName": "supportRequestsFound", "count": count});
+											}
+										}
+									}
+								});
 							}
-							else if (source == 'pageMessage') {
-								var count = supportTable.length - 1;
-								sendOneWayMessageToContentScript({"eventName": "supportRequestsFound", "count": count});
-							}
-						}
-					});
+						});
 				}
 			});
 		}
@@ -792,6 +764,20 @@ chrome.commands.onCommand.addListener(function(command) {
 		});
 	}
 });
+
+function getLastNotificationTime(callback) {
+	chrome.storage.local.get("lastNotificationTime", x => {
+		lastNotificationTime = x['lastNotificationTime'];
+		if (lastNotificationTime) {
+			lastNotificationTime = new Date(lastNotificationTime);
+		}
+		callback(lastNotificationTime);
+	});
+}
+
+function setLastNotificationTime(lastNotificationTime) {
+	chrome.storage.local.set({ "lastNotificationTime": lastNotificationTime.getTime() });
+}
 
 (function() {
 	var popupSettings1 = { primaryPattern: "*://*." + voldemort + ".com/*", setting: 'allow' };
