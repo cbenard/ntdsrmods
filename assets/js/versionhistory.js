@@ -204,11 +204,12 @@ var versionHistory = {
 			"</ul>"
 	},
 
-	"1.0.25": {
-		heading: "Programmer Enhancement Suite Update (1.0.25)",
+	"1.0.26": {
+		heading: "Programmer Enhancement Suite Update (1.0.26)",
 		message: "<ul>" +
 			"<li>Improved cookie access code to match new Chrome security requirements.</li>" +
 			"<li>Added better error checking to resolve some background exceptions.</li>" +
+			"<li>Manifest v3 compatibility for the future.</li>" +
 			"</ul>"
 	}
 };
