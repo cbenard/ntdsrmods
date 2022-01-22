@@ -8,36 +8,38 @@
         "notifications",
         "alarms",
         "tabs",
-        "<all_urls>",
 		"management",
         "notifications",
         "clipboardWrite",
         "contentSettings",
         "cookies"
     ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
     "web_accessible_resources":
     [
-        "assets/img/*",
-        "assets/js/content-scope-functions.js",
-        "assets/js/rot13x.js"
+        {
+            "resources": [
+                "assets/img/*",
+                "assets/js/content-scope-functions.js",
+                "assets/js/rot13x.js"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
     ],
-    "page_action" :
+    "action" :
     {
         "default_icon" : "assets/img/niblet-48.png",
-        "default_title" : "Daily Status Modifications",
+        "default_title" : "Programmer Enhancement Suite",
         "default_popup" : "popup.html"
     },
     "options_page": "popup.html",
     "background":
     {
-        "scripts" :
-        [
-            "assets/js/jquery-1.10.1.min.js",
-            "assets/js/rot13x.js",
-            "assets/js/versionhistory.js",
-            "assets/js/bgevents.js"
-        ],
-        "persistent" : false
+        "service_worker": "assets/js/background-wrapper.js"
     },
     "content_scripts" :
     [
@@ -90,5 +92,5 @@
             "global": true
         }
     },
-    "manifest_version": 2
+    "manifest_version": 3
 }
