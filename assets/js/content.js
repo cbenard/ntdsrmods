@@ -106,6 +106,26 @@ $(function ()
                 console.logv('received supportRequestsFound');
                 misc.updateSupportRequests(request.count);
             }
+            else if (request.eventName == "playAudio") {
+                console.logv('received playAudio: ' + request.url);
+                var notificationAudio = new Audio();
+                notificationAudio.src = request.url;
+                try {
+                    notificationAudio.play()
+                    .then(() => {
+                        console.logv('played: ' + request.url);
+                        responseCallback(true);
+                    })
+                    .catch(() => {
+                        console.logv('failed to play: ' + request.url);
+                        responseCallback(false);
+                    });
+                }
+                catch {
+                    console.logv('failed to play: ' + request.url);
+                    responseCallback(false);
+                }
+            }
         }
     }
 

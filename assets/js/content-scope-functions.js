@@ -112,4 +112,4 @@ function performQuickSearch(request) {
 
 window.addEventListener('message', onMessage, false);
 
-console.logv('loaded content-scope-functions.js');
+if (console.logv) console.logv('loaded content-scope-functions.js');

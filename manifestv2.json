@@ -1,0 +1,93 @@
+{
+    "name": "Programmer Enhancement Suite",
+    "description": "Enhances the user experience on an internal site in various ways, including daily status, popup suppression, and other features.",
+    "version": "1.0.25",
+    "permissions":
+    [
+        "storage",
+        "notifications",
+        "alarms",
+        "tabs",
+        "<all_urls>",
+		"management",
+        "notifications",
+        "clipboardWrite",
+        "contentSettings",
+        "cookies"
+    ],
+    "web_accessible_resources":
+    [
+        "assets/img/*",
+        "assets/js/content-scope-functions.js",
+        "assets/js/rot13x.js"
+    ],
+    "page_action" :
+    {
+        "default_icon" : "assets/img/niblet-48.png",
+        "default_title" : "Daily Status Modifications",
+        "default_popup" : "popup.html"
+    },
+    "options_page": "popup.html",
+    "background":
+    {
+        "scripts" :
+        [
+            "assets/js/rot13x.js",
+            "assets/js/versionhistory.js",
+            "assets/js/bgevents.js"
+        ],
+        "persistent" : false
+    },
+    "content_scripts" :
+    [
+        {
+            "matches" :
+            [
+                "http://localhost:*/*.htm",
+                "http://localhost/*.htm",
+                "*://*/*/DailyStatusListForPerson.aspx",
+                "*://*/SupportCenter/*.aspx*",
+                "*://*/LocationEdit.aspx*",
+                "*://*/*/LocationEdit.aspx*",
+                "*://*/LocationSearch.aspx*",
+                "*://*/Updater/*.aspx*",
+                "*://*/PasswordManage.aspx*"
+            ],
+            "js" :
+            [
+                "assets/js/rot13x.js",
+                "assets/js/jquery-1.10.1.min.js",
+                "assets/js/jquery-ui.min.js",
+                "assets/js/jquery.cookie.js",
+                "assets/js/formattime.js",
+                "assets/js/forcenumeric.js",
+                "assets/js/stringtrim.js",
+                "assets/js/DsrManager.js",
+                "assets/js/MiscManager.js",
+                "assets/js/content.js"
+            ],
+            "css" : [ "assets/css/content.css" ],
+            "run_at" : "document_idle",
+            "all_frames" : true
+        }
+    ],
+    "icons" :
+    {
+        "16" : "assets/img/niblet-16.png",
+        "19" : "assets/img/niblet-19.png",
+        "38" : "assets/img/niblet-38.png",
+        "48" : "assets/img/niblet-48.png",
+        "128" : "assets/img/niblet-128.png"
+    },
+    "omnibox": { "keyword" : "nib" },
+    "commands": {
+        "toggle-enabled": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+A"
+            },
+            "description": "Toggle enablement of the extension's functions",
+            "global": true
+        }
+    },
+    "manifest_version": 2
+}

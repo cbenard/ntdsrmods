@@ -2,6 +2,9 @@
 var acceptableNotificationTime = 60 * 1000;
 var notificationID = "clockOutNotification";
 var oldExtensionID = 'imdhbhbmbnnlaffbhhhjccnighckieja';
+const isManifestV3 = chrome.runtime.getManifest().manifest_version >= 3;
+
+console.log(`Is Manifest V3: ${isManifestV3}`);
 
 function onMessage(request, sender, responseCallback)
 {
@@ -121,12 +124,30 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
 		});
 	}
 });
-chrome.notifications.onButtonClicked.addListener(HandleNotificationButtonClick);
-chrome.notifications.onClicked.addListener(
-	function (notificationID, buttonIndex) {
-		HandleNotificationButtonClick(notificationID, -1);
-	});
 
+chrome.notifications.onButtonClicked.addListener((notificationId, buttonIndex) => {
+    HandleNotificationButtonClick(notificationId, buttonIndex);
+});
+chrome.notifications.onClicked.addListener(notificationID => {
+    HandleNotificationButtonClick(notificationID, -1);
+});
+
+// V3 version using native notifications
+self.addEventListener('notificationclick', function(event) {
+	console.log(event);
+	if (!event.notification) return;
+	if (!event.notification.tag) return;
+	let notificationID = event.notification.tag;
+	let buttonID = -1;
+	if (event.action) {
+		try {
+			buttonID = parseInt(event.action);
+		}
+		catch {}
+	}
+
+	HandleNotificationButtonClick(notificationID, buttonID);
+});
 
 var defaultOptions =
 {
@@ -345,42 +366,93 @@ function raiseNotification(notificationID, title, message, tabID, settings, resp
 				message: message,
 				iconUrl: chrome.runtime.getURL("assets/img/niblet-128.png"),
 				buttons: [
-					{ title: "Go to Daily Status", iconUrl: chrome.runtime.getURL("assets/img/icon-clock-grey-32.png")},
-					{ title: "Close", iconUrl: chrome.runtime.getURL("assets/img/icon-close-grey-32.png")}
-				],
-				isClickable: true
+					{
+						title: "Go to Daily Status",
+						iconUrl: chrome.runtime.getURL("assets/img/icon-clock-grey-32.png")
+					},
+					{
+						title: "Close",
+						iconUrl: chrome.runtime.getURL("assets/img/icon-close-grey-32.png")
+					}
+				]
 			};
-			chrome.notifications.getAll(function (openNotifications) {
-				if (!openNotifications.timewarning) {
-					chrome.notifications.create("timewarning", notificationOptions, function() {
+
+			if (isManifestV3) {
+				registration.getNotifications('timewarning').then(openNotifications => {
+					if (openNotifications.length == 0) {
+						registration.showNotification(notificationOptions.title, {
+							tag: "timewarning",
+							body: notificationOptions.message,
+							requireInteraction: true,
+							icon: notificationOptions.iconUrl,
+							actions: [
+								{ action: 0, title: notificationOptions.buttons[0].title, icon: notificationOptions.buttons[0].iconUrl },
+								{ action: 1, title: notificationOptions.buttons[1].title, icon: notificationOptions.buttons[1].iconUrl }
+							]
+						});
+	
 						if (settings && settings.notificationSound)
 						{
-							if (logVerbose) console.log(chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg"));
-							setTimeout(function() {
-								var notificationAudio = new Audio();
-								notificationAudio.src = chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg");
-								notificationAudio.play();
-							}, 1);
+							playAudioV3(chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg"));
 						}
 
 						setLastNotificationTime(new Date());
-					});
-				}
-			});
+					}
+				});
+			}
+			else {
+				chrome.notifications.getAll(function (openNotifications) {
+					if (!openNotifications.timewarning) {
+						chrome.notifications.create("timewarning", notificationOptions, function() {
+							if (settings && settings.notificationSound)
+							{
+								if (logVerbose) console.log(chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg"));
+								setTimeout(function() {
+									var notificationAudio = new Audio();
+									notificationAudio.src = chrome.runtime.getURL("assets/audio/" + settings.notificationSound + ".ogg");
+									notificationAudio.play();
+								}, 1);
+							}
+	
+							setLastNotificationTime(new Date());
+						});
+					}
+				});
+			}
 
 			responseCallback();
 		}
 	});
 }
 
+function playAudioV3(url, tabs, index) {
+	if (tabs === undefined) {
+		chrome.tabs.query({ url: ["*://*." + voldemort + ".com/*"] }).then(ourTabs => {
+			playAudioV3(url, ourTabs, 0);
+		});
+	}
+	else {
+		if (index > tabs.length - 1) return;
+
+		console.logv("sending playAudio to tab: " + tabs[index].id);
+		chrome.tabs.sendMessage(tabs[index].id, {
+			eventName: "playAudio",
+			url: url
+		}, succeeded => {
+			if (succeeded === false) {
+				console.logv('trying to send playAudio again after failure');
+				playAudioV3(url, tabs, index + 1);
+			}
+		});
+	}
+}
+
 function raiseUpdateNotification(message)
 {
 	var notificationOptions = {
 		type: "basic",
-		title: "Daily Status Mods Updated",
-		message: "New features: Sound options (defaults on). \"Time you can leave\" " +
-				 "wraps to the next day (so be sure to set the \"Beginning of Day\" " +
-				 "correctly) and Monday clock-in support (finally!). Click for more information.",
+		title: "Programmer Enhancement Suite Updated",
+		message: "Check out the new features on the Daily Status page.",
 		iconUrl: chrome.runtime.getURL("assets/img/niblet-128.png"),
 		buttons: [
 			{ title: "More Information", iconUrl: chrome.runtime.getURL("assets/img/icon-clock-grey-32.png")},
@@ -388,7 +460,22 @@ function raiseUpdateNotification(message)
 		],
 		isClickable: true
 	};
-	chrome.notifications.create("updatenotification", notificationOptions, function() {});
+
+	if (isManifestV3) {
+		registration.showNotification(notificationOptions.title, {
+			tag: "updatenotification",
+			body: notificationOptions.message,
+			requireInteraction: true,
+			icon: notificationOptions.iconUrl,
+			actions: [
+				{ action: 0, title: notificationOptions.buttons[0].title, icon: notificationOptions.buttons[0].iconUrl },
+				{ action: 1, title: notificationOptions.buttons[1].title, icon: notificationOptions.buttons[1].iconUrl }
+			]
+		});
+	}
+	else {
+		chrome.notifications.create("updatenotification", notificationOptions, function() {});
+	}
 }
 
 function raiseSupportRequestNotification(settings)
@@ -404,22 +491,51 @@ function raiseSupportRequestNotification(settings)
 		],
 		isClickable: true
 	};
-	chrome.notifications.create("supportrequestnotification", notificationOptions, function() {
+
+	if (isManifestV3) {
+		registration.showNotification(notificationOptions.title, {
+			tag: "supportrequestnotification",
+			body: notificationOptions.message,
+			renotify: true,
+			icon: notificationOptions.iconUrl,
+			actions: [
+				{ action: 0, title: notificationOptions.buttons[0].title, icon: notificationOptions.buttons[0].iconUrl },
+				{ action: 1, title: notificationOptions.buttons[1].title, icon: notificationOptions.buttons[1].iconUrl }
+			]
+		});
+
 		if (settings && settings.supportRequestSound)
 		{
-			if (logVerbose) console.log(chrome.runtime.getURL("assets/audio/" + settings.supportRequestSound + ".ogg"));
-			setTimeout(function() {
-				var notificationAudio = new Audio();
-				notificationAudio.src = chrome.runtime.getURL("assets/audio/" + settings.supportRequestSound + ".ogg");
-				notificationAudio.play();
-			}, 1);
+			playAudioV3(chrome.runtime.getURL("assets/audio/" + settings.supportRequestSound + ".ogg"));
 		}
-
-	});
+	}
+	else {
+		chrome.notifications.create("supportrequestnotification", notificationOptions, function() {
+			if (settings && settings.supportRequestSound)
+			{
+				if (logVerbose) console.log(chrome.runtime.getURL("assets/audio/" + settings.supportRequestSound + ".ogg"));
+				setTimeout(function() {
+					var notificationAudio = new Audio();
+					notificationAudio.src = chrome.runtime.getURL("assets/audio/" + settings.supportRequestSound + ".ogg");
+					notificationAudio.play();
+				}, 1);
+			}
+		});
+	}
 }
 
 function HandleNotificationButtonClick(notificationID, buttonIndex) {
-	chrome.notifications.clear(notificationID, function() {});
+	if (isManifestV3) {
+		registration.getNotifications().then(currentNotifications => {
+			for (var notif of currentNotifications) {
+				console.logv('Clearing notification: ' + notif.tag);
+				notif.close();
+			}
+		});
+	}
+	else {
+		chrome.notifications.clear(notificationID, function() {});
+	}
 
 	if (notificationID === "updatenotification") {
 		if (logVerbose) console.log('update notification: user clicked button index ' + buttonIndex);
@@ -533,13 +649,20 @@ chrome.omnibox.onInputChanged.addListener(function (text, suggest) {
 	    suggestions.push({ content: 'help', description: 'Help! <dim>What can I type here?</dim>' });
 	}
 
-    // Set help suggestion as the default suggestion
-    chrome.omnibox.setDefaultSuggestion({description:suggestions[suggestions.length-1].description});
-
-    // Remove the first suggestion from the array since we just suggested it
-    suggestions.shift();
-
-    suggest(suggestions);
+	// Open bugs in Manifest V3:
+	// https://github.com/GoogleChrome/chrome-extensions-samples/issues/541
+	// https://crbug.com/1186804
+	try {
+		// Set help suggestion as the default suggestion
+		chrome.omnibox.setDefaultSuggestion({description:suggestions[suggestions.length-1].description});
+	
+		// Remove the first suggestion from the array since we just suggested it
+		suggestions.shift();
+	
+		suggest(suggestions);
+	}
+	catch {
+	}
 });
 
 var searchTerms = [
@@ -751,12 +874,22 @@ chrome.commands.onCommand.addListener(function(command) {
 			console.logv('Toggling "enabled". Previous value: ' + curSettings.enabled + '. New value: ' + !curSettings.enabled);
 			
 			if (curSettings.enabled) {
-				chrome.notifications.getAll(function(currentNotifications) {
-					for (var key in currentNotifications) {
-						console.logv('Clearing notification: ' + key);
-						chrome.notifications.clear(key, function() {});						
-					}
-				});
+				if (isManifestV3) {
+					registration.getNotifications().then(currentNotifications => {
+						for (var notif of currentNotifications) {
+							console.logv('Clearing notification: ' + notif.tag);
+							notif.close();
+						}
+					});
+				}
+				else {
+					chrome.notifications.getAll(function(currentNotifications) {
+						for (var key in currentNotifications) {
+							console.logv('Clearing notification: ' + key);
+							chrome.notifications.clear(key, function() {});
+						}
+					});
+				}
 			}
 
 			curSettings.enabled = !curSettings.enabled;
