@@ -22,6 +22,7 @@
         {
             "resources": [
                 "assets/img/*",
+                "assets/audio/*",
                 "assets/js/content-scope-functions.js",
                 "assets/js/rot13x.js"
             ],

@@ -1,4 +1,7 @@
-﻿# http://www.get-command.com/121/transliterating-strings/
+﻿$ErrorActionPreference = "Stop"
+$usev3 = $true
+
+# http://www.get-command.com/121/transliterating-strings/
 function new-transliteratedstring
 {
     param ([string] $inputstring, 
@@ -55,6 +58,8 @@ $hostmask = "*://*.${voldemort}.com/*"
 $currentDir = Split-Path -parent $MyInvocation.MyCommand.Definition
 $buildDir = Join-Path $currentDir "builds/chrome"
 $buildZip = Join-Path $currentDir "builds/ntdsrmods-chrome.zip"
+$manifestv3 = Join-Path $buildDir "manifestv3.json"
+$manifestv2 = Join-Path $buildDir "manifestv2.json"
 $manifest = Join-Path $buildDir "manifest.json"
 $rot13x = Join-Path $buildDir "assets/js/rot13x.js"
 
@@ -69,22 +74,38 @@ If (Test-Path $buildZip)
 New-Item -ItemType directory -Path $buildDir
 
 Copy-Item (GetSourceFiles $currentDir @("*.info", "*.md", "*.json", "*.html", "assets")) $buildDir -Recurse
+Install-Module Newtonsoft.Json -Scope CurrentUser -SkipPublisherCheck
+Import-Module Newtonsoft.Json
 
-# Set Manifest matching urls
-$json = Get-Content $manifest | Out-String
-$ob = ConvertFrom-Json $json
-$ob.content_scripts[0].matches = @($hostmask)
-$json = ConvertTo-Json $ob
-$json = $json -replace "(""matches"":  "")(.*)("",)", '"matches": ["$2"],'
-$json = $json -replace ".js ", ".js"", """
-$json = $json -replace "(""js"":  "")(.*)("",)", '"js": ["$2"],'
-$json = $json -replace ".css ", ".css"", """
-$json = $json -replace "(""css"":  "")(.*)("",)", '"css": ["$2"],'
-$json = $json -replace "\\u003e", ">"
-$json = $json -replace "\\u003c", "<"
-$json = $json -replace "\\u0027", "'"
-$json = $json -replace '"@{default=Ctrl\+Shift\+A}"', '{ "default": "Ctrl+Shift+A" }'
-Set-Content $manifest $json
+if ($usev3) {
+    Remove-Item -Path $manifestv2
+    Rename-Item -Path $manifestv3 -NewName $manifest
+    
+    $json = Get-Content $manifest | Out-String
+    $ob = [Newtonsoft.Json.Linq.JObject]::Parse($json)
+    
+    ([Newtonsoft.Json.Linq.JArray]$ob["host_permissions"]).Clear()
+    ([Newtonsoft.Json.Linq.JArray]$ob["host_permissions"]).Add($hostmask)
+    ([Newtonsoft.Json.Linq.JArray]$ob["host_permissions"]).Add("https://ntdsrmods.chrisbenard.net/*")
+    
+    ([Newtonsoft.Json.Linq.JArray]$ob["web_accessible_resources"][0]["matches"]).Clear()
+    ([Newtonsoft.Json.Linq.JArray]$ob["web_accessible_resources"][0]["matches"]).Add($hostmask)
+    
+    ([Newtonsoft.Json.Linq.JArray]$ob["content_scripts"][0]["matches"]).Clear()
+    ([Newtonsoft.Json.Linq.JArray]$ob["content_scripts"][0]["matches"]).Add($hostmask)
+}
+else {
+    Remove-Item -Path $manifestv3
+    Rename-Item -Path $manifestv2 -NewName $manifest
+
+    $json = Get-Content $manifest | Out-String
+    $ob = [Newtonsoft.Json.Linq.JObject]::Parse($json)
+    
+    ([Newtonsoft.Json.Linq.JArray]$ob["content_scripts"][0]["matches"]).Clear()
+    ([Newtonsoft.Json.Linq.JArray]$ob["content_scripts"][0]["matches"]).Add($hostmask)
+}
+
+Set-Content $manifest $ob.ToString()
 
 # Turn off verbose logging
 $rot13fileText = Get-Content $rot13x | Out-String
