@@ -27,7 +27,7 @@
 
                         <h4>Install from the Chrome Web Store</h4>
                         <p id="install-container">
-                            <button class="perform-install">Install Now</button>
+                            <button class="perform-install"><a href="https://chrome.google.com/webstore/detail/programmer-enhancement-su/jolnemjimkgmpignoefhnehkfpoplmgf">Install Now</a></button>
                         </p>
                         <div id="install-failed" class="displaynone">
                             <p>
@@ -98,17 +98,5 @@
         </div>
         <script src="http://code.jquery.com/jquery.js"></script>
         <script src="js/bootstrap.min.js"></script>
-        <script type="text/javascript">
-            $(function() {
-                $('.perform-install').click(function(e) {
-                    e.preventDefault();
-
-                    chrome.webstore.install(
-                        'https://chrome.google.com/webstore/detail/jolnemjimkgmpignoefhnehkfpoplmgf',
-                        function(data) { console.log('success'); console.log(data); $('#install-container').addClass('displaynone'); $('#install-succeeded').removeClass('displaynone'); $('#install-failed').addClass('displaynone'); },
-                        function(data) { console.log('failure'); console.log(data); $('#install-container').addClass('displaynone'); $('#install-failed').removeClass('displaynone'); $('#failure-reason').text(data); $('#install-succeeded').addClass('displaynone');});
-                })
-            })
-        </script>
     </body>
 </html>

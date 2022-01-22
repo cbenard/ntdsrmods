@@ -68,6 +68,15 @@ button.perform-install {
 	border-radius: 15px;
 }
 
+.perform-install a {
+	text-decoration: none;
+	color: #FFFFE7;
+}
+
+.perform-install a:hover {
+	color: #FFFFE7;
+}
+
 button.install:hover {
 	background-color: #234F7B;
 }
