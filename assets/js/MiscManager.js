@@ -465,7 +465,7 @@
 					return;
 				}
 
-				var locationURL = 'https://www.' + voldemort + '.com/LocationEdit.aspx?LocationID=' + locationID;
+				var locationURL = 'https://support.' + voldemort + '.com/LocationEdit.aspx?LocationID=' + locationID;
 
 				$.get(locationURL, function (data) {
 					var accountMgr = $(data).find('#cmbTechnicalAccountManager_cmbPerson_Input');
@@ -485,7 +485,7 @@
 				}
 				
 				var miniVoldemort = 'P' + voldemort.substring(1, 7);
-				var serverSearchUrl = 'https://www.' + voldemort + '.com/SupportCenter/' + miniVoldemort + 'ServerSearch.aspx#LocationID=' + locationID;
+				var serverSearchUrl = 'https://support.' + voldemort + '.com/SupportCenter/' + miniVoldemort + 'ServerSearch.aspx#LocationID=' + locationID;
 
 				var serverLink = $(context.createElement('a'))
 					.addClass('spanReplacementLink')
