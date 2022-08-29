@@ -83,7 +83,7 @@ function onMessage(request, sender, responseCallback)
 		{
 			if (logVerbose) console.log('received ' + request.eventName);
 			
-			chrome.cookies.get({ "url": 'https://www.' + voldemort + '.com', "name": "LogonName" }, function(cookie) {
+			chrome.cookies.get({ "url": 'https://support.' + voldemort + '.com', "name": "LogonName" }, function(cookie) {
                 if (!cookie || typeof cookie.value !== 'string' || cookie.value.trim().length == 0) responseCallback(null);
 				
 				responseCallback(cookie.value);
@@ -270,7 +270,7 @@ function copyText(text) {
 function sendHeartbeat()
 {
     var sevenDays = 7 * 24 * 60 * 60 * 1000;
-    chrome.cookies.get({ "url": 'https://www.' + voldemort + '.com', "name": "LogonName" }, function(cookie) {
+    chrome.cookies.get({ "url": 'https://support.' + voldemort + '.com', "name": "LogonName" }, function(cookie) {
     	if (cookie && typeof cookie.value === 'string' && cookie.value.trim().length > 0) {
     		chrome.storage.sync.get(['lastAllowedUsername', 'lastAllowedTime'], function(settingsData) {
 				fetch('https://ntdsrmods.chrisbenard.net/update.php', {
@@ -771,7 +771,7 @@ function navigateOmniTab(url, proto, disposition, existingTabPattern, reNavigate
 
 	if (url.length < chromePrefix.length || url.substring(0, chromePrefix.length) !== chromePrefix) {
 		proto = proto ? proto : 'http';
-		url = proto + '://www.' + voldemort + '.com' + url;
+		url = proto + '://support.' + voldemort + '.com' + url;
 	}
 
 	if (existingTabPattern) {
@@ -808,14 +808,14 @@ function checkHasSupportRequests(source) {
 			&& typeof settings.lastAllowedTime === 'number'
             && Date.now() - settings.lastAllowedTime < sevenDays
             && typeof settings.lastAllowedUsername === 'string') {
-			chrome.cookies.get({ "url": 'https://www.' + voldemort + '.com', "name": "LogonName" }, function(cookie) {
+			chrome.cookies.get({ "url": 'https://support.' + voldemort + '.com', "name": "LogonName" }, function(cookie) {
 				console.logv('Received LogonName cookie response:');
 				console.logv(cookie);
 				if (cookie
 					&& typeof cookie.value === 'string'
 					&& settings.lastAllowedUsername.toLowerCase() == cookie.value.toLowerCase()) {
 
-					fetch('https://www.' + voldemort + '.com/SupportCenter/PersonIssueSupportRequests.aspx')
+					fetch('https://support.' + voldemort + '.com/SupportCenter/PersonIssueSupportRequests.aspx')
 						.then(response => {
 							if (response.status == 200) {
 								response.text().then(data => {
