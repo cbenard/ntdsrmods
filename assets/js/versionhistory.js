@@ -211,5 +211,12 @@ var versionHistory = {
 			"<li>Added better error checking to resolve some background exceptions.</li>" +
 			"<li>Manifest v3 compatibility for the future.</li>" +
 			"</ul>"
+	},
+
+	"1.0.27": {
+		heading: "Programmer Enhancement Suite Update (1.0.27)",
+		message: "<ul>" +
+			"<li>Use <code>support</code> subdomain instead of <code>www</code>.</li>" +
+			"</ul>"
 	}
 };
