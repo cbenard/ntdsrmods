@@ -468,11 +468,15 @@ function DsrManager(inputContext)
 
     this.isValidDailyStatusPage = function()
     {
-        var regexMatch = /DailyStatusListForPerson.aspx/i.test(context.location.href) ||
+        const regexMatch = /DailyStatusListForPerson.aspx/i.test(context.location.href) ||
             /localhost.*clocked/i.test(context.location.href);
 
-        return (regexMatch) &&
-            $('div[id$="pnlTime"] table[id$="dgResults"]', context).length > 0;
+        if (!regexMatch) return false;
+        const containerCollection = document.querySelectorAll('div#dailyStatus > table > tbody > tr > td');
+
+        if (!containerCollection || typeof containerCollection !== 'object' || containerCollection.length !== 2) return false;
+
+        return true;
     };
 
     this.refresh = function(settings)

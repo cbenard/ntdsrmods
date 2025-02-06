@@ -218,5 +218,13 @@ var versionHistory = {
 		message: "<ul>" +
 			"<li>Use <code>support</code> subdomain instead of <code>www</code>.</li>" +
 			"</ul>"
+	},
+
+	"1.0.28": {
+		heading: "Programmer Enhancement Suite Update (1.0.27)",
+		message: "<ul>" +
+			"<li>Fix removal of <code>LogonName</code> cookie on the site. Now fetches username from the My Account page.</li>" +
+			"<li>Removed Time Clock functionality.</li>" +
+			"</ul>"
 	}
 };

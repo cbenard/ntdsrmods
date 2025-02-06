@@ -1,16 +1,18 @@
 $(function()
 {
-    $( "#tabs" ).tabs();
+    //$( "#tabs" ).tabs();
 
 	var audio = document.getElementById('audio');
 	var isDoneInitializing = false;
 
+	/*
 	$('.time-friendly').timepicker({
 		'minTime': '6:00am',
 		'maxTime': '11:45pm',
 		'step': 15,
 		'timeFormat': 'g:i A'
 	});
+	*/
 
 	// $(document).keypress(function(e) {
 	//     if(e.which == 13) {
@@ -33,8 +35,10 @@ $(function()
 		}
 	});
 
+	/*
 	$('#hoursPerWeek').forcenumeric(true);
 	$('#minuteWarning').forcenumeric(true);
+	*/
 
 	$('.tooltip').tooltip({
 		content: function () {
@@ -42,6 +46,7 @@ $(function()
 		}
 	});
 
+	/*
 	$('#notificationSound').change(function() 
 	{
 		var sndFile = $(this).val();
@@ -53,6 +58,7 @@ $(function()
 			},1);
 		}
 	});
+	*/
 	
 	$('#supportRequestSound').change(function() 
 	{
@@ -65,8 +71,8 @@ $(function()
 			},1);
 		}
 	});
-	
-	$('#notifyMe').click(function() { toggleNotificationSubSettings($(this).prop('checked')); });
+
+	//$('#notifyMe').click(function() { toggleNotificationSubSettings($(this).prop('checked')); });
 
 	$('input[type="text"]').first().focus();
 
@@ -80,6 +86,7 @@ $(function()
 
 		if (settings != undefined)
 		{
+			/*
 			if (settings.hoursPerWeek != undefined)
 			{
 				$('#hoursPerWeek').val(settings.hoursPerWeek);
@@ -104,6 +111,11 @@ $(function()
 			{
 				$('#notificationSound').val(settings.notificationSound);
 			}
+			if (settings.distractionFreeMode !== undefined)
+			{
+				$('#distractionFreeMode').prop('checked', settings.distractionFreeMode);
+			}
+			*/
 			if (settings.displayGoToIssue != undefined)
 			{
 				$('#displayGoToIssue').prop('checked', settings.displayGoToIssue);
@@ -156,10 +168,6 @@ $(function()
 			{
 				$('#enabled').prop('checked', settings.enabled);
 			}
-			if (settings.distractionFreeMode !== undefined)
-			{
-				$('#distractionFreeMode').prop('checked', settings.distractionFreeMode);
-			}
 		}
 
 		toggleNotificationSubSettings($('#notifyMe').prop('checked'));
@@ -167,6 +175,7 @@ $(function()
 		isDoneInitializing = true;
 	}
 
+	/*
 	function getTimeString(hour, minute)
 	{
 		var ampm = ' AM';
@@ -184,6 +193,7 @@ $(function()
 
 		return '' + hour + ':' + minute + ampm
 	}
+	*/
 
 	function toggleNotificationSubSettings(visible)
 	{
@@ -202,6 +212,7 @@ $(function()
 		var isValid = true;
 		var badElement = null;
 
+		/*
 		$('.time-friendly').each(function(index, element) {
 			var jqElement = $(element);
 			if (jqElement.val())
@@ -264,6 +275,7 @@ $(function()
 				}
 			}
 		});
+		*/
 
 		if (isValid)
 		{
@@ -299,11 +311,14 @@ $(function()
 	{
 		try
 		{
+			/*
 			var beginTimeDto = getTimeParts($('#beginningOfDay'));
 			var endTimeDto = getTimeParts($('#endOfDay'));
+			*/
 
 			var dto =
 			{
+				/*
 				"hoursPerWeek": parseFloat($('#hoursPerWeek').val()).toFixed(2),
 				"beginningOfDayTimeHour": beginTimeDto.hour,
 				"beginningOfDayTimeMinute": beginTimeDto.minute,
@@ -312,6 +327,8 @@ $(function()
 				"notifyMe": $('#notifyMe').prop('checked') ? true : false,
 				"minuteWarning": $('#minuteWarning').val() ? parseInt($('#minuteWarning').val()) : 0,
 				"notificationSound": $('#notificationSound').val(),
+				"distractionFreeMode": $('#distractionFreeMode').prop('checked') ? true : false
+				*/
 				"displayGoToIssue": $('#displayGoToIssue').prop('checked') ? true : false,
 				"suppressEditIssuePopup": $('#suppressEditIssuePopup').prop('checked') ? true : false,
 				"suppressAllPopups": $('#suppressAllPopups').prop('checked') ? true : false,
@@ -325,7 +342,6 @@ $(function()
 				"notifySupportRequest": $('#notifySupportRequest').prop('checked') ? true : false,
 				"supportRequestSound": $('#supportRequestSound').val(),
 				"enabled": $('#enabled').prop('checked') ? true : false,
-				"distractionFreeMode": $('#distractionFreeMode').prop('checked') ? true : false
 			};
 
 			chrome.runtime.sendMessage({ "eventName": "saveSettings", "dto": dto }, function(response) {
@@ -353,6 +369,7 @@ $(function()
 		}
 	}
 
+	/*
 	function getTimeParts(jqElement)
 	{
 		var matches = /^(12|11|10|[0-9])\:(60|[0-5][0-9]) (AM|PM)$/ig.exec(jqElement.val());
@@ -376,6 +393,7 @@ $(function()
 
 		return dto;
 	}
+	*/
 
 	function showErrorSummary(errorText)
 	{

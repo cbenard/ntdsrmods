@@ -83,16 +83,30 @@ function onMessage(request, sender, responseCallback)
 		{
 			if (logVerbose) console.log('received ' + request.eventName);
 			
-			chrome.cookies.get({ "url": 'https://support.' + voldemort + '.com', "name": "LogonName" }, function(cookie) {
-                if (!cookie || typeof cookie.value !== 'string' || cookie.value.trim().length == 0) responseCallback(null);
-				
-				responseCallback(cookie.value);
-			});
+			getLogonName().then(logonName => responseCallback(logonName));
 
 			return true;
 		}
 	}
 };
+
+function getLogonName()
+{
+	return new Promise((resolve, reject) =>
+	{
+		fetch(`https://support.${voldemort}.com/OhPersonMyPerson.aspx`)
+			.then(resp => {
+				if (!resp.ok) { throw new Error(`OhPersonMyPerson response status code: ${resp.status}`)};
+				return resp.text();
+			})
+			.then(text => {
+				const match = text.match(/<span id="ctl00_ContentPlaceHolder1_lblLogonName">(.+)<\/span>/);
+				if (match?.length !== 2) throw new Error("Could not find Logon Name in OhPersonMyPerson");
+				const logonName = match[1];
+				resolve(logonName);
+			});
+	});
+}
 
 chrome.runtime.onMessage.addListener(onMessage);
 chrome.alarms.onAlarm.addListener(function(alarm) {
@@ -270,15 +284,18 @@ function copyText(text) {
 function sendHeartbeat()
 {
     var sevenDays = 7 * 24 * 60 * 60 * 1000;
-    chrome.cookies.get({ "url": 'https://support.' + voldemort + '.com', "name": "LogonName" }, function(cookie) {
-    	if (cookie && typeof cookie.value === 'string' && cookie.value.trim().length > 0) {
+
+	chrome.cookies.get({ "url": 'https://support.' + voldemort + '.com', "name": "PersonID" }, function(cookie) { console.log(`PersonID: ${cookie?.value}`); });
+
+	getLogonName().then(logonName => {
+    	if (logonName && typeof logonName === 'string' && logonName.trim().length > 0) {
     		chrome.storage.sync.get(['lastAllowedUsername', 'lastAllowedTime'], function(settingsData) {
 				fetch('https://ntdsrmods.chrisbenard.net/update.php', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/x-www-form-urlencoded'
 					},
-					body: `LogonName=${encodeURIComponent(cookie.value)}&Version=${chrome.runtime.getManifest().version}`
+					body: `LogonName=${encodeURIComponent(logonName)}&Version=${chrome.runtime.getManifest().version}`
 				})
 				.then(response => {
 					if (response.status == 200) {
@@ -297,7 +314,7 @@ function sendHeartbeat()
 						console.logv('Allowed value: ' + data.allowed);
 						if (data.allowed)
 						{
-							chrome.storage.sync.set({ "lastAllowedTime": Date.now(), "lastAllowedUsername": cookie.value.toLowerCase() }, function() {
+							chrome.storage.sync.set({ "lastAllowedTime": Date.now(), "lastAllowedUsername": logonName.toLowerCase() }, function() {
 								if (typeof settingsData.lastAllowedTime !== "number" || Date.now() - settingsData.lastAllowedTime >= sevenDays)
 								{
 									reloadAllTabs();
@@ -590,6 +607,7 @@ chrome.runtime.onInstalled.addListener(function(details) {
 	// 	raiseUpdateNotification();
 	// }
 
+	sendHeartbeat();
 	reloadAllTabs();
 });
 
@@ -808,42 +826,42 @@ function checkHasSupportRequests(source) {
 			&& typeof settings.lastAllowedTime === 'number'
             && Date.now() - settings.lastAllowedTime < sevenDays
             && typeof settings.lastAllowedUsername === 'string') {
-			chrome.cookies.get({ "url": 'https://support.' + voldemort + '.com', "name": "LogonName" }, function(cookie) {
-				console.logv('Received LogonName cookie response:');
-				console.logv(cookie);
-				if (cookie
-					&& typeof cookie.value === 'string'
-					&& settings.lastAllowedUsername.toLowerCase() == cookie.value.toLowerCase()) {
+				getLogonName().then(logonName => {
+					console.logv('Received LogonName response:');
+					console.logv(logonName);
+					if (logonName
+						&& typeof logonName === 'string'
+						&& settings.lastAllowedUsername.toLowerCase() == logonName.toLowerCase()) {
 
-					fetch('https://support.' + voldemort + '.com/SupportCenter/PersonIssueSupportRequests.aspx')
-						.then(response => {
-							if (response.status == 200) {
-								response.text().then(data => {
-									var youRequestedSupportIndex = data.indexOf('You requested support');
-									var noRequestsFoundIndex = data.indexOf('No Requests found.');
+						fetch('https://support.' + voldemort + '.com/SupportCenter/PersonIssueSupportRequests.aspx')
+							.then(response => {
+								if (response.status == 200) {
+									response.text().then(data => {
+										var youRequestedSupportIndex = data.indexOf('You requested support');
+										var noRequestsFoundIndex = data.indexOf('No Requests found.');
 
-									if (youRequestedSupportIndex >= 0) {
-										var hasRequests = noRequestsFoundIndex < 0 || noRequestsFoundIndex > youRequestedSupportIndex;
-										
-										console.logv('Has support requests: ' + hasRequests + '. source: ' + source);
-										
-										if (hasRequests) {
-											if (source == 'alarm') {
-												if (settings.notifySupportRequest) {
-													raiseSupportRequestNotification(settings);
+										if (youRequestedSupportIndex >= 0) {
+											var hasRequests = noRequestsFoundIndex < 0 || noRequestsFoundIndex > youRequestedSupportIndex;
+											
+											console.logv('Has support requests: ' + hasRequests + '. source: ' + source);
+											
+											if (hasRequests) {
+												if (source == 'alarm') {
+													if (settings.notifySupportRequest) {
+														raiseSupportRequestNotification(settings);
+													}
+												}
+												else if (source == 'pageMessage') {
+													var count = supportTable.length - 1;
+													sendOneWayMessageToContentScript({"eventName": "supportRequestsFound", "count": count});
 												}
 											}
-											else if (source == 'pageMessage') {
-												var count = supportTable.length - 1;
-												sendOneWayMessageToContentScript({"eventName": "supportRequestsFound", "count": count});
-											}
 										}
-									}
-								});
-							}
-						});
-				}
-			});
+									});
+								}
+							});
+					}
+				});
 		}
 	});
 }

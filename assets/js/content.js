@@ -19,34 +19,37 @@ $(function ()
     if (dsr.isValidDailyStatusPage() || misc.isValidPage()) {
         chrome.runtime.sendMessage({ "eventName": "getSettings" }, function(settings) {
             currentSettings = settings;
-
             chrome.runtime.sendMessage({ "eventName": "needsLogonName" }, function(logonName) {
-                if (logonName) {
-                    if (settings.enabled && dsr.isValidDailyStatusPage())
-                    {
-                        dsr.addWarningFiredListener(warningFiredEventHandler);
+                console.log('got logon name: '+ logonName);
+                if (!logonName || !settings.enabled) return;
 
-                        chrome.runtime.sendMessage({ "eventName": "pageLoaded", "logonName": logonName, "settings": settings });
+                if (settings.enabled && dsr.isValidDailyStatusPage())
+                {
+                    console.log('calling pageLoaded');
+                    //dsr.addWarningFiredListener(warningFiredEventHandler);
+
+                    chrome.runtime.sendMessage({ "eventName": "pageLoaded", "logonName": logonName, "settings": settings });
+                }
+
+                if (settings.enabled
+                    && typeof settings.lastAllowedTime === 'number'
+                    && Date.now() - settings.lastAllowedTime < sevenDays
+                    && typeof settings.lastAllowedUsername === 'string'
+                    && settings.lastAllowedUsername.toLowerCase() == logonName.toLowerCase()) {
+
+                    var request = { eventName: "settingsUpdated", settings: settings };
+                    if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);
+
+                    window.postMessage(request, window.location.href);
+
+                    /*
+                    if (dsr.isValidDailyStatusPage()) {
+                        dsr.refresh(settings);
                     }
+                        */
 
-                    if (settings.enabled
-                        && typeof settings.lastAllowedTime === 'number'
-                        && Date.now() - settings.lastAllowedTime < sevenDays
-                        && typeof settings.lastAllowedUsername === 'string'
-                        && settings.lastAllowedUsername.toLowerCase() == logonName.toLowerCase()) {
-
-                        var request = { eventName: "settingsUpdated", settings: settings };
-                        if (logVerbose) console.log('sending message to window:' + JSON.stringify(request) + ', ' + window.location.href);
-
-                        window.postMessage(request, window.location.href);
-
-                        if (dsr.isValidDailyStatusPage()) {
-                            dsr.refresh(settings);
-                        }
-
-                        if (misc.isValidPage()) {
-                            misc.refresh(settings);
-                        }
+                    if (misc.isValidPage()) {
+                        misc.refresh(settings);
                     }
                 }
             });
@@ -132,6 +135,11 @@ $(function ()
     chrome.runtime.onMessage.addListener(onMessage);
 
     function displayNewProgramInfo(programInfo) {
+        const containerCollection = document.querySelectorAll('div#dailyStatus > table > tbody > tr > td');
+        if (typeof containerCollection !== 'object') return;
+        if (containerCollection.length !== 2) return;
+        const container = containerCollection[1];
+
         var alert = $(document.createElement('div')).addClass('ntdsrmods-alert');
         var heading = $(document.createElement('div'))
             .addClass('ntdsrmods-alert-heading')
@@ -160,6 +168,7 @@ $(function ()
         links.append(info, close);
         alert.append(heading, message, links);
 
-        $('#ctl00_ContentPlaceHolder2_dgResults').after(alert);
+        $(container).append(alert);
+        //$('#ctl00_ContentPlaceHolder2_dgResults').after(alert);
     }
 });

@@ -6,11 +6,11 @@ body {
 	font-size: 1em;
 	padding: 20px;
 	width: 500px;
-	/*height: 610px;*/
+	/* height: 610px; */
 }
 
 #tabs {
-	height: 400px;
+	/* height: 400px; */
 	margin-bottom: 10px;
 }
 
